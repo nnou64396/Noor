@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -38,12 +36,10 @@ import com.noor.islamic.R
 import com.noor.islamic.domain.model.Language
 import com.noor.islamic.ui.components.NoorDotsIndicator
 import com.noor.islamic.ui.components.NoorIslamicMotif
-import com.noor.islamic.ui.components.NoorLogo
-import com.noor.islamic.ui.components.NoorOrnamentalDivider
+import com.noor.islamic.ui.components.NoorFullLogo
 import com.noor.islamic.ui.components.NoorPrimaryButton
 import com.noor.islamic.ui.components.NoorSettingRow
 import com.noor.islamic.ui.theme.NoorDimens
-import com.noor.islamic.ui.theme.noorDisplay
 import com.noor.islamic.ui.theme.noorLargeTitle
 import kotlinx.coroutines.launch
 
@@ -119,28 +115,15 @@ private fun BrandPage() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        NoorLogo(
-            modifier = Modifier.size(NoorDimens.Logo),
-            cutoutColor = MaterialTheme.colorScheme.background,
-        )
-        Spacer(Modifier.height(NoorDimens.Xl))
+        NoorFullLogo()
+        Spacer(Modifier.height(NoorDimens.Lg))
 
-        Text(
-            text = stringResource(R.string.onboarding_title),
-            style = MaterialTheme.typography.noorDisplay,
-            color = MaterialTheme.colorScheme.secondary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Spacer(Modifier.height(NoorDimens.Sm))
         Text(
             text = stringResource(R.string.onboarding_tagline),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(NoorDimens.Lg))
-        NoorOrnamentalDivider(modifier = Modifier.width(112.dp))
     }
 }
 
