@@ -1,5 +1,7 @@
 package com.noor.islamic.data.local.athkar
 
+import com.noor.islamic.domain.model.athkar.DhikrCount
+
 /**
  * Deterministic acceptance rules for a bundled adhkar corpus.
  *
@@ -11,8 +13,9 @@ package com.noor.islamic.data.local.athkar
  *
  * The rules exist to catch the things a human reviewer cannot eyeball reliably
  * across a large file: duplicate ids, blank text, dhikr pointing at a category
- * that does not exist, non-positive repetition counts, colliding ordering, a
- * declared total that disagrees with the payload, and missing attribution.
+ * that does not exist, a prescribed repetition count that is not a real count,
+ * colliding ordering, a declared total that disagrees with the payload, and
+ * missing attribution.
  */
 class AthkarCorpusValidator(
     /**
@@ -103,8 +106,14 @@ class AthkarCorpusValidator(
                 problems += "$label: categoryId '${dhikr.categoryId}' is not declared in categories"
             }
 
-            if (dhikr.repeatCount <= 0) {
-                problems += "$label: repeatCount must be > 0 (was ${dhikr.repeatCount})"
+            when (val count = dhikr.repeatCount) {
+                is DhikrCount.Unspecified -> Unit
+
+                is DhikrCount.Prescribed ->
+                    if (count.value <= 0) {
+                        problems += "$label: repeatCount must be > 0 when a count is " +
+                            "prescribed (was ${count.value}); use null for no prescribed count"
+                    }
             }
 
             if (dhikr.reference.isNullOrBlank()) {

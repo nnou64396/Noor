@@ -113,11 +113,17 @@ private fun AthkarCategoryCard(
     onClick: () -> Unit,
 ) {
     val title = stringResource(athkarCategoryLabelRes(item.category.id))
-    val summary = stringResource(
-        R.string.athkar_progress_fmt,
-        item.progress.completedDhikr,
-        item.progress.totalDhikr,
-    )
+    val summary = if (item.progress.hasPrescribedCounts) {
+        stringResource(
+            R.string.athkar_progress_fmt,
+            item.progress.completedDhikr,
+            item.progress.prescribedDhikr,
+        )
+    } else {
+        // No dhikr here has a prescribed count, so a completed fraction would be
+        // built on a target that does not exist.
+        stringResource(R.string.athkar_category_no_prescribed_count)
+    }
     val accessibility = stringResource(R.string.athkar_category_open_desc, title, summary)
 
     NoorGlassCard(
@@ -146,15 +152,19 @@ private fun AthkarCategoryCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.size(NoorDimens.Sm))
-                LinearProgressIndicator(
-                    progress = { item.progress.fraction },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clearAndSetSemantics { }
-                        .testTag("athkar_category_progress_${item.category.id}"),
-                    color = MaterialTheme.colorScheme.secondary,
-                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                )
+                // Shown only against a real denominator, so the bar can never imply
+                // progress towards a count the corpus does not prescribe.
+                if (item.progress.hasPrescribedCounts) {
+                    LinearProgressIndicator(
+                        progress = { item.progress.fraction },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clearAndSetSemantics { }
+                            .testTag("athkar_category_progress_${item.category.id}"),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    )
+                }
             }
             Spacer(Modifier.size(NoorDimens.Md))
             Icon(

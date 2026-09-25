@@ -61,10 +61,15 @@
     <string name="athkar_category_unavailable">This category has no adhkar.</string>
     <string name="athkar_progress_fmt">%1$d of %2$d completed</string>
     <string name="athkar_category_progress_fmt">%1$d of %2$d adhkar</string>
+    <string name="athkar_category_progress_prescribed_fmt">%1$d of %2$d adhkar with a prescribed count</string>
+    <string name="athkar_category_no_prescribed_count">No adhkar with a prescribed count in this category</string>
     <string name="athkar_repeat_of_fmt">Repeat: %1$d</string>
+    <string name="athkar_no_prescribed_count">No prescribed count</string>
+    <string name="athkar_count_only_fmt">Count: %1$d</string>
     <string name="athkar_remaining_fmt">Repeated %1$d of %2$d</string>
     <string name="athkar_completed_fmt">Completed %1$d of %2$d</string>
     <string name="athkar_repeat_desc">Repeat %1$d times, %2$d to go. Tap to count one.</string>
+    <string name="athkar_repeat_desc_no_target">No prescribed count. Current count %1$d. Tap to count one.</string>
     <string name="athkar_reset_dhikr">Reset this dhikr</string>
     <string name="athkar_reset_category">Reset this category</string>
     <string name="athkar_category_open_desc">%1$s, %2$s. Open to start counting.</string>

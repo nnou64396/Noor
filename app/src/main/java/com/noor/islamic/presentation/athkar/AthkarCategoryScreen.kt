@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noor.islamic.R
+import com.noor.islamic.domain.model.athkar.DhikrProgress
 import com.noor.islamic.ui.components.NoorEmptyState
 import com.noor.islamic.ui.components.NoorGlassCard
 import com.noor.islamic.ui.components.NoorOrnamentalDivider
@@ -48,10 +49,11 @@ import com.noor.islamic.ui.theme.noorDisplay
 /**
  * The adhkar of one category, in source order.
  *
- * Each card shows the required repetition count, how many are left, and whether
- * the dhikr is finished. Repetition only advances on an explicit tap and is
- * clamped to the source's count, and a per-card reset keeps a mis-tap easy to
- * undo.
+ * Each card shows the repetition count the source prescribes, how many are left
+ * and whether the dhikr is finished — or, when the source prescribes no count,
+ * an honest count-only presentation with no target, no remaining figure, no
+ * progress bar and no completion mark. Repetition only advances on an explicit
+ * tap, and a per-card reset keeps a mis-tap easy to undo.
  */
 @Composable
 fun AthkarCategoryScreen(
@@ -153,11 +155,17 @@ private fun CategoryHeader(
         }
 
         if (ready != null && ready.totalCount > 0) {
-            val summary = stringResource(
-                R.string.athkar_category_progress_fmt,
-                ready.completedCount,
-                ready.totalCount,
-            )
+            val summary = if (ready.hasPrescribedCounts) {
+                stringResource(
+                    R.string.athkar_category_progress_prescribed_fmt,
+                    ready.completedCount,
+                    ready.prescribedCount,
+                )
+            } else {
+                // Nothing here has a prescribed count, so there is no honest "x of y"
+                // to show: say so rather than render an empty progress bar.
+                stringResource(R.string.athkar_category_no_prescribed_count)
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -183,17 +191,21 @@ private fun CategoryHeader(
                     )
                 }
             }
-            LinearProgressIndicator(
-                progress = {
-                    if (ready.totalCount == 0) 0f
-                    else ready.completedCount.toFloat() / ready.totalCount
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("athkar_category_progress"),
-                color = MaterialTheme.colorScheme.secondary,
-                trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            )
+            // Drawn only when there is a target to progress towards: a bar that can
+            // never move would read as 0% and imply a requirement that does not exist.
+            if (ready.hasPrescribedCounts) {
+                LinearProgressIndicator(
+                    progress = {
+                        if (ready.prescribedCount == 0) 0f
+                        else ready.completedCount.toFloat() / ready.prescribedCount
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("athkar_category_progress"),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                )
+            }
             Spacer(Modifier.size(NoorDimens.Sm))
             NoorOrnamentalDivider()
         }
@@ -207,20 +219,26 @@ private fun DhikrCard(
     onReset: () -> Unit,
 ) {
     val dhikr = item.dhikr
-    val counterLabel = if (item.isComplete) {
-        stringResource(R.string.athkar_completed_fmt, dhikr.repeatCount, dhikr.repeatCount)
+    val target = DhikrProgress.targetOf(dhikr.repeatCount)
+
+    val counterLabel = if (target == null) {
+        // Count only: the user keeps a real total, but the app states no target.
+        stringResource(R.string.athkar_count_only_fmt, item.completedRepetitions)
+    } else if (item.isComplete) {
+        stringResource(R.string.athkar_completed_fmt, target, target)
+    } else {
+        stringResource(R.string.athkar_remaining_fmt, item.completedRepetitions, target)
+    }
+
+    val tapLabel = if (target == null) {
+        stringResource(R.string.athkar_repeat_desc_no_target, item.completedRepetitions)
     } else {
         stringResource(
-            R.string.athkar_remaining_fmt,
-            item.completedRepetitions,
-            dhikr.repeatCount,
+            R.string.athkar_repeat_desc,
+            target,
+            item.remaining ?: 0,
         )
     }
-    val tapLabel = stringResource(
-        R.string.athkar_repeat_desc,
-        dhikr.repeatCount,
-        item.remaining,
-    )
     val resetLabel = stringResource(R.string.athkar_reset_dhikr)
 
     NoorGlassCard(
@@ -239,7 +257,11 @@ private fun DhikrCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(R.string.athkar_repeat_of_fmt, dhikr.repeatCount),
+                    text = if (target == null) {
+                        stringResource(R.string.athkar_no_prescribed_count)
+                    } else {
+                        stringResource(R.string.athkar_repeat_of_fmt, target)
+                    },
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.secondary,
                 )
@@ -302,15 +324,20 @@ private fun DhikrCard(
 
             Spacer(Modifier.size(NoorDimens.Md))
 
-            LinearProgressIndicator(
-                progress = { item.fraction },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("athkar_dhikr_progress_${dhikr.id}"),
-                color = MaterialTheme.colorScheme.secondary,
-                trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            )
-            Spacer(Modifier.size(NoorDimens.Xs))
+            // A progress bar exists only for a prescribed count. item.fraction is null
+            // exactly when there is no target, so nothing here can render a stuck 0%.
+            item.fraction?.let { fraction ->
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("athkar_dhikr_progress_${dhikr.id}"),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                )
+                Spacer(Modifier.size(NoorDimens.Xs))
+            }
+
             Text(
                 text = counterLabel,
                 style = MaterialTheme.typography.labelMedium,

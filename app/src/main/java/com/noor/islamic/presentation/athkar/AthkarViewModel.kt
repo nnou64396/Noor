@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.noor.islamic.domain.model.athkar.CategoryProgress
 import com.noor.islamic.domain.model.athkar.Dhikr
 import com.noor.islamic.domain.model.athkar.DhikrCategory
+import com.noor.islamic.domain.model.athkar.DhikrProgress
 import com.noor.islamic.domain.repository.AthkarProgressRepository
 import com.noor.islamic.domain.repository.AthkarProgressSnapshot
 import com.noor.islamic.domain.repository.AthkarProvenance
@@ -104,6 +105,7 @@ class AthkarViewModel(
                         categoryId = category.id,
                         totalDhikr = dhikr.size,
                         completedDhikr = dhikr.count { isComplete(it, progress) },
+                        prescribedDhikr = dhikr.count { DhikrProgress.targetOf(it.repeatCount) != null },
                     ),
                 )
             }
@@ -123,7 +125,12 @@ class AthkarViewModel(
     )
 
     private companion object {
+
+        /**
+         * Shared with the Home summary so both screens agree on what "finished"
+         * means: only a dhikr with a prescribed count can ever be complete.
+         */
         fun isComplete(dhikr: Dhikr, progress: AthkarProgressSnapshot): Boolean =
-            dhikr.repeatCount > 0 && progress.repetitionsOf(dhikr.id) >= dhikr.repeatCount
+            DhikrProgress.isComplete(dhikr.repeatCount, progress.repetitionsOf(dhikr.id))
     }
 }

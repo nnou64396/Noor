@@ -9,6 +9,7 @@ import com.noor.islamic.data.local.db.practice.TasbihDao
 import com.noor.islamic.data.local.db.practice.TasbihSessionEntity
 import com.noor.islamic.domain.model.athkar.Dhikr
 import com.noor.islamic.domain.model.athkar.DhikrCategory
+import com.noor.islamic.domain.model.athkar.DhikrCount
 import com.noor.islamic.domain.model.tasbih.TasbihSession
 import com.noor.islamic.domain.repository.AthkarProvenance
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -36,9 +38,9 @@ class PracticeRepositoriesTest {
         val dao = FakeAthkarProgressDao()
         val repository = athkarRepository(dao)
 
-        repository.record("morning.a", completedRepetitions = 2, target = 3)
-        repository.record("morning.b", completedRepetitions = 1, target = 3)
-        repository.record("morning.a", completedRepetitions = 3, target = 3)
+        repository.record("morning.a", completedRepetitions = 2, count = DhikrCount.Prescribed(3))
+        repository.record("morning.b", completedRepetitions = 1, count = DhikrCount.Prescribed(3))
+        repository.record("morning.a", completedRepetitions = 3, count = DhikrCount.Prescribed(3))
 
         val progress = repository.observeProgress().first()
         assertEquals(3, progress.repetitionsOf("morning.a"))
@@ -47,26 +49,42 @@ class PracticeRepositoriesTest {
     }
 
     @Test
-    fun record_clampsProgressToTheDhikrTarget() = runTest {
+    fun record_clampsProgressToThePrescribedTarget() = runTest {
         val dao = FakeAthkarProgressDao()
         val repository = athkarRepository(dao)
 
-        repository.record("morning.a", completedRepetitions = 99, target = 3)
+        repository.record("morning.a", completedRepetitions = 99, count = DhikrCount.Prescribed(3))
         assertEquals(3, repository.observeProgress().first().repetitionsOf("morning.a"))
 
-        repository.record("morning.a", completedRepetitions = -5, target = 3)
+        repository.record("morning.a", completedRepetitions = -5, count = DhikrCount.Prescribed(3))
         assertEquals(0, repository.observeProgress().first().repetitionsOf("morning.a"))
     }
 
     @Test
-    fun record_neverStoresAZeroTarget() = runTest {
+    fun record_appliesNoCeilingWhenNoCountIsPrescribed() = runTest {
         val dao = FakeAthkarProgressDao()
+        val repository = athkarRepository(dao)
 
-        athkarRepository(dao).record("morning.a", completedRepetitions = 5, target = 0)
+        // An unspecified count must never be clamped to an invented target, and must
+        // never be silently stored as 1 the way `target.coerceAtLeast(1)` did.
+        listOf(1, 2, 3, 7, 33, 100, 5_000).forEach { counted ->
+            repository.record("morning.a", completedRepetitions = counted, count = DhikrCount.Unspecified)
+            assertEquals(counted, repository.observeProgress().first().repetitionsOf("morning.a"))
+        }
+    }
 
-        // A stored row must always be saturating below a real target, so a corpus
-        // that (wrongly) declares 0 cannot be stored unclamped.
-        assertTrue(dao.rows.value.single().completedRepetitions in 0..1)
+    @Test
+    fun record_neverSubstitutesACommonCountForAnUnspecifiedOne() = runTest {
+        val dao = FakeAthkarProgressDao()
+        val repository = athkarRepository(dao)
+
+        repository.record("morning.a", completedRepetitions = 40, count = DhikrCount.Unspecified)
+
+        val stored = repository.observeProgress().first().repetitionsOf("morning.a")
+        listOf(1, 3, 7, 33, 100).forEach { invented ->
+            assertNotEquals("Unspecified must not be stored as $invented", invented, stored)
+        }
+        assertEquals(40, stored)
     }
 
     @Test
@@ -74,8 +92,8 @@ class PracticeRepositoriesTest {
         val dao = FakeAthkarProgressDao()
         val repository = athkarRepository(dao)
 
-        repository.record("morning.a", completedRepetitions = 1, target = 3)
-        repository.record("evening.c", completedRepetitions = 1, target = 3)
+        repository.record("morning.a", completedRepetitions = 1, count = DhikrCount.Prescribed(3))
+        repository.record("evening.c", completedRepetitions = 1, count = DhikrCount.Prescribed(3))
 
         assertEquals("morning", dao.rows.value.first { it.dhikrId == "morning.a" }.categoryId)
         assertEquals("evening", dao.rows.value.first { it.dhikrId == "evening.c" }.categoryId)
@@ -85,8 +103,8 @@ class PracticeRepositoriesTest {
     fun resetDhikr_clearsOnlyThatDhikr() = runTest {
         val dao = FakeAthkarProgressDao()
         val repository = athkarRepository(dao)
-        repository.record("morning.a", completedRepetitions = 1, target = 3)
-        repository.record("morning.b", completedRepetitions = 1, target = 3)
+        repository.record("morning.a", completedRepetitions = 1, count = DhikrCount.Prescribed(3))
+        repository.record("morning.b", completedRepetitions = 1, count = DhikrCount.Prescribed(3))
 
         repository.resetDhikr("morning.a")
 
@@ -99,9 +117,9 @@ class PracticeRepositoriesTest {
     fun resetCategory_clearsTheCategoryAndTheGivenIds() = runTest {
         val dao = FakeAthkarProgressDao()
         val repository = athkarRepository(dao)
-        repository.record("morning.a", completedRepetitions = 1, target = 3)
-        repository.record("morning.b", completedRepetitions = 1, target = 3)
-        repository.record("evening.c", completedRepetitions = 1, target = 3)
+        repository.record("morning.a", completedRepetitions = 1, count = DhikrCount.Prescribed(3))
+        repository.record("morning.b", completedRepetitions = 1, count = DhikrCount.Prescribed(3))
+        repository.record("evening.c", completedRepetitions = 1, count = DhikrCount.Prescribed(3))
 
         repository.resetCategory("morning", listOf("morning.a", "morning.b"))
 
@@ -115,7 +133,7 @@ class PracticeRepositoriesTest {
     fun resetAll_clearsEverything() = runTest {
         val dao = FakeAthkarProgressDao()
         val repository = athkarRepository(dao)
-        repository.record("morning.a", completedRepetitions = 1, target = 3)
+        repository.record("morning.a", completedRepetitions = 1, count = DhikrCount.Prescribed(3))
 
         repository.resetAll()
 
@@ -236,7 +254,7 @@ class PracticeRepositoriesTest {
         categoryId = categoryId,
         arabicText = "سُبْحَانَ اللَّهِ",
         translation = null,
-        repeatCount = repeat,
+        repeatCount = DhikrCount.Prescribed(repeat),
         reference = "Reference",
         order = order,
     )

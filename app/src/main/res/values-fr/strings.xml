@@ -61,10 +61,15 @@
     <string name="athkar_category_unavailable">Cette cat&#233;gorie ne contient aucun dhikr.</string>
     <string name="athkar_progress_fmt">%1$d sur %2$d termin&#233;s</string>
     <string name="athkar_category_progress_fmt">%1$d dhkar sur %2$d</string>
+    <string name="athkar_category_progress_prescribed_fmt">%1$d dhkar sur %2$d avec un nombre pr&#233;scrit</string>
+    <string name="athkar_category_no_prescribed_count">Aucun dhikr avec un nombre pr&#233;scrit dans cette cat&#233;gorie</string>
     <string name="athkar_repeat_of_fmt">R&#233;p&#233;titions : %1$d</string>
+    <string name="athkar_no_prescribed_count">Aucun nombre pr&#233;scrit</string>
+    <string name="athkar_count_only_fmt">Compte : %1$d</string>
     <string name="athkar_remaining_fmt">R&#233;p&#233;t&#233; %1$d sur %2$d</string>
     <string name="athkar_completed_fmt">Termin&#233; %1$d sur %2$d</string>
     <string name="athkar_repeat_desc">R&#233;p&#233;ter %1$d fois, encore %2$d. Appuyez pour compter.</string>
+    <string name="athkar_repeat_desc_no_target">Aucun nombre pr&#233;scrit. Compte actuel %1$d. Appuyez pour compter.</string>
     <string name="athkar_reset_dhikr">R&#233;initialiser ce dhikr</string>
     <string name="athkar_reset_category">R&#233;initialiser cette cat&#233;gorie</string>
     <string name="athkar_category_open_desc">%1$s, %2$s. Ouvrir pour commencer.</string>

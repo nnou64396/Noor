@@ -2,6 +2,7 @@ package com.noor.islamic.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.noor.islamic.domain.model.athkar.DhikrProgress
 import com.noor.islamic.domain.model.tasbih.TasbihSession
 import com.noor.islamic.domain.repository.AthkarProgressRepository
 import com.noor.islamic.domain.repository.DhikrRepository
@@ -14,9 +15,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 /**
- * A compact Phase 5 summary for Home: how many adhkar are finished and where the
- * Tasbih count stands. Null until both sources have answered, so Home can simply
- * skip the card instead of showing a half-loaded figure.
+ * A compact Phase 5 summary for Home: how many adhkar with a prescribed
+ * repetition count are finished and where the Tasbih count stands. Null until
+ * both sources have answered, so Home can simply skip the card instead of
+ * showing a half-loaded figure.
  */
 data class HomePracticeUiState(
     val completedDhikr: Int = 0,
@@ -40,16 +42,24 @@ class HomePracticeViewModel(
         viewModelScope.launch {
             try {
                 val dhikr = dhikrRepository.allDhikr()
+                // Only dhikr with a prescribed count contribute to the Home card:
+                // a dhikr with no count can never complete, so including it would
+                // either inflate the total or force a completion figure that the
+                // corpus never supported.
+                val prescribed = dhikr.filter { DhikrProgress.targetOf(it.repeatCount) != null }
                 combine(
                     progressRepository.observeProgress(),
                     tasbihRepository.observeSession(),
                 ) { progress, tasbih -> progress to tasbih }
                     .collect { (progress, tasbih) ->
                         _uiState.value = HomePracticeUiState(
-                            completedDhikr = dhikr.count { item ->
-                                progress.repetitionsOf(item.id) >= item.repeatCount
+                            completedDhikr = prescribed.count { item ->
+                                DhikrProgress.isComplete(
+                                    item.repeatCount,
+                                    progress.repetitionsOf(item.id),
+                                )
                             },
-                            totalDhikr = dhikr.size,
+                            totalDhikr = prescribed.size,
                             tasbih = tasbih,
                         )
                     }

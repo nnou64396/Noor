@@ -2,6 +2,7 @@ package com.noor.islamic.data.local.athkar
 
 import com.noor.islamic.domain.model.athkar.Dhikr
 import com.noor.islamic.domain.model.athkar.DhikrCategory
+import com.noor.islamic.domain.model.athkar.DhikrCount
 import com.noor.islamic.domain.repository.AthkarProvenance
 import org.json.JSONArray
 import org.json.JSONObject
@@ -72,10 +73,39 @@ class AthkarCorpusParser(
         categoryId = optStringOrThrow("categoryId"),
         arabicText = optStringOrThrow("arabicText"),
         translation = optStringOrEmpty("translation").ifEmpty { null },
-        repeatCount = optInt("repeatCount", 0),
+        repeatCount = optDhikrCountOrThrow("repeatCount"),
         reference = optStringOrEmpty("reference").ifEmpty { null },
         order = optInt("order", 0),
     )
+
+    /**
+     * Reads the declared repetition count as one of exactly three states.
+     *
+     * The JSON type is checked rather than coerced. `org.json`'s `optInt` would
+     * happily turn the string `"33"` and the number `33.5` into `33`, letting a
+     * malformed count reach the corpus as if it were a real prescribed value, so
+     * only a genuine JSON integer is accepted here.
+     *
+     * A declared integer is carried through verbatim, including `0` and negative
+     * values, because those are semantically invalid rather than malformed and
+     * `AthkarCorpusValidator` rejects them with a precise reason — the same
+     * parse-then-validate split already used for `order`. An explicit `null`
+     * means the source prescribes no count. An absent field is a format error:
+     * a corpus has to state which of the two semantics it means rather than let
+     * a missing key be guessed at.
+     */
+    private fun JSONObject.optDhikrCountOrThrow(key: String): DhikrCount {
+        if (!has(key)) throw AthkarCorpusFormatException("missing $key")
+        if (isNull(key)) return DhikrCount.Unspecified
+
+        val declared = opt(key)
+        if (declared !is Int) {
+            throw AthkarCorpusFormatException(
+                "$key must be a positive integer or null (was ${declared.javaClass.simpleName})",
+            )
+        }
+        return DhikrCount.Prescribed(declared)
+    }
 
     private fun JSONObject.optIntOrThrow(key: String): Int =
         if (has(key)) optInt(key) else throw AthkarCorpusFormatException("missing $key")
