@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Android 12+ (API 31) system splash. Uses the platform's own splash
-         implementation, so there is no extra dependency and no animation.
-         Shows the crescent + star mark on the Noor brand background; the
-         wordmark and rule are intentionally omitted. -->
+    <!-- Android 12+ system splash uses the supplied Noor emblem. -->
     <style name="Theme.Noor" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
         <item name="android:windowSplashScreenBackground">@color/splash_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
     </style>
 </resources>
