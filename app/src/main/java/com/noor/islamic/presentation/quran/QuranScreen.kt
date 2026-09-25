@@ -19,7 +19,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
+import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -54,6 +57,8 @@ import com.noor.islamic.ui.theme.noorTitle
 fun QuranScreen(
     onSurahClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    onSearchClick: () -> Unit = {},
+    onBookmarksClick: () -> Unit = {},
 ) {
     val viewModel: QuranViewModel = viewModel {
         QuranViewModel(ServiceLocator.quranRepository)
@@ -64,6 +69,8 @@ fun QuranScreen(
         state = state,
         onSurahClick = onSurahClick,
         onRetry = viewModel::retry,
+        onSearchClick = onSearchClick,
+        onBookmarksClick = onBookmarksClick,
         modifier = modifier,
     )
 }
@@ -74,12 +81,17 @@ private fun QuranScreenContent(
     onSurahClick: (Int) -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
+    onSearchClick: () -> Unit = {},
+    onBookmarksClick: () -> Unit = {},
 ) {
     NoorScreenContainer(
         modifier = modifier.testTag("quran_screen"),
         scrollable = false,
     ) {
-        QuranHeader()
+        QuranHeader(
+            onSearchClick = onSearchClick,
+            onBookmarksClick = onBookmarksClick,
+        )
 
         when (state) {
             QuranUiState.Loading -> QuranLoadingState()
@@ -94,7 +106,12 @@ private fun QuranScreenContent(
 }
 
 @Composable
-private fun QuranHeader() {
+private fun QuranHeader(
+    onSearchClick: () -> Unit,
+    onBookmarksClick: () -> Unit,
+) {
+    val searchLabel = stringResource(R.string.quran_action_search)
+    val bookmarksLabel = stringResource(R.string.quran_action_bookmarks)
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -112,6 +129,32 @@ private fun QuranHeader() {
                     text = stringResource(R.string.quran_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            IconButton(
+                onClick = onSearchClick,
+                modifier = Modifier
+                    .size(48.dp)
+                    .testTag("quran_search_button")
+                    .semantics { contentDescription = searchLabel },
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
+                )
+            }
+            IconButton(
+                onClick = onBookmarksClick,
+                modifier = Modifier
+                    .size(48.dp)
+                    .testTag("quran_bookmarks_button")
+                    .semantics { contentDescription = bookmarksLabel },
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Rounded.Bookmark,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
                 )
             }
             Surface(

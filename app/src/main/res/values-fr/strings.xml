@@ -92,6 +92,76 @@
     <string name="quran_sajda">Position de la sajda</string>
     <string name="quran_source_attribution">Texte du Coran : Tanzil Uthmani v1.1 · tanzil.net</string>
     <string name="quran_source_copyright">Copyright © 2007–2026 Projet Tanzil · CC BY 3.0</string>
+
+    <!-- Phase 4: reader actions -->
+    <string name="quran_reader_current_ayah">Verset actuel</string>
+    <string name="quran_reader_bookmark_add">Ajouter un signet à ce verset</string>
+    <string name="quran_reader_bookmark_remove">Retirer le signet</string>
+    <string name="quran_reader_ayah_accessibility_fmt">Verset %1$d, %2$s</string>
+    <string name="quran_action_search">Recherche</string>
+    <string name="quran_action_bookmarks">Signets</string>
+
+    <!-- Phase 4: recitation -->
+    <string name="quran_audio_play">Lecture</string>
+    <string name="quran_audio_pause">Pause</string>
+    <string name="quran_audio_next">Verset suivant</string>
+    <string name="quran_audio_previous">Verset précédent</string>
+    <string name="quran_audio_repeat">Répéter la sourate</string>
+    <string name="quran_audio_reciter_label">Récitateur</string>
+    <string name="quran_audio_reciter_fmt">Récitateur : %1$s</string>
+    <string name="quran_audio_reciter_sheet_title">Choisir le récitateur</string>
+    <string name="quran_audio_reciter_sheet_note">La récitation est diffusée depuis Internet ; aucun fichier n\'est téléchargé pour une utilisation hors ligne.</string>
+    <string name="quran_audio_reciter_selected">Récitateur sélectionné</string>
+    <string name="quran_audio_streaming_note">Diffusion depuis everyayah.com — nécessite une connexion Internet.</string>
+    <string name="quran_audio_position_fmt">%1$s / %2$s</string>
+    <string name="quran_audio_error_network">Aucune connexion Internet. La récitation est indisponible jusqu\'au rétablissement de la connexion.</string>
+    <string name="quran_audio_error_source">L\'audio de ce verset n\'a pas pu être chargé. Réessayez ou choisissez un autre récitateur.</string>
+    <string name="quran_audio_error_unknown">Un problème audio est survenu. Le texte du Coran n\'est pas affecté.</string>
+
+    <!-- Phase 4: reciters and recitation styles -->
+    <string name="quran_reciter_alafasy">Mishary Alafasy</string>
+    <string name="quran_reciter_abdul_basit">Abdul Basit Abdus-Samad</string>
+    <string name="quran_reciter_husary">Mahmoud Khalil Al-Husary</string>
+    <string name="quran_reciter_minshawy">Mohamed Al-Minshawi</string>
+    <string name="quran_reciter_as_sudais">Abdurrahmaan As-Sudais</string>
+    <string name="quran_reciter_ayyoub">Muhammad Ayyoub</string>
+    <string name="quran_reciter_ad_dussary">Yasser Ad-Dussary</string>
+    <string name="quran_style_murattal">Murattal</string>
+    <string name="quran_style_mujawwad">Mujawwad</string>
+    <string name="quran_style_muallim">Muallim</string>
+
+    <!-- Phase 4: search -->
+    <string name="quran_search_title">Rechercher dans le Coran</string>
+    <string name="quran_search_hint">Saisissez un mot ou un numéro de verset</string>
+    <string name="quran_search_prompt_body">Recherchez dans le texte du Coran hors ligne, sans connexion Internet.</string>
+    <string name="quran_search_loading">Recherche en cours…</string>
+    <string name="quran_search_clear">Effacer la recherche</string>
+    <string name="quran_search_close">Fermer la recherche</string>
+    <string name="quran_search_back">Retour au Coran</string>
+    <string name="quran_search_input_accessibility">Texte recherché</string>
+    <string name="quran_search_results_count_fmt">%1$d résultats</string>
+    <string name="quran_search_empty_title">Aucun résultat</string>
+    <string name="quran_search_empty_body">Aucun verset ne correspond à « %1$s ». Essayez un autre mot ou une autre orthographe.</string>
+    <string name="quran_search_error_title">Recherche indisponible</string>
+    <string name="quran_search_error_body">Une erreur est survenue lors de la recherche dans le Coran local.</string>
+    <string name="quran_search_result_accessibility_fmt">Sourate %1$s, verset %2$d</string>
+
+    <!-- Phase 4: bookmarks -->
+    <string name="quran_bookmarks_title">Signets</string>
+    <string name="quran_bookmarks_back">Retour au Coran</string>
+    <string name="quran_bookmarks_loading">Chargement des signets…</string>
+    <string name="quran_bookmarks_empty_title">Aucun signet</string>
+    <string name="quran_bookmarks_empty_body">Ajoutez un signet pendant la lecture et il apparaîtra ici.</string>
+    <string name="quran_bookmarks_error_title">Signets indisponibles</string>
+    <string name="quran_bookmarks_error_body">Une erreur est survenue lors du chargement de vos signets enregistrés.</string>
+    <string name="quran_bookmarks_count_fmt">%1$d signets</string>
+    <string name="quran_bookmarks_open_fmt">Ouvrir la sourate %1$s, verset %2$d</string>
+    <string name="quran_bookmarks_remove_fmt">Retirer le signet de la sourate %1$s, verset %2$d</string>
+
+    <!-- Phase 4: home -->
+    <string name="home_continue_reading">Continuer la lecture</string>
+    <string name="home_continue_reading_fmt">%1$s · Verset %2$d</string>
+    <string name="home_now_playing_fmt">Lecture en cours : %1$s · Verset %2$d</string>
     <string name="prayer_title">Heures de prière</string>
     <string name="athkar_title">Adhkar</string>
     <string name="qibla_title">Qibla</string>

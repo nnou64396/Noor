@@ -13,11 +13,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
+import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.BookmarkBorder
+import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -27,7 +33,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -35,6 +43,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
@@ -57,16 +67,24 @@ import com.noor.islamic.ui.theme.NoorFonts
 import com.noor.islamic.ui.theme.noorDisplay
 import com.noor.islamic.ui.theme.noorTitle
 
+/** Header + trailing attribution occupy the first and last items of the list. */
+private const val LEADING_HEADER_ITEMS = 1
+
 @Composable
 fun QuranReaderScreen(
     surahNumber: Int,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    initialAyahNumber: Int? = null,
 ) {
     val viewModel: QuranReaderViewModel = viewModel {
         QuranReaderViewModel(
             repository = ServiceLocator.quranRepository,
             surahNumber = surahNumber,
+            initialAyahNumber = initialAyahNumber,
+            bookmarks = ServiceLocator.quranBookmarksRepository,
+            readingProgress = ServiceLocator.readingProgressRepository,
+            audio = ServiceLocator.quranAudioController,
         )
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -74,8 +92,21 @@ fun QuranReaderScreen(
     QuranReaderScreenContent(
         surahNumber = surahNumber,
         state = state,
-        onBack = onBack,
+        reciters = ServiceLocator.quranAudioController.reciters,
+        onBack = {
+            viewModel.flushProgress()
+            onBack()
+        },
         onRetry = viewModel::retry,
+        onAyahClick = viewModel::selectAyah,
+        onBookmarkClick = viewModel::toggleBookmarkOf,
+        onPlayAyah = viewModel::playAyah,
+        onTogglePlayback = viewModel::togglePlayback,
+        onNextAyah = viewModel::skipToNextAyah,
+        onPreviousAyah = viewModel::skipToPreviousAyah,
+        onSeek = viewModel::seekAudio,
+        onRepeatChange = viewModel::setRepeatCurrentSurah,
+        onReciterSelected = viewModel::selectReciter,
         modifier = modifier,
     )
 }
@@ -84,10 +115,37 @@ fun QuranReaderScreen(
 private fun QuranReaderScreenContent(
     surahNumber: Int,
     state: QuranReaderUiState,
+    reciters: List<com.noor.islamic.domain.model.quran.Reciter>,
     onBack: () -> Unit,
     onRetry: () -> Unit,
+    onAyahClick: (Int) -> Unit,
+    onBookmarkClick: (Ayah) -> Unit,
+    onPlayAyah: (Ayah) -> Unit,
+    onTogglePlayback: () -> Unit,
+    onNextAyah: () -> Unit,
+    onPreviousAyah: () -> Unit,
+    onSeek: (Long) -> Unit,
+    onRepeatChange: (Boolean) -> Unit,
+    onReciterSelected: (com.noor.islamic.domain.model.quran.Reciter) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState, (state as? QuranReaderUiState.Ready)?.ayahs?.size) {
+        snapshotFlow { listState.firstVisibleItemIndex }.collect { visibleIndex ->
+            onAyahClick(visibleIndex - LEADING_HEADER_ITEMS)
+        }
+    }
+
+    LaunchedEffect((state as? QuranReaderUiState.Ready)?.currentIndex) {
+        val ready = state as? QuranReaderUiState.Ready ?: return@LaunchedEffect
+        val target = ready.currentIndex + LEADING_HEADER_ITEMS
+        val isVisible = listState.layoutInfo.visibleItemsInfo.any { it.index == target }
+        if (!isVisible) {
+            listState.animateScrollToItem(target.coerceAtLeast(0))
+        }
+    }
+
     NoorScreenContainer(
         modifier = modifier.testTag("quran_reader_screen"),
         scrollable = false,
@@ -98,14 +156,34 @@ private fun QuranReaderScreenContent(
             onBack = onBack,
         )
 
-        when (state) {
+        when (val current = state) {
             QuranReaderUiState.Loading -> ReaderLoadingState()
             QuranReaderUiState.Empty -> ReaderEmptyState()
             is QuranReaderUiState.Error -> ReaderErrorState(
-                error = state.kind,
+                error = current.kind,
                 onRetry = onRetry,
             )
-            is QuranReaderUiState.Ready -> ReaderContent(state)
+            is QuranReaderUiState.Ready -> {
+                ReaderContent(
+                    state = current,
+                    listState = listState,
+                    onAyahClick = onAyahClick,
+                    onBookmarkClick = onBookmarkClick,
+                    onPlayAyah = onPlayAyah,
+                )
+                current.audio?.let { playback ->
+                    QuranAudioBar(
+                        state = playback,
+                        reciters = reciters,
+                        onTogglePlayback = onTogglePlayback,
+                        onNext = onNextAyah,
+                        onPrevious = onPreviousAyah,
+                        onSeek = onSeek,
+                        onRepeatChange = onRepeatChange,
+                        onReciterSelected = onReciterSelected,
+                    )
+                }
+            }
         }
     }
 }
@@ -228,8 +306,15 @@ private fun readerErrorDescription(error: QuranReaderError): Int = when (error) 
 }
 
 @Composable
-private fun ColumnScope.ReaderContent(state: QuranReaderUiState.Ready) {
+private fun ColumnScope.ReaderContent(
+    state: QuranReaderUiState.Ready,
+    listState: LazyListState,
+    onAyahClick: (Int) -> Unit,
+    onBookmarkClick: (Ayah) -> Unit,
+    onPlayAyah: (Ayah) -> Unit,
+) {
     LazyColumn(
+        state = listState,
         modifier = Modifier
             .weight(1f)
             .fillMaxWidth()
@@ -250,7 +335,16 @@ private fun ColumnScope.ReaderContent(state: QuranReaderUiState.Ready) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 AyahItem(
                     ayah = ayah,
+                    isCurrent = index == state.currentIndex,
+                    isBookmarked = ayah.ayahNumberInSurah in state.bookmarkedAyahNumbers,
+                    isPlaying = state.audio?.let { playback ->
+                        playback.isPlaying &&
+                            playback.currentAyah?.globalAyahNumber == ayah.globalAyahNumber
+                    } ?: false,
                     showDivider = index < state.ayahs.lastIndex,
+                    onClick = { onAyahClick(index) },
+                    onBookmarkClick = { onBookmarkClick(ayah) },
+                    onPlayClick = { onPlayAyah(ayah) },
                 )
             }
         }
@@ -316,37 +410,96 @@ private fun ReaderHeader(surah: Surah) {
 @Composable
 private fun AyahItem(
     ayah: Ayah,
+    isCurrent: Boolean,
+    isBookmarked: Boolean,
+    isPlaying: Boolean,
     showDivider: Boolean,
+    onClick: () -> Unit,
+    onBookmarkClick: () -> Unit,
+    onPlayClick: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
+    val currentLabel = stringResource(R.string.quran_reader_current_ayah)
+    val bookmarkLabel = stringResource(
+        if (isBookmarked) R.string.quran_reader_bookmark_remove else R.string.quran_reader_bookmark_add,
+    )
+    val playLabel = stringResource(
+        if (isPlaying) R.string.quran_audio_pause else R.string.quran_audio_play,
+    )
+    val accessibilityLabel = stringResource(
+        R.string.quran_reader_ayah_accessibility_fmt,
+        ayah.ayahNumberInSurah,
+        ayah.textUthmani,
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("ayah_row_${ayah.ayahNumberInSurah}"),
+    ) {
+        Surface(
+            onClick = onClick,
+            color = if (isCurrent) {
+                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f)
+            } else {
+                MaterialTheme.colorScheme.surface
+            },
+            shape = MaterialTheme.shapes.medium,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = NoorDimens.Md),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(NoorDimens.Md),
+                .semantics(mergeDescendants = true) {
+                    contentDescription = accessibilityLabel
+                },
         ) {
-            AyahNumberMarker(number = ayah.ayahNumberInSurah)
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = ayah.textUthmani,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontFamily = NoorFonts.Display,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 26.sp,
-                        lineHeight = 52.sp,
-                        letterSpacing = 0.sp,
-                        textDirection = TextDirection.Rtl,
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Start,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = NoorDimens.Md),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(NoorDimens.Md),
+            ) {
+                AyahNumberMarker(
+                    number = ayah.ayahNumberInSurah,
+                    isCurrent = isCurrent,
+                    currentLabel = currentLabel,
                 )
-                if (ayah.hasSajdah) {
-                    Spacer(Modifier.size(NoorDimens.Xs))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start,
+                ) {
                     Text(
-                        text = stringResource(R.string.quran_sajda),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary,
+                        text = ayah.textUthmani,
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontFamily = NoorFonts.Display,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 26.sp,
+                            lineHeight = 52.sp,
+                            letterSpacing = 0.sp,
+                            textDirection = TextDirection.Rtl,
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Start,
+                    )
+                    if (ayah.hasSajdah) {
+                        Spacer(Modifier.size(NoorDimens.Xs))
+                        Text(
+                            text = stringResource(R.string.quran_sajda),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                    }
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    AyahActionButton(
+                        icon = if (isBookmarked) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,
+                        label = bookmarkLabel,
+                        testTag = "ayah_bookmark_${ayah.ayahNumberInSurah}",
+                        onClick = onBookmarkClick,
+                    )
+                    AyahActionButton(
+                        icon = if (isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                        label = playLabel,
+                        testTag = "ayah_play_${ayah.ayahNumberInSurah}",
+                        onClick = onPlayClick,
                     )
                 }
             }
@@ -362,11 +515,38 @@ private fun AyahItem(
 }
 
 @Composable
-private fun AyahNumberMarker(number: Int) {
+private fun AyahActionButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    testTag: String,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier
+            .size(48.dp)
+            .testTag(testTag)
+            .semantics { contentDescription = label },
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.size(NoorDimens.Icon),
+        )
+    }
+}
+
+@Composable
+private fun AyahNumberMarker(number: Int, isCurrent: Boolean, currentLabel: String) {
     val markerDescription = stringResource(R.string.quran_ayah_number_fmt, number)
     Surface(
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.72f),
+        color = if (isCurrent) {
+            MaterialTheme.colorScheme.secondaryContainer
+        } else {
+            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.72f)
+        },
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         border = BorderStroke(
             width = 1.dp,
@@ -376,6 +556,7 @@ private fun AyahNumberMarker(number: Int) {
             .size(40.dp)
             .clearAndSetSemantics {
                 contentDescription = markerDescription
+                this.stateDescription = if (isCurrent) currentLabel else ""
             },
     ) {
         Box(contentAlignment = Alignment.Center) {
