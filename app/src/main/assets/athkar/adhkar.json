@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "corpusId": "none",
+    "title": "No adhkar corpus bundled",
+    "author": "",
+    "edition": "",
+    "license": "",
+    "licenseUrl": "",
+    "sourceUrl": "",
+    "isContentBundled": false,
+    "bundledDhikrCount": 0,
+    "note": "No adhkar content is bundled yet. No corpus with clear redistribution rights for its Arabic text, translations and references has been cleared, and this project does not generate or paraphrase religious text. Candidates evaluated and rejected: (1) sunnah.com / hisnmuslim.com - scraping not permitted by their terms, translations copyrighted; (2) github.com/SolimanAnas/islamic-api - MIT wrapper that states its data is sourced from sunnah.com, so the licence claim does not clear the underlying text; (3) github.com/asellam/HisnElMuslim and github.com/YousefAsalya/Islamic-Pro-azkar-API - third-party MIT claims over derivative transcriptions whose translation provenance is unclear; (4) zenodo.org OpenITI - CC BY-NC-SA 4.0 is non-commercial and share-alike, and it ships whole-book OCR whose Arabic diacritics are unreliable; (5) itsyaasir/hisn-al-muslim - GPLv3 app assets, unusable without imposing copyleft; (6) Internet Archive scans of printed editions - upload and typesetting rights unclear, and Arabic OCR corrupts diacritics. To add content, replace this file with an attributed corpus whose licence permits redistribution, then run AthkarCorpusValidator: it rejects duplicate ids, blank or non-Arabic text, unknown categories, non-positive repetition counts, duplicate ordering, missing references and a declared total that disagrees with the payload."
+  },
+  "categories": [],
+  "adhkar": []
+}

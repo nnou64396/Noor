@@ -24,6 +24,9 @@
     <string name="home_subtitle">Votre espace spirituel quotidien pour le Coran, les Adhkar et la Qibla</string>
     <string name="home_quick_access">Accès rapide</string>
     <string name="home_daily">Aujourd&#8217;hui</string>
+    <string name="home_practice_title">Votre pratique</string>
+    <string name="home_practice_athkar_fmt">%1$d dhkar sur %2$d</string>
+    <string name="home_practice_tasbih_fmt">%1$d sur %2$d compt&#233;s</string>
 
     <!-- Daily section -->
     <string name="daily_verse_title">Verset du jour</string>
@@ -33,6 +36,43 @@
 
     <!-- Tasbih -->
     <string name="tasbih_title">Tasbih</string>
+    <string name="tasbih_tap_desc">%1$d sur %2$d compt&#233;s, appuyez pour ajouter</string>
+    <string name="tasbih_remaining_fmt">Encore %1$d sur %2$d</string>
+    <string name="tasbih_complete">%1$d termin&#233;s</string>
+    <string name="tasbih_undo_desc">Annuler un comptage</string>
+    <string name="tasbih_reset_desc">R&#233;initialiser le compteur</string>
+    <string name="tasbih_target_title">Objectif</string>
+    <string name="tasbih_target_custom">Personnalis&#233;</string>
+    <string name="tasbih_target_current_fmt">Personnalis&#233; (%1$d)</string>
+    <string name="tasbih_target_dialog_title">Objectif personnalis&#233;</string>
+    <string name="tasbih_target_dialog_label">Nombre de comptages</string>
+
+    <!-- Athkar -->
+    <string name="athkar_category_morning">Adhkar du matin</string>
+    <string name="athkar_category_evening">Adhkar du soir</string>
+    <string name="athkar_category_after_prayer">Apr&#232;s la pri&#232;re</string>
+    <string name="athkar_category_before_sleep">Avant de dormir</string>
+    <string name="athkar_category_general">Adhkar quotidien</string>
+    <string name="athkar_category_other">Adhkar</string>
+    <string name="athkar_loading">Chargement…</string>
+    <string name="athkar_error">Impossible de charger les adhkar.</string>
+    <string name="athkar_corpus_pending_title">Adhkar bient&#244;t disponibles</string>
+    <string name="athkar_corpus_pending_body">Aucun texte d&#8217;adhkar n&#8217;est encore inclus, car les invocations ne sont jamais affich&#233;es sans source v&#233;rifi&#233;e. Elles appara&#238;tront ici d&#232;s qu&#8217;une source sera ajout&#233;e.</string>
+    <string name="athkar_category_unavailable">Cette cat&#233;gorie ne contient aucun dhikr.</string>
+    <string name="athkar_progress_fmt">%1$d sur %2$d termin&#233;s</string>
+    <string name="athkar_category_progress_fmt">%1$d dhkar sur %2$d</string>
+    <string name="athkar_repeat_of_fmt">R&#233;p&#233;titions : %1$d</string>
+    <string name="athkar_remaining_fmt">R&#233;p&#233;t&#233; %1$d sur %2$d</string>
+    <string name="athkar_completed_fmt">Termin&#233; %1$d sur %2$d</string>
+    <string name="athkar_repeat_desc">R&#233;p&#233;ter %1$d fois, encore %2$d. Appuyez pour compter.</string>
+    <string name="athkar_reset_dhikr">R&#233;initialiser ce dhikr</string>
+    <string name="athkar_reset_category">R&#233;initialiser cette cat&#233;gorie</string>
+    <string name="athkar_category_open_desc">%1$s, %2$s. Ouvrir pour commencer.</string>
+
+    <!-- Shared actions -->
+    <string name="action_back">Retour</string>
+    <string name="action_save">Enregistrer</string>
+    <string name="action_cancel">Annuler</string>
 
     <!-- Settings labels -->
     <string name="pref_language">Langue</string>

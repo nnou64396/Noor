@@ -4,19 +4,25 @@ import android.content.Context
 import com.noor.islamic.data.audio.EveryAyahReciterCatalog
 import com.noor.islamic.data.audio.Media3AudioEngine
 import com.noor.islamic.data.audio.QuranAudioControllerImpl
+import com.noor.islamic.data.local.athkar.AssetAthkarCorpusSource
 import com.noor.islamic.data.local.datastore.QuranAudioPreferences
 import com.noor.islamic.data.local.datastore.SettingsDataStore
 import com.noor.islamic.data.local.db.NoorDatabase
+import com.noor.islamic.data.local.db.practice.PracticeStateDatabase
 import com.noor.islamic.data.local.db.quran.QuranReaderDatabase
 import com.noor.islamic.data.local.db.userstate.QuranUserStateDatabase
 import com.noor.islamic.data.local.location.AndroidLocationRepository
 import com.noor.islamic.data.local.quran.QuranRepositoryImpl
 import com.noor.islamic.data.local.sensor.HeadingSensor
+import com.noor.islamic.data.local.userdata.AthkarPracticeRepository
 import com.noor.islamic.data.local.userdata.QuranUserStateRepository
+import com.noor.islamic.data.local.userdata.TasbihPracticeRepository
 import com.noor.islamic.data.remote.prayer.PrayerApiProvider
 import com.noor.islamic.data.remote.prayer.PrayerTimesMapper
 import com.noor.islamic.data.repository.PrayerRepositoryImpl
 import com.noor.islamic.domain.audio.QuranAudioController
+import com.noor.islamic.domain.repository.AthkarProgressRepository
+import com.noor.islamic.domain.repository.DhikrRepository
 import com.noor.islamic.domain.repository.LocationRepository
 import com.noor.islamic.domain.repository.PrayerRepository
 import com.noor.islamic.domain.repository.QuranAudioRepository
@@ -24,6 +30,7 @@ import com.noor.islamic.domain.repository.QuranBookmarksRepository
 import com.noor.islamic.domain.repository.QuranRepository
 import com.noor.islamic.domain.repository.ReadingProgressRepository
 import com.noor.islamic.domain.repository.SettingsRepository
+import com.noor.islamic.domain.repository.TasbihRepository
 import com.noor.islamic.domain.usecase.ObserveSettingsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -105,6 +112,29 @@ object ServiceLocator {
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
             catalog = EveryAyahReciterCatalog,
         )
+    }
+
+    private val practiceStateDatabase: PracticeStateDatabase by lazy {
+        PracticeStateDatabase.create(appContext)
+    }
+
+    /**
+     * Athkar content (read-only, bundled in the APK) and the user's repetition
+     * counters (mutable, local). One instance serves both Athkar screens.
+     */
+    private val athkarPracticeRepository: AthkarPracticeRepository by lazy {
+        AthkarPracticeRepository(
+            corpusSource = AssetAthkarCorpusSource(appContext),
+            progressDao = practiceStateDatabase.athkarProgressDao(),
+        )
+    }
+
+    val dhikrRepository: DhikrRepository get() = athkarPracticeRepository
+
+    val athkarProgressRepository: AthkarProgressRepository get() = athkarPracticeRepository
+
+    val tasbihRepository: TasbihRepository by lazy {
+        TasbihPracticeRepository(tasbihDao = practiceStateDatabase.tasbihDao())
     }
 
     /** Lightweight; constructed per Qibla screen so sensors only run while it is open. */

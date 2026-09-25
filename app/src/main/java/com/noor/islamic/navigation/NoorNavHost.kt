@@ -16,7 +16,11 @@ import androidx.navigation.navArgument
 import com.noor.islamic.domain.model.AppSettings
 import com.noor.islamic.domain.model.Language
 import com.noor.islamic.domain.model.ThemeMode
+import com.noor.islamic.presentation.athkar.AthkarCategoryScreen
+import com.noor.islamic.presentation.athkar.AthkarCategoryViewModel
 import com.noor.islamic.presentation.athkar.AthkarScreen
+import com.noor.islamic.presentation.athkar.AthkarViewModel
+import com.noor.islamic.presentation.home.HomePracticeViewModel
 import com.noor.islamic.presentation.home.HomeQuranViewModel
 import com.noor.islamic.presentation.home.HomeScreen
 import com.noor.islamic.presentation.onboarding.OnboardingScreen
@@ -29,6 +33,7 @@ import com.noor.islamic.presentation.quran.QuranScreen
 import com.noor.islamic.presentation.quran.QuranSearchScreen
 import com.noor.islamic.presentation.settings.SettingsScreen
 import com.noor.islamic.presentation.tasbih.TasbihScreen
+import com.noor.islamic.presentation.tasbih.TasbihViewModel
 import com.noor.islamic.services.ServiceLocator
 
 /**
@@ -67,11 +72,20 @@ fun NoorNavHost(
                 )
             }
             val quranState by homeQuranViewModel.uiState.collectAsStateWithLifecycle()
+            val practiceViewModel: HomePracticeViewModel = viewModel {
+                HomePracticeViewModel(
+                    dhikrRepository = ServiceLocator.dhikrRepository,
+                    progressRepository = ServiceLocator.athkarProgressRepository,
+                    tasbihRepository = ServiceLocator.tasbihRepository,
+                )
+            }
+            val practiceState by practiceViewModel.uiState.collectAsStateWithLifecycle()
             HomeScreen(
                 prayerViewModel = prayerViewModel,
                 onOpenDestination = onOpenDestination,
                 quran = quranState,
                 onTogglePlayback = homeQuranViewModel::togglePlayback,
+                practice = practiceState,
                 modifier = Modifier.fillMaxSize().padding(contentPadding),
             )
         }
@@ -143,17 +157,55 @@ fun NoorNavHost(
             )
         }
         composable(NoorDestinations.ATHKAR) {
+            val athkarViewModel: AthkarViewModel = viewModel {
+                AthkarViewModel(
+                    dhikrRepository = ServiceLocator.dhikrRepository,
+                    progressRepository = ServiceLocator.athkarProgressRepository,
+                )
+            }
             AthkarScreen(
                 modifier = Modifier.fillMaxSize().padding(contentPadding),
+                viewModel = athkarViewModel,
+                onOpenCategory = { categoryId ->
+                    navController.navigate(NoorDestinations.athkarCategoryRoute(categoryId)) {
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable(
+            route = NoorDestinations.ATHKAR_CATEGORY,
+            arguments = listOf(
+                navArgument(NoorDestinations.ATHKAR_CATEGORY_ARG) { type = NavType.StringType },
+            ),
+        ) { backStackEntry ->
+            val categoryId = backStackEntry.arguments
+                ?.getString(NoorDestinations.ATHKAR_CATEGORY_ARG)
+                .orEmpty()
+            val categoryViewModel: AthkarCategoryViewModel = viewModel {
+                AthkarCategoryViewModel(
+                    categoryId = categoryId,
+                    dhikrRepository = ServiceLocator.dhikrRepository,
+                    progressRepository = ServiceLocator.athkarProgressRepository,
+                )
+            }
+            AthkarCategoryScreen(
+                modifier = Modifier.fillMaxSize().padding(contentPadding),
+                viewModel = categoryViewModel,
+                onBack = { navController.popBackStack() },
+            )
+        }
+        composable(NoorDestinations.TASBIH) {
+            val tasbihViewModel: TasbihViewModel = viewModel {
+                TasbihViewModel(repository = ServiceLocator.tasbihRepository)
+            }
+            TasbihScreen(
+                modifier = Modifier.fillMaxSize().padding(contentPadding),
+                viewModel = tasbihViewModel,
             )
         }
         composable(NoorDestinations.QIBLA) {
             QiblaScreen(
-                modifier = Modifier.fillMaxSize().padding(contentPadding),
-            )
-        }
-        composable(NoorDestinations.TASBIH) {
-            TasbihScreen(
                 modifier = Modifier.fillMaxSize().padding(contentPadding),
             )
         }
