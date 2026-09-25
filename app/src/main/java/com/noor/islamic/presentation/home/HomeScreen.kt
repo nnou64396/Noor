@@ -295,7 +295,6 @@ private fun HomeHeader() {
         ) {
             NoorLogo(
                 modifier = Modifier.size(NoorDimens.Lg),
-                cutoutColor = MaterialTheme.colorScheme.background,
             )
             Spacer(Modifier.size(NoorDimens.Sm))
             Column {
