@@ -10,6 +10,7 @@ import com.noor.islamic.data.local.athkar.AthkarCorpusLoader
 import com.noor.islamic.data.local.userdata.AthkarPracticeRepository
 import com.noor.islamic.domain.model.athkar.Dhikr
 import com.noor.islamic.domain.model.athkar.DhikrCategory
+import com.noor.islamic.domain.model.athkar.DhikrCount
 import com.noor.islamic.domain.repository.AthkarProvenance
 import com.noor.islamic.presentation.athkar.AthkarCategoryScreen
 import com.noor.islamic.presentation.athkar.AthkarCategoryViewModel
@@ -107,6 +108,52 @@ class AthkarScreenTest {
     }
 
     @Test
+    fun category_forAnUnspecifiedCount_showsNoProgressBarButStillCounts() {
+        val repository = repositoryWithUnspecifiedContent()
+        val viewModel = AthkarCategoryViewModel("morning", repository, repository)
+
+        compose.setContent {
+            NoorTheme {
+                AthkarCategoryScreen(viewModel = viewModel, onBack = {})
+            }
+        }
+
+        compose.waitForIdle()
+
+        // Counting still works, so the card must be tappable and must not offer a bar.
+        repeat(3) {
+            compose.onNodeWithTag("athkar_dhikr_morning.open").performClick()
+            compose.waitForIdle()
+        }
+
+        compose.onNodeWithTag("athkar_dhikr_morning.open").assertIsDisplayed()
+        compose.onNodeWithTag("athkar_dhikr_progress_morning.open").assertDoesNotExist()
+
+        // The category has one prescribed dhikr, so the category bar is still real.
+        compose.onNodeWithTag("athkar_category_progress").assertIsDisplayed()
+    }
+
+    @Test
+    fun category_withOnlyUnspecifiedCounts_showsNoCategoryProgressBar() {
+        val repository = repositoryWithOnlyUnspecifiedContent()
+
+        compose.setContent {
+            NoorTheme {
+                AthkarCategoryScreen(
+                    viewModel = AthkarCategoryViewModel("morning", repository, repository),
+                    onBack = {},
+                )
+            }
+        }
+
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("athkar_dhikr_list").assertIsDisplayed()
+        // No prescribed count anywhere, so no percentage is drawn.
+        compose.onNodeWithTag("athkar_category_progress").assertDoesNotExist()
+    }
+
+    @Test
     fun category_forAnUnknownSlug_showsNothingToCount() {
         val repository = repositoryWithContent()
 
@@ -138,9 +185,9 @@ class AthkarScreenTest {
                     DhikrCategory("evening", 1, "Evening adhkar"),
                 ),
                 dhikr = listOf(
-                    dhikr("morning.1", "morning", 0, repeatCount = 3),
-                    dhikr("morning.2", "morning", 1, repeatCount = 1),
-                    dhikr("evening.1", "evening", 0, repeatCount = 1),
+                    dhikr("morning.1", "morning", 0, DhikrCount.Prescribed(3)),
+                    dhikr("morning.2", "morning", 1, DhikrCount.Prescribed(1)),
+                    dhikr("evening.1", "evening", 0, DhikrCount.Prescribed(1)),
                 ),
             ),
         ),
@@ -148,7 +195,50 @@ class AthkarScreenTest {
         ioDispatcher = Dispatchers.Unconfined,
     )
 
-    private fun dhikr(id: String, categoryId: String, order: Int, repeatCount: Int) = Dhikr(
+    private fun repositoryWithUnspecifiedContent(): AthkarPracticeRepository =
+        AthkarPracticeRepository(
+            corpusSource = FixedCorpus(
+                AthkarCorpus(
+                    schemaVersion = 1,
+                    provenance = AthkarProvenance(
+                        corpusId = "test.corpus",
+                        title = "Test",
+                        isContentBundled = true,
+                        bundledDhikrCount = 2,
+                    ),
+                    categories = listOf(DhikrCategory("morning", 0, "Morning adhkar")),
+                    dhikr = listOf(
+                        dhikr("morning.1", "morning", 0, DhikrCount.Prescribed(3)),
+                        dhikr("morning.open", "morning", 1, DhikrCount.Unspecified),
+                    ),
+                ),
+            ),
+            progressDao = RecordingAthkarProgressDao(),
+            ioDispatcher = Dispatchers.Unconfined,
+        )
+
+    private fun repositoryWithOnlyUnspecifiedContent(): AthkarPracticeRepository =
+        AthkarPracticeRepository(
+            corpusSource = FixedCorpus(
+                AthkarCorpus(
+                    schemaVersion = 1,
+                    provenance = AthkarProvenance(
+                        corpusId = "test.corpus",
+                        title = "Test",
+                        isContentBundled = true,
+                        bundledDhikrCount = 1,
+                    ),
+                    categories = listOf(DhikrCategory("morning", 0, "Morning adhkar")),
+                    dhikr = listOf(
+                        dhikr("morning.open", "morning", 0, DhikrCount.Unspecified),
+                    ),
+                ),
+            ),
+            progressDao = RecordingAthkarProgressDao(),
+            ioDispatcher = Dispatchers.Unconfined,
+        )
+
+    private fun dhikr(id: String, categoryId: String, order: Int, repeatCount: DhikrCount) = Dhikr(
         id = id,
         categoryId = categoryId,
         arabicText = "سُبْحَانَ اللَّهِ",

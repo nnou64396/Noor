@@ -5,6 +5,8 @@ import com.noor.islamic.data.local.db.practice.AthkarDhikrProgressEntity
 import com.noor.islamic.data.local.db.practice.AthkarProgressDao
 import com.noor.islamic.domain.model.athkar.Dhikr
 import com.noor.islamic.domain.model.athkar.DhikrCategory
+import com.noor.islamic.domain.model.athkar.DhikrCount
+import com.noor.islamic.domain.model.athkar.DhikrProgress
 import com.noor.islamic.domain.repository.AthkarProgressRepository
 import com.noor.islamic.domain.repository.AthkarProgressSnapshot
 import com.noor.islamic.domain.repository.AthkarProvenance
@@ -47,24 +49,29 @@ class AthkarPracticeRepository(
             )
         }
 
-    override suspend fun record(dhikrId: String, completedRepetitions: Int, target: Int) =
-        withContext(ioDispatcher) {
-            val safeTarget = target.coerceAtLeast(1)
-            val clamped = completedRepetitions.coerceIn(0, safeTarget)
-            val categoryId = corpusSource.load()
-                .dhikr
-                .firstOrNull { it.id == dhikrId }
-                ?.categoryId
-                .orEmpty()
-            progressDao.upsert(
-                AthkarDhikrProgressEntity(
-                    dhikrId = dhikrId,
-                    categoryId = categoryId,
-                    completedRepetitions = clamped,
-                    updatedAt = clock(),
-                ),
-            )
-        }
+    override suspend fun record(
+        dhikrId: String,
+        completedRepetitions: Int,
+        count: DhikrCount,
+    ) = withContext(ioDispatcher) {
+        // Only a prescribed count may clamp a stored value. An unspecified count
+        // deliberately has no ceiling and no fallback target, so the user's real
+        // total is kept exactly as counted.
+        val clamped = DhikrProgress.clampStored(count, completedRepetitions)
+        val categoryId = corpusSource.load()
+            .dhikr
+            .firstOrNull { it.id == dhikrId }
+            ?.categoryId
+            .orEmpty()
+        progressDao.upsert(
+            AthkarDhikrProgressEntity(
+                dhikrId = dhikrId,
+                categoryId = categoryId,
+                completedRepetitions = clamped,
+                updatedAt = clock(),
+            ),
+        )
+    }
 
     override suspend fun resetDhikr(dhikrId: String) = withContext(ioDispatcher) {
         progressDao.deleteByDhikrId(dhikrId)

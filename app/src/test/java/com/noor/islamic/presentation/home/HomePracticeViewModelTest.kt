@@ -10,6 +10,7 @@ import com.noor.islamic.data.local.db.practice.TasbihDao
 import com.noor.islamic.data.local.db.practice.TasbihSessionEntity
 import com.noor.islamic.domain.model.athkar.Dhikr
 import com.noor.islamic.domain.model.athkar.DhikrCategory
+import com.noor.islamic.domain.model.athkar.DhikrCount
 import com.noor.islamic.domain.model.tasbih.TasbihSession
 import com.noor.islamic.domain.repository.AthkarProvenance
 import kotlinx.coroutines.Dispatchers
@@ -129,6 +130,61 @@ class HomePracticeViewModelTest {
         assertEquals(null, viewModel.uiState.value)
     }
 
+    @Test
+    fun anUnspecifiedCountIsNotMarkedCompleteOnHome() = runTest(dispatcher) {
+        val dao = AthkarProgressDaoFake()
+        val repository = AthkarPracticeRepository(
+            corpusSource = CorpusLoaderFake(corpusWithUnspecified()),
+            progressDao = dao,
+            ioDispatcher = Dispatchers.Unconfined,
+        )
+        val viewModel = HomePracticeViewModel(
+            dhikrRepository = repository,
+            progressRepository = repository,
+            tasbihRepository = TasbihPracticeRepository(
+                tasbihDao = TasbihDaoFake(),
+                ioDispatcher = Dispatchers.Unconfined,
+            ),
+        )
+        backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        // A large stored total on the unspecified dhikr must not count it as done,
+        // and must not enter the denominator either.
+        dao.rows.value = listOf(
+            AthkarDhikrProgressEntity("morning.1", "morning", 3, 0L),
+            AthkarDhikrProgressEntity("morning.open", "morning", 99, 0L),
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value!!
+        assertEquals(1, state.totalDhikr)
+        assertEquals(1, state.completedDhikr)
+    }
+
+    @Test
+    fun aCategoryWithOnlyUnspecifiedCountsShowsNoHomeCard() = runTest(dispatcher) {
+        val state = awaitState(
+            corpus = AthkarCorpus(
+                schemaVersion = 1,
+                provenance = AthkarProvenance(
+                    corpusId = "test.corpus",
+                    title = "Test",
+                    isContentBundled = true,
+                    bundledDhikrCount = 1,
+                ),
+                categories = listOf(DhikrCategory("morning", 0, "Morning adhkar")),
+                dhikr = listOf(dhikr("morning.open", 0, repeatCount = DhikrCount.Unspecified)),
+            ),
+            tasbih = TasbihSession.Empty,
+        )
+
+        // Nothing to report progress towards, so no "0 of 0" is shown.
+        assertFalse(state.hasContent)
+        assertEquals(0, state.totalDhikr)
+        assertEquals(0, state.completedDhikr)
+    }
+
     private suspend fun kotlinx.coroutines.test.TestScope.awaitState(
         corpus: AthkarCorpus,
         tasbih: TasbihSession,
@@ -175,12 +231,28 @@ class HomePracticeViewModelTest {
         ),
         categories = listOf(DhikrCategory("morning", 0, "Morning adhkar")),
         dhikr = listOf(
-            dhikr("morning.1", 0, repeatCount = 3),
-            dhikr("morning.2", 1, repeatCount = 1),
+            dhikr("morning.1", 0, repeatCount = DhikrCount.Prescribed(3)),
+            dhikr("morning.2", 1, repeatCount = DhikrCount.Prescribed(1)),
         ),
     )
 
-    private fun dhikr(id: String, order: Int, repeatCount: Int) = Dhikr(
+    /** The same category with one dhikr whose count is explicitly unspecified. */
+    private fun corpusWithUnspecified() = AthkarCorpus(
+        schemaVersion = 1,
+        provenance = AthkarProvenance(
+            corpusId = "test.corpus",
+            title = "Test",
+            isContentBundled = true,
+            bundledDhikrCount = 2,
+        ),
+        categories = listOf(DhikrCategory("morning", 0, "Morning adhkar")),
+        dhikr = listOf(
+            dhikr("morning.1", 0, repeatCount = DhikrCount.Prescribed(3)),
+            dhikr("morning.open", 1, repeatCount = DhikrCount.Unspecified),
+        ),
+    )
+
+    private fun dhikr(id: String, order: Int, repeatCount: DhikrCount) = Dhikr(
         id = id,
         categoryId = "morning",
         arabicText = "سُبْحَانَ اللَّهِ",

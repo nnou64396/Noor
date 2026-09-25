@@ -2,6 +2,8 @@ package com.noor.islamic.data.local.athkar
 
 import com.noor.islamic.domain.model.athkar.Dhikr
 import com.noor.islamic.domain.model.athkar.DhikrCategory
+import com.noor.islamic.domain.model.athkar.DhikrCount
+import com.noor.islamic.domain.model.athkar.DhikrProgress
 import com.noor.islamic.domain.repository.AthkarProvenance
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -69,7 +71,7 @@ class AthkarCorpusTest {
         val dhikr = corpus.dhikr.single()
         assertEquals("morning.subhanallah", dhikr.id)
         assertEquals("morning", dhikr.categoryId)
-        assertEquals(33, dhikr.repeatCount)
+        assertEquals(DhikrCount.Prescribed(33), dhikr.repeatCount)
         assertEquals(0, dhikr.order)
         assertEquals("Reference", dhikr.reference)
         assertEquals("Translation", dhikr.translation)
@@ -145,12 +147,99 @@ class AthkarCorpusTest {
     }
 
     @Test
-    fun validator_rejectsANonPositiveRepetitionCount() {
-        val json = corpusJson().replace("\"repeatCount\": 33", "\"repeatCount\": 0")
+    fun validator_rejectsANonPositivePrescribedRepetitionCount() {
+        listOf("0", "-1", "-33").forEach { token ->
+            val problems = validator.validate(parser.parse(corpusJsonWithRepeatCountToken(token)))
 
-        val problems = validator.validate(parser.parse(json))
+            assertTrue(
+                "expected $token to be rejected, got $problems",
+                problems.any { it.contains("repeatCount") },
+            )
+        }
+    }
 
-        assertTrue(problems.any { it.contains("repeatCount") })
+    @Test
+    fun validator_acceptsAnyPositivePrescribedRepetitionCount() {
+        listOf("1", "3", "7", "33", "100").forEach { token ->
+            val problems = validator.validate(parser.parse(corpusJsonWithRepeatCountToken(token)))
+
+            assertEquals("expected $token to be accepted, got $problems", emptyList<String>(), problems)
+        }
+    }
+
+    @Test
+    fun validator_acceptsAnUnspecifiedRepetitionCount() {
+        val problems = validator.validate(parser.parse(corpusJsonWithRepeatCountToken("null")))
+
+        assertEquals(emptyList<String>(), problems)
+    }
+
+    @Test
+    fun parser_readsAPositiveIntegerAsAPrescribedCount() {
+        listOf("1", "3", "7", "33", "100").forEach { token ->
+            val dhikr = parser.parse(corpusJsonWithRepeatCountToken(token)).dhikr.single()
+
+            assertEquals(DhikrCount.Prescribed(token.toInt()), dhikr.repeatCount)
+        }
+    }
+
+    @Test
+    fun parser_readsAnExplicitNullAsUnspecified() {
+        val dhikr = parser.parse(corpusJsonWithRepeatCountToken("null")).dhikr.single()
+
+        assertEquals(DhikrCount.Unspecified, dhikr.repeatCount)
+    }
+
+    @Test
+    fun parser_keepsAnUnspecifiedCountDistinctFromEveryStruckCount() {
+        val dhikr = parser.parse(corpusJsonWithRepeatCountToken("null")).dhikr.single()
+
+        // The whole point of the type: an absent count must never come back as a
+        // number, least of all one of the counts tradition commonly uses.
+        listOf(1, 3, 7, 33, 100).forEach { invented ->
+            assertFalse(
+                "Unspecified must not become $invented",
+                dhikr.repeatCount == DhikrCount.Prescribed(invented),
+            )
+        }
+        assertNull(DhikrProgress.targetOf(dhikr.repeatCount))
+    }
+
+    @Test
+    fun parser_rejectsAMissingRepetitionCount() {
+        // Renamed away, so `repeatCount` is genuinely absent rather than null.
+        val json = corpusJson().replace("\"repeatCount\": 33", "\"renamedCount\": 33")
+
+        val error = runCatching { parser.parse(json) }.exceptionOrNull()
+
+        assertTrue(error is AthkarCorpusFormatException)
+        assertTrue(error!!.message!!.contains("repeatCount"))
+    }
+
+    @Test
+    fun parser_rejectsANonIntegerRepeatCount() {
+        // org.json's optInt would silently coerce every one of these into a real
+        // prescribed number, which is exactly the fabrication this guards against.
+        listOf("\"33\"", "33.5", "true", "{}", "[]", "\"\"", "\"thirty-three\"").forEach { token ->
+            val error = runCatching {
+                parser.parse(corpusJsonWithRepeatCountToken(token))
+            }.exceptionOrNull()
+
+            assertTrue(
+                "expected $token to be a format error, got $error",
+                error is AthkarCorpusFormatException,
+            )
+        }
+    }
+
+    @Test
+    fun parser_carriesANonPositiveIntegerThroughForTheValidatorToReject() {
+        val dhikr = parser.parse(corpusJsonWithRepeatCountToken("0")).dhikr.single()
+
+        // A non-positive count is semantically invalid rather than malformed, so it
+        // survives the parse-then-validate split and is rejected with a precise reason.
+        assertEquals(DhikrCount.Prescribed(0), dhikr.repeatCount)
+        assertTrue(validator.validate(parser.parse(corpusJsonWithRepeatCountToken("0"))).isNotEmpty())
     }
 
     @Test
@@ -272,7 +361,7 @@ class AthkarCorpusTest {
         categoryId = categoryId,
         arabicText = "سُبْحَانَ اللَّهِ",
         translation = null,
-        repeatCount = 3,
+        repeatCount = DhikrCount.Prescribed(3),
         reference = "Reference",
         order = order,
     )
@@ -311,6 +400,10 @@ class AthkarCorpusTest {
           ]
         }
     """.trimIndent()
+
+    /** Rewrites the declared count with a raw JSON token, so type errors are exercised. */
+    private fun corpusJsonWithRepeatCountToken(token: String): String =
+        corpusJson().replace("\"repeatCount\": 33", "\"repeatCount\": $token")
 
     /** Two dhikr in one category that share a stable id, which must be rejected. */
     private fun corpusJsonWithTwoDhikrSharingAnId(): String = """

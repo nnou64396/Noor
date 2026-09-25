@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.noor.islamic.domain.model.athkar.Dhikr
 import com.noor.islamic.domain.model.athkar.DhikrCategory
+import com.noor.islamic.domain.model.athkar.DhikrProgress
 import com.noor.islamic.domain.repository.AthkarProgressRepository
 import com.noor.islamic.domain.repository.AthkarProgressSnapshot
 import com.noor.islamic.domain.repository.DhikrRepository
@@ -15,16 +16,31 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
-/** One dhikr with the user's repetition progress against its required count. */
+/**
+ * One dhikr with the user's repetition progress.
+ *
+ * Everything that needs a number is nullable and derived through
+ * [DhikrProgress], so a dhikr with no prescribed count exposes no target: there
+ * is no remaining count, no fraction to draw a progress bar from, and no
+ * completion to announce. The counter itself is still real and still persisted.
+ */
 data class AthkarItemUi(
     val dhikr: Dhikr,
     val completedRepetitions: Int,
 ) {
-    val remaining: Int get() = (dhikr.repeatCount - completedRepetitions).coerceAtLeast(0)
-    val isComplete: Boolean get() = dhikr.repeatCount > 0 && completedRepetitions >= dhikr.repeatCount
-    val fraction: Float
-        get() = if (dhikr.repeatCount <= 0) 0f
-        else (completedRepetitions.toFloat() / dhikr.repeatCount).coerceIn(0f, 1f)
+    private val count get() = dhikr.repeatCount
+
+    /** True only when the source prescribes a count, so a target may be shown. */
+    val hasPrescribedCount: Boolean get() = DhikrProgress.targetOf(count) != null
+
+    /** Repetitions still to do, or null when no count is prescribed. */
+    val remaining: Int? get() = DhikrProgress.remainingOf(count, completedRepetitions)
+
+    /** Never true for an unspecified count, however many times it is counted. */
+    val isComplete: Boolean get() = DhikrProgress.isComplete(count, completedRepetitions)
+
+    /** Null when there is no target, so no percentage can be derived. */
+    val fraction: Float? get() = DhikrProgress.fractionOf(count, completedRepetitions)
 }
 
 sealed interface AthkarCategoryUiState {
@@ -34,9 +50,19 @@ sealed interface AthkarCategoryUiState {
         val category: DhikrCategory,
         val items: List<AthkarItemUi>,
     ) : AthkarCategoryUiState {
-        val completedCount: Int get() = items.count { it.isComplete }
         val totalCount: Int get() = items.size
-        val isCategoryComplete: Boolean get() = items.isNotEmpty() && completedCount == totalCount
+
+        /** Items the corpus gives a repetition count to: the only ones that can complete. */
+        val prescribedCount: Int get() = items.count { it.hasPrescribedCount }
+        val completedCount: Int get() = items.count { it.isComplete }
+
+        /**
+         * False for a category whose adhkar all have unspecified counts. The UI
+         * uses this to show an honest explanation rather than a 0-of-0 progress.
+         */
+        val hasPrescribedCounts: Boolean get() = prescribedCount > 0
+
+        val isCategoryComplete: Boolean get() = hasPrescribedCounts && completedCount == prescribedCount
     }
 
     /** The slug is unknown, so nothing can be shown for it. */
@@ -48,9 +74,10 @@ sealed interface AthkarCategoryUiState {
 /**
  * Drives one category of adhkar: repetition counting, completion and reset.
  *
- * The repetition count is clamped to the dhikr's own target before it is stored,
- * so a fast double-tap (or a restored value from an older corpus) can never push
- * a counter past what the source asks for.
+ * A prescribed count is clamped to what the source asks for, so a fast
+ * double-tap (or a restored value from an older corpus) can never push a counter
+ * past the requirement. An unspecified count is counted freely and is never
+ * treated as finished.
  */
 class AthkarCategoryViewModel(
     private val categoryId: String,
@@ -89,7 +116,7 @@ class AthkarCategoryViewModel(
         }
     }
 
-    /** Records one repetition. No-op once the dhikr is complete. */
+    /** Records one repetition. No-op once a dhikr with a prescribed count is complete. */
     fun repeat(dhikr: Dhikr) {
         val current = (_uiState.value as? AthkarCategoryUiState.Ready)
             ?.items
@@ -97,7 +124,7 @@ class AthkarCategoryViewModel(
             ?: return
         if (current.isComplete) return
 
-        val next = (current.completedRepetitions + 1).coerceAtMost(dhikr.repeatCount)
+        val next = DhikrProgress.nextCount(dhikr.repeatCount, current.completedRepetitions)
         viewModelScope.launch {
             progressRepository.record(dhikr.id, next, dhikr.repeatCount)
         }
@@ -115,6 +142,6 @@ class AthkarCategoryViewModel(
 
     private fun Dhikr.toUi(progress: AthkarProgressSnapshot) = AthkarItemUi(
         dhikr = this,
-        completedRepetitions = progress.repetitionsOf(id).coerceIn(0, repeatCount.coerceAtLeast(0)),
+        completedRepetitions = DhikrProgress.clampStored(repeatCount, progress.repetitionsOf(id)),
     )
 }

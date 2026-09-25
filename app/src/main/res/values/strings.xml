@@ -62,10 +62,15 @@
     <string name="athkar_category_unavailable">لا توجد أذكار في هذه المجموعة.</string>
     <string name="athkar_progress_fmt">%1$d من %2$d مكتمل</string>
     <string name="athkar_category_progress_fmt">%1$d من %2$d ذكر</string>
+    <string name="athkar_category_progress_prescribed_fmt">%1$d من %2$d ذكر بتكرار محدد</string>
+    <string name="athkar_category_no_prescribed_count">لا يوجد ذكر بتكرار محدد في هذه الفئة</string>
     <string name="athkar_repeat_of_fmt">التكرار: %1$d</string>
+    <string name="athkar_no_prescribed_count">لا يوجد عدد محدد للتكرار</string>
+    <string name="athkar_count_only_fmt">العدد: %1$d</string>
     <string name="athkar_remaining_fmt">التكرار %1$d من %2$d</string>
     <string name="athkar_completed_fmt">أتممت التكرار %1$d من %2$d</string>
     <string name="athkar_repeat_desc">ذكر بتكرار %1$d، بقي %2$d. اضغط للتكرار.</string>
+    <string name="athkar_repeat_desc_no_target">لا يوجد عدد محدد للتكرار. العدد الحالي %1$d. اضغط للتكرار.</string>
     <string name="athkar_reset_dhikr">إعادة ضبط هذا الذكر</string>
     <string name="athkar_reset_category">إعادة ضبط المجموعة</string>
     <string name="athkar_category_open_desc">%1$s، %2$s. افتح لبدء التكرار.</string>

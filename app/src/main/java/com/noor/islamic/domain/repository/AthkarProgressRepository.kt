@@ -1,5 +1,6 @@
 package com.noor.islamic.domain.repository
 
+import com.noor.islamic.domain.model.athkar.DhikrCount
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -17,11 +18,12 @@ interface AthkarProgressRepository {
     /**
      * Records progress for a dhikr after a repetition.
      *
-     * Implementations clamp [completedRepetitions] to the dhikr's own target
-     * (supplied by the caller) so a stored value can never exceed what the
-     * corpus asks for.
+     * Implementations clamp [completedRepetitions] to [count] only when it is a
+     * prescribed count, so a stored value can never exceed what the corpus asks
+     * for. An unspecified count applies no ceiling at all, because substituting
+     * one here would invent a repetition requirement the source never stated.
      */
-    suspend fun record(dhikrId: String, completedRepetitions: Int, target: Int)
+    suspend fun record(dhikrId: String, completedRepetitions: Int, count: DhikrCount)
 
     /** Clears the progress of a single dhikr. */
     suspend fun resetDhikr(dhikrId: String)
