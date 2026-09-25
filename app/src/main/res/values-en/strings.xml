@@ -92,6 +92,76 @@
     <string name="quran_sajda">Sajdah position</string>
     <string name="quran_source_attribution">Quran text: Tanzil Uthmani v1.1 · tanzil.net</string>
     <string name="quran_source_copyright">Copyright © 2007–2026 Tanzil Project · CC BY 3.0</string>
+
+    <!-- Phase 4: reader actions -->
+    <string name="quran_reader_current_ayah">Current ayah</string>
+    <string name="quran_reader_bookmark_add">Bookmark this ayah</string>
+    <string name="quran_reader_bookmark_remove">Remove bookmark</string>
+    <string name="quran_reader_ayah_accessibility_fmt">Ayah %1$d, %2$s</string>
+    <string name="quran_action_search">Search</string>
+    <string name="quran_action_bookmarks">Bookmarks</string>
+
+    <!-- Phase 4: recitation -->
+    <string name="quran_audio_play">Play</string>
+    <string name="quran_audio_pause">Pause</string>
+    <string name="quran_audio_next">Next ayah</string>
+    <string name="quran_audio_previous">Previous ayah</string>
+    <string name="quran_audio_repeat">Repeat surah</string>
+    <string name="quran_audio_reciter_label">Reciter</string>
+    <string name="quran_audio_reciter_fmt">Reciter: %1$s</string>
+    <string name="quran_audio_reciter_sheet_title">Choose reciter</string>
+    <string name="quran_audio_reciter_sheet_note">Recitation is streamed from the internet; nothing is downloaded for offline use.</string>
+    <string name="quran_audio_reciter_selected">Selected reciter</string>
+    <string name="quran_audio_streaming_note">Streaming from everyayah.com — requires an internet connection.</string>
+    <string name="quran_audio_position_fmt">%1$s / %2$s</string>
+    <string name="quran_audio_error_network">No internet connection. Recitation is unavailable until you reconnect.</string>
+    <string name="quran_audio_error_source">This ayah\'s audio could not be loaded. Try again or choose another reciter.</string>
+    <string name="quran_audio_error_unknown">An audio problem occurred. The Quran text is unaffected.</string>
+
+    <!-- Phase 4: reciters and recitation styles -->
+    <string name="quran_reciter_alafasy">Mishary Alafasy</string>
+    <string name="quran_reciter_abdul_basit">Abdul Basit Abdus-Samad</string>
+    <string name="quran_reciter_husary">Mahmoud Khalil Al-Husary</string>
+    <string name="quran_reciter_minshawy">Mohamed Al-Minshawi</string>
+    <string name="quran_reciter_as_sudais">Abdurrahmaan As-Sudais</string>
+    <string name="quran_reciter_ayyoub">Muhammad Ayyoub</string>
+    <string name="quran_reciter_ad_dussary">Yasser Ad-Dussary</string>
+    <string name="quran_style_murattal">Murattal</string>
+    <string name="quran_style_mujawwad">Mujawwad</string>
+    <string name="quran_style_muallim">Muallim</string>
+
+    <!-- Phase 4: search -->
+    <string name="quran_search_title">Search the Quran</string>
+    <string name="quran_search_hint">Type a word or ayah number</string>
+    <string name="quran_search_prompt_body">Search the Quran text offline, without an internet connection.</string>
+    <string name="quran_search_loading">Searching…</string>
+    <string name="quran_search_clear">Clear search</string>
+    <string name="quran_search_close">Close search</string>
+    <string name="quran_search_back">Back to the Quran</string>
+    <string name="quran_search_input_accessibility">Search text</string>
+    <string name="quran_search_results_count_fmt">%1$d results</string>
+    <string name="quran_search_empty_title">No results</string>
+    <string name="quran_search_empty_body">No ayahs match “%1$s”. Try a different word or spelling.</string>
+    <string name="quran_search_error_title">Search unavailable</string>
+    <string name="quran_search_error_body">An error occurred while searching the local Quran.</string>
+    <string name="quran_search_result_accessibility_fmt">Surah %1$s, ayah %2$d</string>
+
+    <!-- Phase 4: bookmarks -->
+    <string name="quran_bookmarks_title">Bookmarks</string>
+    <string name="quran_bookmarks_back">Back to the Quran</string>
+    <string name="quran_bookmarks_loading">Loading bookmarks…</string>
+    <string name="quran_bookmarks_empty_title">No bookmarks yet</string>
+    <string name="quran_bookmarks_empty_body">Bookmark an ayah while reading and it will appear here.</string>
+    <string name="quran_bookmarks_error_title">Bookmarks unavailable</string>
+    <string name="quran_bookmarks_error_body">An error occurred while loading your saved bookmarks.</string>
+    <string name="quran_bookmarks_count_fmt">%1$d bookmarks</string>
+    <string name="quran_bookmarks_open_fmt">Open surah %1$s, ayah %2$d</string>
+    <string name="quran_bookmarks_remove_fmt">Remove bookmark for surah %1$s, ayah %2$d</string>
+
+    <!-- Phase 4: home -->
+    <string name="home_continue_reading">Continue reading</string>
+    <string name="home_continue_reading_fmt">%1$s · Ayah %2$d</string>
+    <string name="home_now_playing_fmt">Now playing: %1$s · Ayah %2$d</string>
     <string name="prayer_title">Prayer Times</string>
     <string name="athkar_title">Athkar</string>
     <string name="qibla_title">Qibla</string>

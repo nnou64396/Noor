@@ -99,6 +99,11 @@ dependencies {
     // Quran offline reader (pure-Kotlin shared normalizer keeps search rules identical at build + query time)
     implementation(project(":tools:quran:common"))
 
+    // Quran audio (Media3/ExoPlayer). Recitation streams from the network and is kept
+    // strictly separate from the offline Quran text database and importer pipeline.
+    implementation(libs.androidx.media3.common)
+    implementation(libs.androidx.media3.exoplayer)
+
     // Network
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)

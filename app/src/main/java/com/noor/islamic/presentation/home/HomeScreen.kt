@@ -11,9 +11,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.Explore
+import androidx.compose.material.icons.rounded.Pause
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.WbSunny
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +26,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noor.islamic.R
 import com.noor.islamic.navigation.NoorDestinations
@@ -32,6 +40,7 @@ import com.noor.islamic.presentation.common.labelRes
 import com.noor.islamic.presentation.prayer.NextPrayerUi
 import com.noor.islamic.presentation.prayer.PrayerUiState
 import com.noor.islamic.presentation.prayer.PrayerViewModel
+import com.noor.islamic.presentation.quran.labelRes
 import com.noor.islamic.ui.components.NoorGlassCard
 import com.noor.islamic.ui.components.NoorIslamicMotif
 import com.noor.islamic.ui.components.NoorLogo
@@ -44,14 +53,16 @@ import com.noor.islamic.ui.theme.noorDisplay
 import com.noor.islamic.ui.theme.noorTitle
 
 /**
- * The Noor spiritual dashboard. The prayer section is real (Phase 2); the
- * remaining sections are neutral placeholders for later phases.
+ * The Noor spiritual dashboard. The prayer section is real (Phase 2) and the Quran
+ * section surfaces the local reading position and shared recitation (Phase 4).
  */
 @Composable
 fun HomeScreen(
     prayerViewModel: PrayerViewModel,
     onOpenDestination: (String) -> Unit,
     modifier: Modifier = Modifier,
+    quran: HomeQuranUiState? = null,
+    onTogglePlayback: () -> Unit = {},
 ) {
     val prayerState by prayerViewModel.uiState.collectAsStateWithLifecycle()
     val next by prayerViewModel.nextPrayer.collectAsStateWithLifecycle()
@@ -64,8 +75,127 @@ fun HomeScreen(
             next = next,
             onOpen = { onOpenDestination(NoorDestinations.PRAYER) },
         )
+        if (quran != null) {
+            HomeQuranSection(
+                state = quran,
+                onContinueReading = { target ->
+                    onOpenDestination(
+                        NoorDestinations.quranAyahRoute(
+                            surahNumber = target.surahNumber,
+                            ayahNumberInSurah = target.ayahNumberInSurah,
+                        ),
+                    )
+                },
+                onTogglePlayback = onTogglePlayback,
+            )
+        }
         HomeQuickAccess(onOpenDestination = onOpenDestination)
         HomeDailySection()
+    }
+}
+
+@Composable
+private fun HomeQuranSection(
+    state: HomeQuranUiState,
+    onContinueReading: (ContinueReadingTarget) -> Unit,
+    onTogglePlayback: () -> Unit,
+) {
+    val target = state.continueReading
+    val nowPlaying = state.nowPlaying
+    if (target == null && nowPlaying == null) return
+
+    NoorSectionTitle(
+        title = stringResource(R.string.home_continue_reading),
+        icon = Icons.AutoMirrored.Rounded.MenuBook,
+    )
+    Spacer(Modifier.size(NoorDimens.Md))
+
+    if (target != null) {
+        val surahLabel = target.surah?.nameTransliteration ?: target.surahNumber.toString()
+        NoorGlassCard(
+            onClick = { onContinueReading(target) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("home_continue_reading"),
+        ) {
+            Column {
+                Text(
+                    text = stringResource(R.string.home_continue_reading),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+                Spacer(Modifier.size(NoorDimens.Xs))
+                Text(
+                    text = target.surah?.nameArabic ?: surahLabel,
+                    style = MaterialTheme.typography.noorTitle,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(
+                        R.string.home_continue_reading_fmt,
+                        surahLabel,
+                        target.ayahNumberInSurah,
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        Spacer(Modifier.size(NoorDimens.Sm))
+    }
+
+    if (nowPlaying != null) {
+        val reciterName = stringResource(nowPlaying.reciterNameKey.labelRes)
+        val playLabel = stringResource(
+            if (nowPlaying.isPlaying) R.string.quran_audio_pause else R.string.quran_audio_play,
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("home_now_playing"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = if (nowPlaying.isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(NoorDimens.Icon),
+            )
+            Spacer(Modifier.size(NoorDimens.Sm))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(
+                        R.string.home_now_playing_fmt,
+                        reciterName,
+                        nowPlaying.ayahNumberInSurah,
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = stringResource(R.string.quran_audio_streaming_note),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            IconButton(
+                onClick = onTogglePlayback,
+                modifier = Modifier
+                    .size(48.dp)
+                    .testTag("home_now_playing_toggle")
+                    .semantics { contentDescription = playLabel },
+            ) {
+                Icon(
+                    imageVector = if (nowPlaying.isPlaying) Icons.Rounded.Pause else Icons.Rounded.PlayArrow,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
+                )
+            }
+        }
     }
 }
 

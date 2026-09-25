@@ -28,6 +28,7 @@ object NoorDimens {
 
     // Component sizes
     val ButtonHeight = 52.dp
+    val Icon = 24.dp
     val IconCircle = 56.dp
     val QuickCardHeight = 96.dp
     val BottomBarElevation = 12.dp

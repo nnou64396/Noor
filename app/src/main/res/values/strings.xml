@@ -92,6 +92,76 @@
     <string name="quran_sajda">موضع سجدة</string>
     <string name="quran_source_attribution">نص القرآن: Tanzil Uthmani v1.1 · tanzil.net</string>
     <string name="quran_source_copyright">حقوق النسخ © 2007–2026 مشروع Tanzil · CC BY 3.0</string>
+
+    <!-- Phase 4: reader actions -->
+    <string name="quran_reader_current_ayah">الآية الحالية</string>
+    <string name="quran_reader_bookmark_add">إضافة علامة مرجعية لهذه الآية</string>
+    <string name="quran_reader_bookmark_remove">إزالة العلامة المرجعية</string>
+    <string name="quran_reader_ayah_accessibility_fmt">الآية %1$d، %2$s</string>
+    <string name="quran_action_search">بحث</string>
+    <string name="quran_action_bookmarks">العلامات المرجعية</string>
+
+    <!-- Phase 4: recitation -->
+    <string name="quran_audio_play">تشغيل</string>
+    <string name="quran_audio_pause">إيقاف مؤقت</string>
+    <string name="quran_audio_next">الآية التالية</string>
+    <string name="quran_audio_previous">الآية السابقة</string>
+    <string name="quran_audio_repeat">تكرار السورة</string>
+    <string name="quran_audio_reciter_label">القارئ</string>
+    <string name="quran_audio_reciter_fmt">القارئ: %1$s</string>
+    <string name="quran_audio_reciter_sheet_title">اختر القارئ</string>
+    <string name="quran_audio_reciter_sheet_note">التلاوة تُبث عبر الإنترنت؛ لا يتم تنزيل الملفات للاستخدام دون اتصال.</string>
+    <string name="quran_audio_reciter_selected">القارئ المحدد</string>
+    <string name="quran_audio_streaming_note">بث مباشر من everyayah.com — يتطلب اتصالًا بالإنترنت.</string>
+    <string name="quran_audio_position_fmt">%1$s / %2$s</string>
+    <string name="quran_audio_error_network">لا يوجد اتصال بالإنترنت. التلاوة غير متاحة حتى عودة الاتصال.</string>
+    <string name="quran_audio_error_source">تعذّر تحميل صوت هذه الآية. أعد المحاولة أو اختر قارئًا آخر.</string>
+    <string name="quran_audio_error_unknown">حدث خطأ في الصوت. نص القرآن غير متأثر.</string>
+
+    <!-- Phase 4: reciters and recitation styles -->
+    <string name="quran_reciter_alafasy">مشاري راشد العفاسي</string>
+    <string name="quran_reciter_abdul_basit">عبد الباسط عبد الصمد</string>
+    <string name="quran_reciter_husary">محمود خليل الحصري</string>
+    <string name="quran_reciter_minshawy">محمد صديق المنشاوي</string>
+    <string name="quran_reciter_as_sudais">عبد الرحمن السديس</string>
+    <string name="quran_reciter_ayyoub">محمد أيوب</string>
+    <string name="quran_reciter_ad_dussary">ياسر الدوسري</string>
+    <string name="quran_style_murattal">مرتّل</string>
+    <string name="quran_style_mujawwad">مجوّد</string>
+    <string name="quran_style_muallim">معلّم</string>
+
+    <!-- Phase 4: search -->
+    <string name="quran_search_title">البحث في القرآن</string>
+    <string name="quran_search_hint">اكتب كلمة أو رقم آية</string>
+    <string name="quran_search_prompt_body">ابحث في نص القرآن الكريم دون اتصال بالإنترنت.</string>
+    <string name="quran_search_loading">جارٍ البحث…</string>
+    <string name="quran_search_clear">مسح البحث</string>
+    <string name="quran_search_close">إغلاق البحث</string>
+    <string name="quran_search_back">العودة إلى القرآن</string>
+    <string name="quran_search_input_accessibility">نص البحث</string>
+    <string name="quran_search_results_count_fmt">%1$d نتيجة</string>
+    <string name="quran_search_empty_title">لا توجد نتائج</string>
+    <string name="quran_search_empty_body">لم يُعثر على آيات تطابق «%1$s». جرّب كلمة أخرى أو كتابة مختلفة.</string>
+    <string name="quran_search_error_title">البحث غير متاح</string>
+    <string name="quran_search_error_body">حدث خطأ أثناء البحث في القرآن المحلي.</string>
+    <string name="quran_search_result_accessibility_fmt">سورة %1$s، الآية %2$d</string>
+
+    <!-- Phase 4: bookmarks -->
+    <string name="quran_bookmarks_title">العلامات المرجعية</string>
+    <string name="quran_bookmarks_back">العودة إلى القرآن</string>
+    <string name="quran_bookmarks_loading">جارٍ تحميل العلامات المرجعية…</string>
+    <string name="quran_bookmarks_empty_title">لا توجد علامات مرجعية</string>
+    <string name="quran_bookmarks_empty_body">أضف علامة مرجعية أثناء القراءة لتظهر هنا.</string>
+    <string name="quran_bookmarks_error_title">العلامات المرجعية غير متاحة</string>
+    <string name="quran_bookmarks_error_body">حدث خطأ أثناء تحميل العلامات المرجعية المحفوظة.</string>
+    <string name="quran_bookmarks_count_fmt">%1$d علامة مرجعية</string>
+    <string name="quran_bookmarks_open_fmt">فتح سورة %1$s، الآية %2$d</string>
+    <string name="quran_bookmarks_remove_fmt">إزالة العلامة المرجعية لسورة %1$s، الآية %2$d</string>
+
+    <!-- Phase 4: home -->
+    <string name="home_continue_reading">متابعة القراءة</string>
+    <string name="home_continue_reading_fmt">%1$s · الآية %2$d</string>
+    <string name="home_now_playing_fmt">يتشغّل الآن: %1$s · الآية %2$d</string>
     <string name="prayer_title">أوقات الصلاة</string>
     <string name="athkar_title">الأذكار</string>
     <string name="qibla_title">القبلة</string>
