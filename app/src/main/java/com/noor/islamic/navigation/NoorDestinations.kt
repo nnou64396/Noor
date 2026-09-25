@@ -19,6 +19,7 @@ object NoorDestinations {
     const val QURAN = "quran"
     const val QURAN_READER = "quran/surah/{surahNumber}"
     const val QURAN_SURAH_ARG = "surahNumber"
+    const val QURAN_AYAH_ARG = "ayahNumber"
     const val QURAN_SEARCH = "quran/search"
     const val QURAN_BOOKMARKS = "quran/bookmarks"
     const val PRAYER = "prayer"
@@ -30,13 +31,12 @@ object NoorDestinations {
     fun quranReaderRoute(surahNumber: Int): String = "quran/surah/$surahNumber"
 
     /**
-     * Opens the reader at one ayah. The existing surah route is left untouched so
-     * bookmarks, search results and Home all deep-link without changing it.
+     * Opens the reader at one ayah. The surah stays in the path of the existing
+     * reader route, so search results, bookmarks and Home all deep-link without
+     * changing the route itself.
      */
     fun quranAyahRoute(surahNumber: Int, ayahNumberInSurah: Int): String =
-        "$QURAN_READER?$QURAN_SURAH_ARG=$surahNumber&$QURAN_AYAH_ARG=$ayahNumberInSurah"
-
-    const val QURAN_AYAH_ARG = "ayahNumber"
+        "${quranReaderRoute(surahNumber)}?$QURAN_AYAH_ARG=$ayahNumberInSurah"
 }
 
 /**
