@@ -1,0 +1,40 @@
+QURAN READER OFFLINE DATABASE - INPUT SOURCE PROVENANCE
+========================================================
+Target offline DB: quran_reader.db (bundled asset, Room createFromAsset, offline-first)
+
+Primary source : Tanzil Quran Text - Uthmani script
+Version        : Uthmani v1.1, released February 2021
+Provider       : Tanzil (https://tanzil.net)
+License        : Creative Commons Attribution 3.0 (CC BY 3.0)
+                 verbatim copies and translations allowed; changes to the text
+                 are NOT allowed (no modification). Attribution required.
+Copyright      : (C) 2008-2021 Tanzil.net (see TANZIL.txt asset bundled with the app)
+Download endpoint (POST form):
+                 https://tanzil.net/pub/download/index.php
+                 parameters: quranType=uthmani&marks=true&sajdah=true&rub=false
+                             &alef=true&tatweel=true&laa=false&stanween=false&agree=true
+Downloaded date : 2026-09-24 (UTC)
+
+Files (dir: tools/quran/importer/_sources/):
+  uthmani.txt           size 1,334,737   sha256 AC0724796CBBDA0F4801470FBBD11D0F3C5802067BAE0493466D0128B0C667AF
+                          format: outType=txt, no ayah numbers (basmala merged into ayah 1)
+  uthmani_txt2.txt      size 1,370,878   sha256 BF4F57B968D03F4131C070B1E285DA9BE0E0A108A21C910E872801CA273312C8
+                          format: outType=txt-2, with ayah numbers
+  uthmani.xml           size 1,516,178   sha256 203F0F1BF3158B1E5BE4AB9F8F6870E570AAB6D9A626FE6192A70B75D4AFE0FD
+                          format: outType=xml (primary structural/numbering source)
+  quran-data.xml        size 77,234      sha256 8867C1D88191472ADEC9DB694B3CD9F135B1A2EF580574D32CF888DCB22C5C7A
+                          Tanzil metadata version 1.0, (C) 2008-2009 Tanzil.info,
+                          https://tanzil.net/res/text/metadata/quran-data.xml
+                          sura names (ar/tname/ename), revelation type/order,
+                          juz (30), page (604), sajda (15) boundaries
+
+Validation cross-checks built into the importer:
+  - XML element count  : 114 sura, 6236 aya (numbers explicit in XML)
+  - txt line count     : 6236 data lines (independent stream, no numbers)
+  - txt-2 pipe format  : independent numbered stream
+  - metadata           : 114 sura, totals 6236; per-surah ayas sums; start offsets
+  - verified constants : juz2 start 2:142, page2 start 2:1, page604 start 112:1,
+                         15 sajdas first=7:206, surah 9 = no basmala
+
+Known Tanzil version caveat: the download index form occasionally changes
+parameters/URLs; any re-download must be re-verified against these hashes.

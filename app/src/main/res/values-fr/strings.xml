@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">Noor</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Noor</string>
+    <string name="onboarding_tagline">Faites de la foi une partie de chaque jour</string>
+    <string name="onboarding_features_title">Que trouverez-vous dans Noor ?</string>
+    <string name="onboarding_language_title">Choisissez votre langue</string>
+    <string name="action_continue">Continuer</string>
+
+    <!-- Onboarding feature descriptions -->
+    <string name="feat_quran_desc">Lisez le Noble Coran hors ligne</string>
+    <string name="feat_prayer_desc">Heures de prière précises, bientôt</string>
+    <string name="feat_qibla_desc">Une boussole de la Qibla, bientôt</string>
+    <string name="feat_athkar_desc">Les Adhkar du matin et du soir, bientôt</string>
+    <string name="feat_tasbih_desc">Un compteur de Tasbih apaisant, bientôt</string>
+
+    <!-- Home -->
+    <string name="home_header_tagline">Un espace spirituel apaisé</string>
+    <string name="home_greeting">As-salāmou ʿalaykoum</string>
+    <string name="home_welcome">Bienvenue sur Noor</string>
+    <string name="home_subtitle">Votre espace spirituel quotidien pour le Coran, les Adhkar et la Qibla</string>
+    <string name="home_quick_access">Accès rapide</string>
+    <string name="home_daily">Aujourd&#8217;hui</string>
+
+    <!-- Daily section -->
+    <string name="daily_verse_title">Verset du jour</string>
+    <string name="daily_verse_placeholder">Un verset choisi du Coran apparaîtra ici chaque jour dans une phase ultérieure.</string>
+    <string name="daily_dhikr_title">Dhikr du jour</string>
+    <string name="daily_dhikr_placeholder">Le dhikr du jour apparaîtra ici dans une phase ultérieure.</string>
+
+    <!-- Tasbih -->
+    <string name="tasbih_title">Tasbih</string>
+
+    <!-- Settings labels -->
+    <string name="pref_language">Langue</string>
+    <string name="pref_theme">Thème</string>
+    <string name="settings_section_appearance">Apparence</string>
+    <string name="settings_section_language">Langue</string>
+    <string name="settings_section_about">À propos</string>
+    <string name="settings_about_title">À propos de Noor</string>
+    <string name="settings_about_body">Noor est une application islamique apaisée qui réunit le Coran, les Adhkar, la prière et la Qibla dans une expérience visuelle moderne inspirée de l&#8217;architecture ottomane.</string>
+    <string name="settings_version_title">Version</string>
+    <string name="settings_version_value">0.1.0</string>
+
+    <!-- Dialog -->
+    <string name="dialog_ok">OK</string>
+
+    <!-- Languages -->
+    <string name="language_arabic">العربية</string>
+    <string name="language_english">English</string>
+    <string name="language_french">Français</string>
+
+    <!-- Themes -->
+    <string name="theme_system">Système</string>
+    <string name="theme_light">Clair</string>
+    <string name="theme_dark">Sombre</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Accueil</string>
+    <string name="nav_quran">Coran</string>
+    <string name="nav_athkar">Adhkar</string>
+    <string name="nav_qibla">Qibla</string>
+    <string name="nav_settings">Réglages</string>
+
+    <!-- Screens -->
+    <string name="home_title">Accueil</string>
+    <string name="quran_title">Le Noble Coran</string>
+    <string name="quran_subtitle">Choisissez une sourate à lire</string>
+    <string name="quran_loading">Chargement des sourates…</string>
+    <string name="quran_empty_title">Aucune sourate disponible</string>
+    <string name="quran_empty_body">La liste locale des sourates n’a pas pu être trouvée.</string>
+    <string name="quran_error_title">Impossible de charger le Coran</string>
+    <string name="quran_error_body">Une erreur s’est produite lors de la lecture du Coran local. Réessayez.</string>
+    <string name="quran_surah_number_fmt">Sourate %1$d</string>
+    <string name="quran_surah_accessibility_fmt">Sourate %1$d, %2$s</string>
+    <string name="quran_ayah_count_fmt">%1$d versets</string>
+    <string name="quran_start_page_fmt">Page %1$d</string>
+    <string name="quran_revelation_meccan">Mecquoise</string>
+    <string name="quran_revelation_medinan">Médinoise</string>
+    <string name="quran_reader_back">Retour à la liste des sourates</string>
+    <string name="quran_reader_loading">Chargement de la sourate…</string>
+    <string name="quran_reader_empty_title">Aucun verset disponible dans cette sourate</string>
+    <string name="quran_reader_empty_body">Aucun verset de cette sourate n’a été trouvé dans le Coran local.</string>
+    <string name="quran_reader_error_title">Impossible d’ouvrir la sourate</string>
+    <string name="quran_reader_invalid_body">Le numéro de la sourate est invalide.</string>
+    <string name="quran_reader_not_found_body">Cette sourate n’a pas été trouvée dans le Coran local.</string>
+    <string name="quran_reader_error_load_body">Une erreur s’est produite lors de la lecture de la sourate. Réessayez.</string>
+    <string name="quran_ayah_number_fmt">Verset %1$d</string>
+    <string name="quran_sajda">Position de la sajda</string>
+    <string name="quran_source_attribution">Texte du Coran : Tanzil Uthmani v1.1 · tanzil.net</string>
+    <string name="quran_source_copyright">Copyright © 2007–2026 Projet Tanzil · CC BY 3.0</string>
+    <string name="prayer_title">Heures de prière</string>
+    <string name="athkar_title">Adhkar</string>
+    <string name="qibla_title">Qibla</string>
+
+    <!-- Prayer names -->
+    <string name="prayer_fajr">Fajr</string>
+    <string name="prayer_sunrise">Lever du soleil</string>
+    <string name="prayer_dhuhr">Dhuhr</string>
+    <string name="prayer_asr">Asr</string>
+    <string name="prayer_sunset">Coucher du soleil</string>
+    <string name="prayer_maghrib">Maghrib</string>
+    <string name="prayer_isha">Icha</string>
+
+    <!-- Prayer times -->
+    <string name="prayer_next_title">Prochaine prière</string>
+    <string name="prayer_remaining_fmt">Dans %1$s</string>
+    <string name="prayer_next_pill">Suivante</string>
+    <string name="prayer_offline_badge">Dernière mise à jour</string>
+    <string name="prayer_source">Horaires fournis par Al-Adhan</string>
+    <string name="prayer_list_title">Horaires du jour</string>
+    <string name="prayer_loading">Calcul des heures de prière…</string>
+    <string name="prayer_detecting_location">Localisation…</string>
+    <string name="prayer_error_title">Impossible de charger les horaires</string>
+    <string name="prayer_error_body">Vérifiez votre connexion Internet et réessayez.</string>
+
+    <!-- Location permission / status -->
+    <string name="location_permission_title">Accès à la position</string>
+    <string name="location_permission_body_prayer">Nous utilisons votre position approximative pour calculer précisément les heures de prière de votre ville. Votre position n&#8217;est envoyée qu&#8217;au service d&#8217;horaires et n&#8217;est jamais enregistrée.</string>
+    <string name="location_permission_body_qibla">Nous utilisons votre position approximative pour calculer la direction de la Kaaba. Aucun historique de position n&#8217;est conservé.</string>
+    <string name="location_denied_body">Vous pouvez continuer à utiliser Noor sans cet accès. Activez-le plus tard dans les réglages quand vous le souhaitez.</string>
+    <string name="location_unavailable_title">Position indisponible</string>
+    <string name="location_unavailable_body">Assurez-vous que la localisation est activée sur votre appareil, puis réessayez.</string>
+    <string name="location_detecting">Localisation…</string>
+    <string name="location_city_unknown">Votre position</string>
+    <string name="action_grant_location">Autoriser</string>
+    <string name="action_open_settings">Ouvrir les réglages</string>
+    <string name="action_retry">Réessayer</string>
+
+    <!-- Qibla -->
+    <string name="qibla_subtitle">Orientez votre appareil vers la Kaaba</string>
+    <string name="qibla_sensor_unavailable">Boussole indisponible sur cet appareil</string>
+    <string name="qibla_sensor_unavailable_body">Votre appareil n&#8217;a pas de capteur d&#8217;orientation numérique ; la direction de la Qibla ne peut pas être affichée.</string>
+    <string name="qibla_north">N</string>
+    <string name="qibla_east">E</string>
+    <string name="qibla_south">S</string>
+    <string name="qibla_west">W</string>
+    <string name="qibla_heading_fmt">Cap : %1$d°</string>
+    <string name="qibla_kaaba_bearing_fmt">Qibla : %1$d°</string>
+    <string name="qibla_calibrate_hint">Pour une boussole plus précise, déplacez le téléphone en formant un huit.</string>
+
+    <!-- Home prayer -->
+    <string name="home_prayer_enable">Activer les heures de prière</string>
+    <string name="home_prayer_enable_hint">Cela requiert d&#8217;autoriser l&#8217;accès à votre position.</string>
+    <string name="home_prayer_unavailable">Heures de prière actuellement indisponibles</string>
+    <string name="home_prayer_fallback">Touchez pour ouvrir les heures de prière.</string>
+
+    <!-- Placeholders -->
+    <string name="feature_coming_soon">Cette fonctionnalité arrive bientôt</string>
+</resources>

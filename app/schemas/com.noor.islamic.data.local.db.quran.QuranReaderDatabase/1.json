@@ -1,0 +1,183 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "e287ba60636e36df3c8811457a47dca3",
+    "entities": [
+      {
+        "tableName": "surahs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`surah_number` INTEGER NOT NULL, `name_arabic` TEXT NOT NULL, `name_transliteration` TEXT NOT NULL, `name_english` TEXT NOT NULL, `ayah_count` INTEGER NOT NULL, `revelation_order` INTEGER NOT NULL, `revelation_type` TEXT NOT NULL, `start_page` INTEGER NOT NULL, `basmala` TEXT, PRIMARY KEY(`surah_number`))",
+        "fields": [
+          {
+            "fieldPath": "surahNumber",
+            "columnName": "surah_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameArabic",
+            "columnName": "name_arabic",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameTransliteration",
+            "columnName": "name_transliteration",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameEnglish",
+            "columnName": "name_english",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ayahCount",
+            "columnName": "ayah_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revelationOrder",
+            "columnName": "revelation_order",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revelationType",
+            "columnName": "revelation_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startPage",
+            "columnName": "start_page",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "basmala",
+            "columnName": "basmala",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "surah_number"
+          ]
+        }
+      },
+      {
+        "tableName": "ayahs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`global_ayah_number` INTEGER NOT NULL, `surah_number` INTEGER NOT NULL, `ayah_number_in_surah` INTEGER NOT NULL, `juz_number` INTEGER NOT NULL, `page_number` INTEGER NOT NULL, `has_sajdah` INTEGER NOT NULL, `text_uthmani` TEXT NOT NULL, `text_search` TEXT NOT NULL, PRIMARY KEY(`global_ayah_number`))",
+        "fields": [
+          {
+            "fieldPath": "globalAyahNumber",
+            "columnName": "global_ayah_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "surahNumber",
+            "columnName": "surah_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ayahNumberInSurah",
+            "columnName": "ayah_number_in_surah",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "juzNumber",
+            "columnName": "juz_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageNumber",
+            "columnName": "page_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasSajdah",
+            "columnName": "has_sajdah",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textUthmani",
+            "columnName": "text_uthmani",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textSearch",
+            "columnName": "text_search",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "global_ayah_number"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ayahs_surah_number_ayah_number_in_surah",
+            "unique": true,
+            "columnNames": [
+              "surah_number",
+              "ayah_number_in_surah"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ayahs_surah_number_ayah_number_in_surah` ON `${TABLE_NAME}` (`surah_number`, `ayah_number_in_surah`)"
+          }
+        ]
+      },
+      {
+        "tableName": "ayahs_fts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`text_search` TEXT NOT NULL, content=`ayahs`)",
+        "fields": [
+          {
+            "fieldPath": "textSearch",
+            "columnName": "text_search",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": []
+        },
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "ayahs",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ayahs_fts_BEFORE_UPDATE BEFORE UPDATE ON `ayahs` BEGIN DELETE FROM `ayahs_fts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ayahs_fts_BEFORE_DELETE BEFORE DELETE ON `ayahs` BEGIN DELETE FROM `ayahs_fts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ayahs_fts_AFTER_UPDATE AFTER UPDATE ON `ayahs` BEGIN INSERT INTO `ayahs_fts`(`docid`, `text_search`) VALUES (NEW.`rowid`, NEW.`text_search`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_ayahs_fts_AFTER_INSERT AFTER INSERT ON `ayahs` BEGIN INSERT INTO `ayahs_fts`(`docid`, `text_search`) VALUES (NEW.`rowid`, NEW.`text_search`); END"
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e287ba60636e36df3c8811457a47dca3')"
+    ]
+  }
+}
