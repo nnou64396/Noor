@@ -24,6 +24,9 @@
     <string name="home_subtitle">Your daily spiritual space for the Quran, Athkar and Qibla</string>
     <string name="home_quick_access">Quick access</string>
     <string name="home_daily">Today</string>
+    <string name="home_practice_title">Your practice</string>
+    <string name="home_practice_athkar_fmt">%1$d of %2$d adhkar</string>
+    <string name="home_practice_tasbih_fmt">%1$d of %2$d counted</string>
 
     <!-- Daily section -->
     <string name="daily_verse_title">Verse of the day</string>
@@ -33,6 +36,43 @@
 
     <!-- Tasbih -->
     <string name="tasbih_title">Tasbih</string>
+    <string name="tasbih_tap_desc">Counted %1$d of %2$d, tap to add one</string>
+    <string name="tasbih_remaining_fmt">%1$d of %2$d to go</string>
+    <string name="tasbih_complete">%1$d completed</string>
+    <string name="tasbih_undo_desc">Undo one count</string>
+    <string name="tasbih_reset_desc">Reset the counter</string>
+    <string name="tasbih_target_title">Target</string>
+    <string name="tasbih_target_custom">Custom</string>
+    <string name="tasbih_target_current_fmt">Custom (%1$d)</string>
+    <string name="tasbih_target_dialog_title">Custom target</string>
+    <string name="tasbih_target_dialog_label">Number of counts</string>
+
+    <!-- Athkar -->
+    <string name="athkar_category_morning">Morning adhkar</string>
+    <string name="athkar_category_evening">Evening adhkar</string>
+    <string name="athkar_category_after_prayer">After prayer</string>
+    <string name="athkar_category_before_sleep">Before sleep</string>
+    <string name="athkar_category_general">Daily adhkar</string>
+    <string name="athkar_category_other">Adhkar</string>
+    <string name="athkar_loading">Loading…</string>
+    <string name="athkar_error">The adhkar could not be loaded.</string>
+    <string name="athkar_corpus_pending_title">Adhkar coming soon</string>
+    <string name="athkar_corpus_pending_body">No adhkar text has been bundled yet, because supplications are never shown without a verified source. They will appear here as soon as one is added.</string>
+    <string name="athkar_category_unavailable">This category has no adhkar.</string>
+    <string name="athkar_progress_fmt">%1$d of %2$d completed</string>
+    <string name="athkar_category_progress_fmt">%1$d of %2$d adhkar</string>
+    <string name="athkar_repeat_of_fmt">Repeat: %1$d</string>
+    <string name="athkar_remaining_fmt">Repeated %1$d of %2$d</string>
+    <string name="athkar_completed_fmt">Completed %1$d of %2$d</string>
+    <string name="athkar_repeat_desc">Repeat %1$d times, %2$d to go. Tap to count one.</string>
+    <string name="athkar_reset_dhikr">Reset this dhikr</string>
+    <string name="athkar_reset_category">Reset this category</string>
+    <string name="athkar_category_open_desc">%1$s, %2$s. Open to start counting.</string>
+
+    <!-- Shared actions -->
+    <string name="action_back">Back</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
 
     <!-- Settings labels -->
     <string name="pref_language">Language</string>

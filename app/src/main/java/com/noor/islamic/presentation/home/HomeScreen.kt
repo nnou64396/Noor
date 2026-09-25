@@ -63,6 +63,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     quran: HomeQuranUiState? = null,
     onTogglePlayback: () -> Unit = {},
+    practice: HomePracticeUiState? = null,
 ) {
     val prayerState by prayerViewModel.uiState.collectAsStateWithLifecycle()
     val next by prayerViewModel.nextPrayer.collectAsStateWithLifecycle()
@@ -89,8 +90,94 @@ fun HomeScreen(
                 onTogglePlayback = onTogglePlayback,
             )
         }
+        if (practice != null) {
+            HomePracticeSection(
+                state = practice,
+                onOpenAthkar = { onOpenDestination(NoorDestinations.ATHKAR) },
+                onOpenTasbih = { onOpenDestination(NoorDestinations.TASBIH) },
+            )
+        }
         HomeQuickAccess(onOpenDestination = onOpenDestination)
         HomeDailySection()
+    }
+}
+
+/**
+ * One compact row summarising the two Phase 5 features. It is additive: the
+ * existing prayer, Quran, quick-access and daily sections are untouched, and the
+ * whole card disappears when there is nothing to report.
+ */
+@Composable
+private fun HomePracticeSection(
+    state: HomePracticeUiState,
+    onOpenAthkar: () -> Unit,
+    onOpenTasbih: () -> Unit,
+) {
+    if (!state.hasContent && state.tasbih.totalCount == 0) return
+
+    NoorSectionTitle(
+        title = stringResource(R.string.home_practice_title),
+        icon = Icons.Rounded.BlurOn,
+    )
+    Spacer(Modifier.size(NoorDimens.Md))
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(NoorDimens.Md),
+    ) {
+        if (state.hasContent) {
+            val label = stringResource(
+                R.string.home_practice_athkar_fmt,
+                state.completedDhikr,
+                state.totalDhikr,
+            )
+            HomePracticeCard(
+                title = stringResource(R.string.nav_athkar),
+                body = label,
+                onClick = onOpenAthkar,
+                testTag = "home_practice_athkar",
+                modifier = Modifier.weight(1f),
+            )
+        }
+        if (state.tasbih.totalCount > 0) {
+            val label = stringResource(
+                R.string.home_practice_tasbih_fmt,
+                state.tasbih.count,
+                state.tasbih.target,
+            )
+            HomePracticeCard(
+                title = stringResource(R.string.tasbih_title),
+                body = label,
+                onClick = onOpenTasbih,
+                testTag = "home_practice_tasbih",
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun HomePracticeCard(
+    title: String,
+    body: String,
+    onClick: () -> Unit,
+    testTag: String,
+    modifier: Modifier = Modifier,
+) {
+    NoorGlassCard(onClick = onClick, modifier = modifier.testTag(testTag)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.secondary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Spacer(Modifier.size(NoorDimens.Xs))
+        Text(
+            text = body,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
 

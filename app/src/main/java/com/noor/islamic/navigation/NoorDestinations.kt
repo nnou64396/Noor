@@ -22,6 +22,8 @@ object NoorDestinations {
     const val QURAN_AYAH_ARG = "ayahNumber"
     const val QURAN_SEARCH = "quran/search"
     const val QURAN_BOOKMARKS = "quran/bookmarks"
+    const val ATHKAR_CATEGORY = "athkar/category/{categoryId}"
+    const val ATHKAR_CATEGORY_ARG = "categoryId"
     const val PRAYER = "prayer"
     const val ATHKAR = "athkar"
     const val QIBLA = "qibla"
@@ -29,6 +31,9 @@ object NoorDestinations {
     const val SETTINGS = "settings"
 
     fun quranReaderRoute(surahNumber: Int): String = "quran/surah/$surahNumber"
+
+    /** Opens the adhkar of one category, by its corpus slug. */
+    fun athkarCategoryRoute(categoryId: String): String = "athkar/category/$categoryId"
 
     /**
      * Opens the reader at one ayah. The surah stays in the path of the existing

@@ -24,6 +24,9 @@
     <string name="home_subtitle">فضاؤك الروحي اليومي للقرآن والأذكار والقبلة</string>
     <string name="home_quick_access">الوصول السريع</string>
     <string name="home_daily">اليوم</string>
+    <string name="home_practice_title">ممارستك</string>
+    <string name="home_practice_athkar_fmt">%1$d من %2$d ذكر</string>
+    <string name="home_practice_tasbih_fmt">%1$d من %2$d تسبيحة</string>
 
     <!-- Daily section -->
     <string name="daily_verse_title">آية اليوم</string>
@@ -33,6 +36,44 @@
 
     <!-- Tasbih -->
     <string name="tasbih_title">التسبيح</string>
+    <string name="tasbih_tap_desc">التسبيح %1$d من %2$d، اضغط للزيادة</string>
+    <string name="tasbih_remaining_fmt">بقي %1$d من %2$d</string>
+    <string name="tasbih_complete">أتممت %1$d</string>
+    <string name="tasbih_undo_desc">تراجع عن تسبيحة</string>
+    <string name="tasbih_reset_desc">إعادة ضبط العداد</string>
+    <string name="tasbih_target_title">الهدف</string>
+    <string name="tasbih_target_custom">مخصص</string>
+    <string name="tasbih_target_current_fmt">مخصص (%1$d)</string>
+    <string name="tasbih_target_dialog_title">هدف مخصص</string>
+    <string name="tasbih_target_dialog_label">عدد التسبيحات</string>
+
+    <!-- Athkar -->
+    <string name="athkar_title">الأذكار</string>
+    <string name="athkar_category_morning">أذكار الصباح</string>
+    <string name="athkar_category_evening">أذكار المساء</string>
+    <string name="athkar_category_after_prayer">أذكار بعد الصلاة</string>
+    <string name="athkar_category_before_sleep">أذكار قبل النوم</string>
+    <string name="athkar_category_general">أذكار عامة</string>
+    <string name="athkar_category_other">أذكار</string>
+    <string name="athkar_loading">جارٍ التحميل…</string>
+    <string name="athkar_error">تعذّر تحميل الأذكار.</string>
+    <string name="athkar_corpus_pending_title">الأذكار قريباً</string>
+    <string name="athkar_corpus_pending_body">لم يُضف بعد أي نص أذكار إلى التطبيق، التزاماً بعدم عرض أدعية بلا مصدر موثوق. سيظهر هنا فور إضافة مصدر موثوق.</string>
+    <string name="athkar_category_unavailable">لا توجد أذكار في هذه المجموعة.</string>
+    <string name="athkar_progress_fmt">%1$d من %2$d مكتمل</string>
+    <string name="athkar_category_progress_fmt">%1$d من %2$d ذكر</string>
+    <string name="athkar_repeat_of_fmt">التكرار: %1$d</string>
+    <string name="athkar_remaining_fmt">التكرار %1$d من %2$d</string>
+    <string name="athkar_completed_fmt">أتممت التكرار %1$d من %2$d</string>
+    <string name="athkar_repeat_desc">ذكر بتكرار %1$d، بقي %2$d. اضغط للتكرار.</string>
+    <string name="athkar_reset_dhikr">إعادة ضبط هذا الذكر</string>
+    <string name="athkar_reset_category">إعادة ضبط المجموعة</string>
+    <string name="athkar_category_open_desc">%1$s، %2$s. افتح لبدء التكرار.</string>
+
+    <!-- Shared actions -->
+    <string name="action_back">رجوع</string>
+    <string name="action_save">حفظ</string>
+    <string name="action_cancel">إلغاء</string>
 
     <!-- Settings labels -->
     <string name="pref_language">اللغة</string>
@@ -163,7 +204,6 @@
     <string name="home_continue_reading_fmt">%1$s · الآية %2$d</string>
     <string name="home_now_playing_fmt">يتشغّل الآن: %1$s · الآية %2$d</string>
     <string name="prayer_title">أوقات الصلاة</string>
-    <string name="athkar_title">الأذكار</string>
     <string name="qibla_title">القبلة</string>
 
     <!-- Prayer names -->
