@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">نور</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">نور</string>
+    <string name="onboarding_tagline">اجعل الإيمان جزءاً من كل يوم</string>
+    <string name="onboarding_features_title">ماذا ستجد في نور؟</string>
+    <string name="onboarding_language_title">اختر لغتك</string>
+    <string name="action_continue">متابعة</string>
+
+    <!-- Onboarding feature descriptions -->
+    <string name="feat_quran_desc">اقرأ القرآن الكريم دون اتصال بالإنترنت</string>
+    <string name="feat_prayer_desc">مواقيت الصلاة بدقة قريباً</string>
+    <string name="feat_qibla_desc">بوصلة القبلة قريباً</string>
+    <string name="feat_athkar_desc">أذكار الصباح والمساء قريباً</string>
+    <string name="feat_tasbih_desc">عداد تسبيح هادئ قريباً</string>
+
+    <!-- Home -->
+    <string name="home_header_tagline">فضاء روحي هادئ</string>
+    <string name="home_greeting">السلام عليكم</string>
+    <string name="home_welcome">أهلاً بك في نور</string>
+    <string name="home_subtitle">فضاؤك الروحي اليومي للقرآن والأذكار والقبلة</string>
+    <string name="home_quick_access">الوصول السريع</string>
+    <string name="home_daily">اليوم</string>
+
+    <!-- Daily section -->
+    <string name="daily_verse_title">آية اليوم</string>
+    <string name="daily_verse_placeholder">ستظهر آية مختارة من القرآن هنا يومياً في مرحلة قادمة.</string>
+    <string name="daily_dhikr_title">ذكر اليوم</string>
+    <string name="daily_dhikr_placeholder">سيتاح ذكر اليوم هنا في مرحلة قادمة.</string>
+
+    <!-- Tasbih -->
+    <string name="tasbih_title">التسبيح</string>
+
+    <!-- Settings labels -->
+    <string name="pref_language">اللغة</string>
+    <string name="pref_theme">المظهر</string>
+    <string name="settings_section_appearance">المظهر</string>
+    <string name="settings_section_language">اللغة</string>
+    <string name="settings_section_about">حول</string>
+    <string name="settings_about_title">حول نور</string>
+    <string name="settings_about_body">نور تطبيق إسلامي هادئ يجمع القرآن والأذكار والصلاة والقبلة في تجربة بصرية عصرية مستوحاة من العمارة العثمانية.</string>
+    <string name="settings_version_title">الإصدار</string>
+    <string name="settings_version_value">0.1.0</string>
+
+    <!-- Dialog -->
+    <string name="dialog_ok">تم</string>
+
+    <!-- Languages -->
+    <string name="language_arabic">العربية</string>
+    <string name="language_english">English</string>
+    <string name="language_french">Français</string>
+
+    <!-- Themes -->
+    <string name="theme_system">تلقائي</string>
+    <string name="theme_light">فاتح</string>
+    <string name="theme_dark">داكن</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_quran">القرآن</string>
+    <string name="nav_athkar">الأذكار</string>
+    <string name="nav_qibla">القبلة</string>
+    <string name="nav_settings">الإعدادات</string>
+
+    <!-- Screens -->
+    <string name="home_title">الرئيسية</string>
+    <string name="quran_title">القرآن الكريم</string>
+    <string name="quran_subtitle">اختر سورة للقراءة</string>
+    <string name="quran_loading">جارٍ تحميل السور…</string>
+    <string name="quran_empty_title">لا توجد سور متاحة</string>
+    <string name="quran_empty_body">تعذّر العثور على قائمة السور في القرآن المحلي.</string>
+    <string name="quran_error_title">تعذّر تحميل القرآن</string>
+    <string name="quran_error_body">حدث خطأ أثناء قراءة القرآن المحلي. أعد المحاولة.</string>
+    <string name="quran_surah_number_fmt">سورة %1$d</string>
+    <string name="quran_surah_accessibility_fmt">السورة %1$d، %2$s</string>
+    <string name="quran_ayah_count_fmt">%1$d آية</string>
+    <string name="quran_start_page_fmt">الصفحة %1$d</string>
+    <string name="quran_revelation_meccan">مكية</string>
+    <string name="quran_revelation_medinan">مدنية</string>
+    <string name="quran_reader_back">العودة إلى قائمة السور</string>
+    <string name="quran_reader_loading">جارٍ تحميل السورة…</string>
+    <string name="quran_reader_empty_title">لا توجد آيات في هذه السورة</string>
+    <string name="quran_reader_empty_body">تعذّر العثور على آيات لهذه السورة في القرآن المحلي.</string>
+    <string name="quran_reader_error_title">تعذّر فتح السورة</string>
+    <string name="quran_reader_invalid_body">رقم السورة غير صالح.</string>
+    <string name="quran_reader_not_found_body">لم يتم العثور على هذه السورة في القرآن المحلي.</string>
+    <string name="quran_reader_error_load_body">حدث خطأ أثناء قراءة السورة. أعد المحاولة.</string>
+    <string name="quran_ayah_number_fmt">الآية %1$d</string>
+    <string name="quran_sajda">موضع سجدة</string>
+    <string name="quran_source_attribution">نص القرآن: Tanzil Uthmani v1.1 · tanzil.net</string>
+    <string name="quran_source_copyright">حقوق النسخ © 2007–2026 مشروع Tanzil · CC BY 3.0</string>
+    <string name="prayer_title">أوقات الصلاة</string>
+    <string name="athkar_title">الأذكار</string>
+    <string name="qibla_title">القبلة</string>
+
+    <!-- Prayer names -->
+    <string name="prayer_fajr">الفجر</string>
+    <string name="prayer_sunrise">الشروق</string>
+    <string name="prayer_dhuhr">الظهر</string>
+    <string name="prayer_asr">العصر</string>
+    <string name="prayer_sunset">الغروب</string>
+    <string name="prayer_maghrib">المغرب</string>
+    <string name="prayer_isha">العشاء</string>
+
+    <!-- Prayer times -->
+    <string name="prayer_next_title">الصلاة القادمة</string>
+    <string name="prayer_remaining_fmt">متبقي %1$s</string>
+    <string name="prayer_next_pill">التالي</string>
+    <string name="prayer_offline_badge">من آخر تحديث</string>
+    <string name="prayer_source">المواقيت من خدمة Al-Adhan</string>
+    <string name="prayer_list_title">مواقيت اليوم</string>
+    <string name="prayer_loading">جارٍ حساب المواقيت…</string>
+    <string name="prayer_detecting_location">جارٍ تحديد الموقع…</string>
+    <string name="prayer_error_title">تعذّر تحميل المواقيت</string>
+    <string name="prayer_error_body">تحقق من اتصالك بالإنترنت ثم أعد المحاولة.</string>
+
+    <!-- Location permission / status -->
+    <string name="location_permission_title">إذن الوصول إلى الموقع</string>
+    <string name="location_permission_body_prayer">نحتاج موقعك التقريبي لحساب مواقيت الصلاة في مدينتك بدقة. لا نُرسل موقعك إلا للخدمة التي تحسب المواقيت، ولا نخزّن أي سجلّ له.</string>
+    <string name="location_permission_body_qibla">نحتاج موقعك التقريبي لحساب الاتجاه نحو الكعبة المشرفة. لا نخزّن أي سجلّ لموقعك.</string>
+    <string name="location_denied_body">يمكنك متابعة استخدام نور دون منح الإذن. فعّله لاحقاً من الإعدادات متى شئت.</string>
+    <string name="location_unavailable_title">تعذّر الحصول على الموقع</string>
+    <string name="location_unavailable_body">تأكد من تفعيل خدمة تحديد الموقع على الجهاز ثم أعد المحاولة.</string>
+    <string name="location_detecting">جارٍ تحديد الموقع…</string>
+    <string name="location_city_unknown">موقعك</string>
+    <string name="action_grant_location">منح الإذن</string>
+    <string name="action_open_settings">فتح إعدادات التطبيق</string>
+    <string name="action_retry">إعادة المحاولة</string>
+
+    <!-- Qibla -->
+    <string name="qibla_subtitle">وجّه الجهاز نحو الكعبة المشرفة</string>
+    <string name="qibla_sensor_unavailable">البوصلة غير متاحة على هذا الجهاز</string>
+    <string name="qibla_sensor_unavailable_body">لا يتوفر مستشعر اتجاه رقمي على جهازك، لذا لا يمكن عرض اتجاه القبلة.</string>
+    <string name="qibla_north">N</string>
+    <string name="qibla_east">E</string>
+    <string name="qibla_south">S</string>
+    <string name="qibla_west">W</string>
+    <string name="qibla_heading_fmt">الاتجاه الحالي: %1$d°</string>
+    <string name="qibla_kaaba_bearing_fmt">القبلة: %1$d°</string>
+    <string name="qibla_calibrate_hint">لتحسين دقّة البوصلة، حرّك الهاتف بحركة شكل الرقم 8.</string>
+
+    <!-- Home prayer -->
+    <string name="home_prayer_enable">فعّل أوقات الصلاة</string>
+    <string name="home_prayer_enable_hint">يتطلب ذلك منح إذن الوصول إلى الموقع.</string>
+    <string name="home_prayer_unavailable">أوقات الصلاة غير متاحة حالياً</string>
+    <string name="home_prayer_fallback">اضغط لفتح أوقات الصلاة.</string>
+
+    <!-- Placeholders -->
+    <string name="feature_coming_soon">هذه الميزة ستُتاح قريباً</string>
+</resources>

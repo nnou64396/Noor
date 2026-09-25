@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Crescent (gold) -->
+    <path
+        android:fillColor="#C9A227"
+        android:pathData="M48,28 a24,24 0 1 1 0,48 a24,24 0 1 1 0,-48" />
+    <!-- Crescent cut-out (matches background) -->
+    <path
+        android:fillColor="#0B3D2E"
+        android:pathData="M60,32 a20,20 0 1 1 0,40 a20,20 0 1 1 0,-40" />
+    <!-- Star sparkle -->
+    <path
+        android:fillColor="#FAF7F0"
+        android:pathData="M79,26 L81,34 L89,36 L81,38 L79,46 L77,38 L69,36 L77,34 Z" />
+</vector>
