@@ -11,6 +11,7 @@ import com.noor.islamic.domain.repository.LocationPermissionChecker
 import com.noor.islamic.domain.repository.LocationRepository
 import com.noor.islamic.domain.repository.PrayerRepository
 import com.noor.islamic.presentation.common.LocationPermissionUiState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -198,13 +199,29 @@ class PrayerViewModel(
         val cachedTomorrow = prayerRepository.getCached(tomorrow, p, method)
         _uiState.update { it.copy(schedule = PrayerScheduleUi.Loading(cachedToday)) }
 
-        val result = runCatching {
+        val result = try {
             val freshToday = prayerRepository.refresh(today, p, method)
-            val freshTomorrow = kotlin.runCatching { prayerRepository.refresh(tomorrow, p, method) }
-                .getOrNull()
+            val freshTomorrow = try {
+                prayerRepository.refresh(tomorrow, p, method)
+            } catch (e: CancellationException) {
+                // Tomorrow is optional, but cancellation is not an outcome: it
+                // must unwind the load rather than be reported as "no tomorrow".
+                throw e
+            } catch (_: Exception) {
+                null
+            }
             _uiState.update {
                 it.copy(schedule = PrayerScheduleUi.Ready(freshToday, freshTomorrow, fromCache = false))
             }
+            Result.success(Unit)
+        } catch (e: CancellationException) {
+            // `runCatching` would absorb this and fall through to the cache
+            // branch, turning ordinary coroutine cancellation into a
+            // user-visible failure state. `PrayerRepositoryImpl.apiCall`
+            // deliberately rethrows cancellation, so it is honoured here too.
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
         }
         result.onFailure {
             if (cachedToday != null) {

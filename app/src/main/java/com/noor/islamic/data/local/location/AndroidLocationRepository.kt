@@ -89,8 +89,16 @@ class AndroidLocationRepository(
             null
         }
 
+    /**
+     * Best-effort place name for an already-obtained fix. The geocoder is
+     * advisory: a miss simply leaves the label unset and never fails the load.
+     *
+     * [CancellationException] is rethrown first, matching [obtainLocation] and
+     * [lastKnownPointOrNull]: `runCatching` would otherwise absorb coroutine
+     * cancellation and report it as a geocoder that simply had no answer.
+     */
     override suspend fun cityLabel(point: GeographicPoint): String? = withContext(Dispatchers.IO) {
-        runCatching {
+        try {
             Geocoder(context, Locale.getDefault())
                 .getFromLocation(point.latitude, point.longitude, 1)
                 ?.firstOrNull()
@@ -99,7 +107,11 @@ class AndroidLocationRepository(
                         ?: address.subAdminArea
                         ?: address.adminArea
                 }
-        }.getOrNull()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun android.location.Location.toPoint(): GeographicPoint =

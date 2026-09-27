@@ -7,6 +7,7 @@ import com.noor.islamic.domain.repository.LocationPermissionChecker
 import com.noor.islamic.domain.repository.LocationRepository
 import com.noor.islamic.domain.sensor.HeadingProvider
 import com.noor.islamic.presentation.common.LocationPermissionUiState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,6 +56,22 @@ class QiblaViewModel(
 
     private var permissionRequested = false
     private var sensorActive = false
+
+    /**
+     * The location request currently in flight, if any.
+     *
+     * `init` starts a fix when the permission is already granted, and the
+     * screen's `ON_RESUME` effect then calls [onScreenEntered] on the same
+     * cold start. Because a fix can take seconds and `locationReady` only flips
+     * once it succeeds, the resume would otherwise open a second overlapping
+     * request for the same fix. This mirrors the `loadJob` guard in
+     * `PrayerViewModel`.
+     *
+     * `Job.isActive` is false again as soon as the request finishes, fails or
+     * is cancelled, so the guard never leaves the screen permanently busy and a
+     * later re-entry can still retry.
+     */
+    private var locationJob: Job? = null
 
     init {
         refreshPermissionState()
@@ -120,7 +137,8 @@ class QiblaViewModel(
     }
 
     private fun resolveLocation() {
-        viewModelScope.launch {
+        if (locationJob?.isActive == true) return
+        locationJob = viewModelScope.launch {
             _uiState.update { it.copy(isLocating = true) }
             locationRepository.obtainLocation()
                 .onSuccess { point ->

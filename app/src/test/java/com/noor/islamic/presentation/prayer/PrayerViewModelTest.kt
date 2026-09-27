@@ -12,6 +12,7 @@ import com.noor.islamic.domain.repository.LocationPermissionChecker
 import com.noor.islamic.domain.repository.LocationRepository
 import com.noor.islamic.domain.repository.PrayerRepository
 import com.noor.islamic.presentation.common.LocationPermissionUiState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -275,6 +276,54 @@ class PrayerViewModelTest {
         assertEquals(today.plusDays(1), next.date)
     }
 
+    // --- Cancellation semantics -----------------------------------------------
+
+    @Test
+    fun `a cancelled refresh propagates instead of becoming a failure state`() =
+        runTest(dispatcher) {
+            val prayers = FakePrayerRepository(cancelled = true)
+            val viewModel = viewModel(prayers = prayers, granted = true)
+            advanceUntilIdle()
+
+            // `runCatching` used to absorb the CancellationException here and
+            // fall through to the no-cache branch, publishing `Failed` for what
+            // is only a cancelled load (leaving the screen, clearing the
+            // ViewModel). Cancellation must unwind instead.
+            assertFalse(
+                "Cancellation must not be reported as a failed load",
+                viewModel.uiState.value.schedule is PrayerScheduleUi.Failed,
+            )
+        }
+
+    @Test
+    fun `a cancelled tomorrow refresh propagates instead of publishing a null tomorrow`() =
+        runTest(dispatcher) {
+            val prayers = FakePrayerRepository(tomorrowCancelled = true)
+            val viewModel = viewModel(prayers = prayers, granted = true)
+            advanceUntilIdle()
+
+            assertFalse(
+                "Cancellation of the optional tomorrow load must not be swallowed",
+                viewModel.uiState.value.schedule is PrayerScheduleUi.Ready,
+            )
+            assertFalse(viewModel.uiState.value.schedule is PrayerScheduleUi.Failed)
+        }
+
+    @Test
+    fun `a plain tomorrow failure still yields a ready schedule without tomorrow`() =
+        runTest(dispatcher) {
+            // Guards the behaviour the cancellation fix must not change: an
+            // ordinary error on the optional tomorrow load is tolerated.
+            val prayers = FakePrayerRepository(tomorrow = false)
+            val viewModel = viewModel(prayers = prayers, granted = true)
+            advanceUntilIdle()
+
+            val ready = viewModel.uiState.value.schedule as PrayerScheduleUi.Ready
+            assertEquals(today, ready.today.date)
+            assertNull(ready.tomorrow)
+            assertFalse(ready.fromCache)
+        }
+
     // --- Helpers -------------------------------------------------------------
 
     private fun viewModel(
@@ -320,6 +369,8 @@ class PrayerViewModelTest {
         private val cached: Boolean = false,
         private val refreshFails: Boolean = false,
         private val tomorrow: Boolean = true,
+        private val cancelled: Boolean = false,
+        private val tomorrowCancelled: Boolean = false,
     ) : PrayerRepository {
 
         override suspend fun getCached(
@@ -333,10 +384,12 @@ class PrayerViewModelTest {
             point: GeographicPoint,
             method: CalculationMethod,
         ): DailyPrayerSchedule {
+            if (cancelled) throw CancellationException("cancelled")
             // The ViewModel tolerates a missing tomorrow: it only requires today.
             if (refreshFails || (!tomorrow && date > today)) {
                 throw PrayerDataException(PrayerErrorKind.NETWORK)
             }
+            if (tomorrowCancelled && date > today) throw CancellationException("cancelled")
             return schedule(date)
         }
     }
