@@ -17,6 +17,21 @@
 -keep class * extends androidx.room.RoomDatabase
 -dontwarn androidx.room.paging.**
 
+# --- Gson ---
+# Gson binds each JSON key to a Kotlin property reflectively, at runtime, by
+# field name. R8 cannot see those lookups, so without an explicit keep rule it
+# strips and renames the response DTOs and the AlAdhan payload silently fails to
+# parse in a minified release build. The unit tests cannot catch this because
+# they run against unminified classes.
+# Retrofit's consumer rules keep the service interface, not the response types.
+# Any new DTO added to the remote layer must be listed here.
+-keep class com.noor.islamic.data.remote.prayer.TimingsResponse { *; }
+-keep class com.noor.islamic.data.remote.prayer.TimingsData { *; }
+-keep class com.noor.islamic.data.remote.prayer.TimingsDate { *; }
+-keep class com.noor.islamic.data.remote.prayer.TimingsMeta { *; }
+-keep class com.noor.islamic.data.remote.prayer.HijriDate { *; }
+-keep class com.noor.islamic.data.remote.prayer.GregorianDate { *; }
+
 # --- Coil ---
 -dontwarn coil.**
 -dontwarn android.graphics.ImageDecoder
