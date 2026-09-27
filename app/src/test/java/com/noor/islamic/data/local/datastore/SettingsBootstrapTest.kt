@@ -7,6 +7,7 @@ import com.noor.islamic.domain.model.AppSettings
 import com.noor.islamic.domain.model.Language
 import com.noor.islamic.domain.model.ThemeMode
 import com.noor.islamic.domain.usecase.ObserveSettingsUseCase
+import com.noor.islamic.utils.SettingsBootstrapper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
@@ -19,6 +20,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.File
+import java.io.IOException
 
 /**
  * Covers what a fresh process start observes, which is the contract
@@ -133,5 +135,59 @@ class SettingsBootstrapTest {
         repository.setThemeMode(ThemeMode.DARK)
 
         assertEquals(ThemeMode.DARK, settingsAsSeenAtStartup().themeMode)
+    }
+
+    // --- Bounded startup read --------------------------------------------------
+
+    @Test
+    fun `a healthy bounded read returns exactly what a restart observes`() {
+        val stored = AppSettings(
+            language = Language.FRENCH,
+            themeMode = ThemeMode.DARK,
+            onboardingComplete = true,
+        )
+
+        val restored = SettingsBootstrapper.readBoundedSettings(timeoutMillis = 5_000) { stored }
+
+        assertEquals(stored, restored)
+    }
+
+    @Test
+    fun `a real store read inside the bound is unchanged`() = scope.runTest {
+        repository.setLanguage(Language.ENGLISH)
+        repository.setThemeMode(ThemeMode.LIGHT)
+        repository.setOnboardingComplete(true)
+
+        val restored = SettingsBootstrapper.readBoundedSettings(timeoutMillis = 5_000) {
+            ObserveSettingsUseCase(repository).invoke().first()
+        }
+
+        assertEquals(Language.ENGLISH, restored.language)
+        assertEquals(ThemeMode.LIGHT, restored.themeMode)
+        assertTrue(restored.onboardingComplete)
+    }
+
+    @Test
+    fun `a read that never answers falls back to the first run defaults`() {
+        val restored = SettingsBootstrapper.readBoundedSettings(timeoutMillis = 50) {
+            // Simulates a wedged or slow preferences file: the emission below
+            // never arrives, so only the bound can end the wait.
+            kotlinx.coroutines.awaitCancellation()
+            error("unreachable")
+        }
+
+        assertEquals(AppSettings(), restored)
+        assertEquals(Language.DEFAULT, restored.language)
+        assertEquals(ThemeMode.DEFAULT, restored.themeMode)
+    }
+
+    @Test
+    fun `an unreadable store falls back to the first run defaults`() {
+        val restored = SettingsBootstrapper.readBoundedSettings(timeoutMillis = 5_000) {
+            throw IOException("preferences file is corrupt")
+        }
+
+        assertEquals(AppSettings(), restored)
+        assertEquals(ThemeMode.DEFAULT, restored.themeMode)
     }
 }

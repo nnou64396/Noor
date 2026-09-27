@@ -7,6 +7,7 @@ import com.noor.islamic.domain.repository.LocationPermissionChecker
 import com.noor.islamic.domain.repository.LocationRepository
 import com.noor.islamic.domain.sensor.HeadingProvider
 import com.noor.islamic.presentation.common.LocationPermissionUiState
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -265,11 +266,53 @@ class QiblaViewModelTest {
             assertTrue(sensor.listening)
         }
 
+    // --- Location request concurrency -----------------------------------------
+
+    @Test
+    fun `a resume while the first fix is in flight does not request the location twice`() =
+        runTest(dispatcher) {
+            val location = ControllableLocationRepository()
+            val gate = CompletableDeferred<Unit>()
+            location.gate = gate
+            // The first fix fails, so `locationReady` stays false and a later
+            // re-entry is legitimately allowed to try again.
+            location.enqueue(Result.failure(IllegalStateException("no fix")))
+
+            val viewModel = viewModel(location = location, permissionGranted = true)
+
+            // `init` started the first request, which is now suspended inside
+            // the repository, so the bearing is not resolved yet.
+            assertEquals(1, location.obtainCount)
+            assertTrue(viewModel.uiState.value.isLocating)
+
+            // The ON_RESUME catch-up on the same cold start must not open a
+            // second overlapping fix for the same location.
+            viewModel.onScreenEntered()
+            assertEquals(1, location.obtainCount)
+
+            // The first request finishes and fails.
+            gate.complete(Unit)
+            advanceUntilIdle()
+            assertFalse(viewModel.uiState.value.locationReady)
+            assertFalse(viewModel.uiState.value.isLocating)
+
+            // The guard is not a permanent busy state: once the request is no
+            // longer in flight, a later re-entry resolves the location again.
+            location.gate = null
+            location.enqueue(Result.success(point))
+            viewModel.onScreenEntered()
+            advanceUntilIdle()
+
+            assertEquals(2, location.obtainCount)
+            assertTrue(viewModel.uiState.value.locationReady)
+            assertEquals(expectedBearing, viewModel.uiState.value.bearingToKaaba)
+        }
+
     // --- Helpers -------------------------------------------------------------
 
     private fun viewModel(
         sensor: RecordingHeadingSensor = RecordingHeadingSensor(),
-        location: FakeLocationRepository = FakeLocationRepository(success = true),
+        location: LocationRepository = FakeLocationRepository(success = true),
         permissionGranted: Boolean = true,
     ) = QiblaViewModel(
         permissionChecker = FakePermissionChecker(granted = permissionGranted),
@@ -294,6 +337,32 @@ class QiblaViewModelTest {
         override suspend fun obtainLocation(): Result<GeographicPoint> {
             obtainCount++
             return if (success) Result.success(point) else Result.failure(IllegalStateException("no fix"))
+        }
+
+        override suspend fun cityLabel(point: GeographicPoint): String? = "Algiers"
+    }
+
+    /**
+     * A repository whose fix can be held open with [gate], so a test can observe
+     * the window in which a request is genuinely in flight, and whose result can
+     * be scripted per call with [enqueue].
+     */
+    private class ControllableLocationRepository : LocationRepository {
+        var obtainCount = 0
+            private set
+
+        var gate: CompletableDeferred<Unit>? = null
+
+        private val results = ArrayDeque<Result<GeographicPoint>>()
+
+        fun enqueue(result: Result<GeographicPoint>) {
+            results.addLast(result)
+        }
+
+        override suspend fun obtainLocation(): Result<GeographicPoint> {
+            obtainCount++
+            gate?.await()
+            return if (results.isEmpty()) Result.success(point) else results.removeFirst()
         }
 
         override suspend fun cityLabel(point: GeographicPoint): String? = "Algiers"
