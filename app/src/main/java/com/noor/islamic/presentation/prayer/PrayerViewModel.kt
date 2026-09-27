@@ -168,9 +168,17 @@ class PrayerViewModel(
             locationRepository.obtainLocation()
                 .onSuccess { p ->
                     point.value = p
-                    val label = locationRepository.cityLabel(p)
-                    _uiState.update { it.copy(isLocating = false, locationLabel = label) }
+                    // The fix is in, so the "detecting location" state ends
+                    // here. The schedule is loaded before the place name on
+                    // purpose: `cityLabel` is a blocking, potentially
+                    // network-backed reverse geocode with no timeout, so
+                    // resolving it first would let a slow or unavailable
+                    // geocoder hold the prayer times — and this indicator —
+                    // in a permanent loading state.
+                    _uiState.update { it.copy(isLocating = false) }
                     loadSchedule(p)
+                    val label = locationRepository.cityLabel(p)
+                    if (label != null) _uiState.update { it.copy(locationLabel = label) }
                 }
                 .onFailure {
                     _uiState.update { it.copy(isLocating = false, locationLabel = null) }

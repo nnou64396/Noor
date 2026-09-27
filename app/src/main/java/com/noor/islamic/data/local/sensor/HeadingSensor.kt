@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import com.noor.islamic.domain.sensor.HeadingProvider
 
 /**
  * Device heading via the rotation-vector sensor (a modern fused virtual
@@ -12,7 +13,7 @@ import android.hardware.SensorManager
  * accelerometer values are not used, so the reading stays stable during
  * motion. Emits an exponentially-smoothed azimuth in degrees (0..360).
  */
-class HeadingSensor(context: Context) {
+class HeadingSensor(context: Context) : HeadingProvider {
 
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val rotationSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
@@ -23,6 +24,7 @@ class HeadingSensor(context: Context) {
     private val smoothingFactor = 0.18f
 
     private var callback: ((Float, Boolean) -> Unit)? = null
+    private var listening = false
 
     private val listener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
@@ -55,18 +57,29 @@ class HeadingSensor(context: Context) {
         }
     }
 
-    fun isAvailable(): Boolean = rotationSensor != null
+    override fun isAvailable(): Boolean = rotationSensor != null
 
-    fun startListening(onHeading: (azimuthDegrees: Float, accuracyLow: Boolean) -> Unit) {
+    override fun startListening(onHeading: (azimuthDegrees: Float, accuracyLow: Boolean) -> Unit) {
         val sensor = rotationSensor ?: return
+        // Registration is driven from a visible-lifecycle observer that can
+        // fire more than once (config change, re-entry). Re-registering the
+        // same listener would be a no-op in the platform, but guarding here
+        // keeps the contract explicit and makes the lifecycle assertable.
+        if (listening) {
+            callback = onHeading
+            return
+        }
         callback = onHeading
         if (sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME)) {
+            listening = true
             hasPrevious = false
         }
     }
 
-    fun stopListening() {
+    override fun stopListening() {
         callback = null
+        if (!listening) return
+        listening = false
         sensorManager.unregisterListener(listener)
     }
 }
