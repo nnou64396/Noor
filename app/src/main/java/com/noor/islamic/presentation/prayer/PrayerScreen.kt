@@ -24,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +32,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noor.islamic.R
 import com.noor.islamic.domain.model.DailyPrayerSchedule
@@ -82,7 +83,11 @@ fun PrayerScreen(
         runCatching { context.startActivity(intent) }
     }
 
-    LaunchedEffect(Unit) { viewModel.onScreenEntered() }
+    // Re-syncs permission and data on every resume, which is what makes
+    // returning from the system Settings screen (after granting location
+    // there) pick the new grant up. A composition-scoped effect would not
+    // fire, because composition survives the Activity being backgrounded.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.onScreenEntered() }
 
     PrayerScreenContent(
         state = state,

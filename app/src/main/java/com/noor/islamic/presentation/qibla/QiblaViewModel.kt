@@ -2,10 +2,10 @@ package com.noor.islamic.presentation.qibla
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.noor.islamic.data.local.sensor.HeadingSensor
 import com.noor.islamic.domain.logic.QiblaMath
 import com.noor.islamic.domain.repository.LocationPermissionChecker
 import com.noor.islamic.domain.repository.LocationRepository
+import com.noor.islamic.domain.sensor.HeadingProvider
 import com.noor.islamic.presentation.common.LocationPermissionUiState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,13 +26,19 @@ data class QiblaUiState(
 
 /**
  * Drives the Qibla compass: reuses the same location/permission layer as
- * Prayer, subscribes to the rotation-vector sensor while the screen is
- * open and computes the bearing towards the Kaaba from the coarse fix.
+ * Prayer and computes the bearing towards the Kaaba from the coarse fix.
+ *
+ * The rotation-vector sensor is *not* started from [init]. The ViewModel is
+ * scoped to a saved nav entry, so it outlives the moment the user taps away
+ * from the Qibla tab, and it also outlives the Activity going to the
+ * background. Registration is therefore driven explicitly by the screen
+ * through [onScreenActive] / [onScreenInactive], which are wired to the
+ * visible lifecycle; [onCleared] is only a backstop.
  */
 class QiblaViewModel(
     private val permissionChecker: LocationPermissionChecker,
     private val locationRepository: LocationRepository,
-    private val headingSensor: HeadingSensor,
+    private val headingSensor: HeadingProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -48,19 +54,28 @@ class QiblaViewModel(
     val uiState: StateFlow<QiblaUiState> = _uiState.asStateFlow()
 
     private var permissionRequested = false
+    private var sensorActive = false
 
     init {
         refreshPermissionState()
-        if (headingSensor.isAvailable()) {
-            headingSensor.startListening(onHeading = ::onHeading)
-        }
         if (_uiState.value.permission == LocationPermissionUiState.GRANTED) {
             resolveLocation()
         }
     }
 
     override fun onCleared() {
+        sensorActive = false
         headingSensor.stopListening()
+    }
+
+    /** Called when the Qibla screen becomes visible and the Activity is resumed. */
+    fun onScreenActive() {
+        startSensor()
+    }
+
+    /** Called when the Qibla screen is no longer visible, or the Activity is backgrounded. */
+    fun onScreenInactive() {
+        stopSensor()
     }
 
     fun onScreenEntered() {
@@ -122,6 +137,19 @@ class QiblaViewModel(
                     _uiState.update { it.copy(isLocating = false, locationReady = false, bearingToKaaba = null) }
                 }
         }
+    }
+
+    private fun startSensor() {
+        if (sensorActive) return
+        if (!headingSensor.isAvailable()) return
+        sensorActive = true
+        headingSensor.startListening(onHeading = ::onHeading)
+    }
+
+    private fun stopSensor() {
+        if (!sensorActive) return
+        sensorActive = false
+        headingSensor.stopListening()
     }
 
     private fun onHeading(azimuthDegrees: Float, accuracyLow: Boolean) {

@@ -18,7 +18,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +25,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.noor.islamic.R
@@ -42,8 +43,14 @@ import com.noor.islamic.ui.theme.NoorDimens
 import com.noor.islamic.ui.theme.noorLargeTitle
 
 /**
- * Qibla destination. The ViewModel is scoped to this nav entry so the
- * rotation-vector sensor is only active while the screen is open.
+ * Qibla destination.
+ *
+ * The ViewModel is scoped to this nav entry, and the bottom bar saves nav
+ * state when switching tabs, so the ViewModel — and its sensor — outlive the
+ * moment the user leaves this screen. The rotation-vector sensor is therefore
+ * driven by the *visible* lifecycle rather than by the ViewModel's existence:
+ * it runs only between ON_START and ON_STOP, which covers both tapping another
+ * tab and the Activity going to the background.
  */
 @Composable
 fun QiblaScreen(modifier: Modifier = Modifier) {
@@ -73,7 +80,15 @@ fun QiblaScreen(modifier: Modifier = Modifier) {
         runCatching { context.startActivity(intent) }
     }
 
-    LaunchedEffect(Unit) { viewModel.onScreenEntered() }
+    // The compass only runs while this screen is actually on display.
+    LifecycleEventEffect(Lifecycle.Event.ON_START) { viewModel.onScreenActive() }
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.onScreenInactive() }
+
+    // Re-syncs permission and location on every resume, which is what makes
+    // returning from the system Settings screen (after granting location
+    // there) pick the new grant up. A composition-scoped effect would not
+    // fire, because composition survives the Activity being backgrounded.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.onScreenEntered() }
 
     QiblaScreenContent(
         state = state,
