@@ -27,6 +27,11 @@ object PrayerScheduleMath {
      * schedule first (in canonical order) and then — once Isha has passed —
      * tomorrow's Fajr. Returns null when no future prayer is available
      * (e.g. after Isha with no tomorrow schedule cached).
+     *
+     * Only obligatory prayers are considered. Sunrise and Sunset are part of
+     * the daily timings the UI displays, but they are solar events rather than
+     * prayers, so between Fajr and Dhuhr the next prayer is Dhuhr (not
+     * Sunrise), and between Asr and Maghrib it is Maghrib (not Sunset).
      */
     fun nextPrayer(
         today: DailyPrayerSchedule,
@@ -36,14 +41,17 @@ object PrayerScheduleMath {
         val zone = now.zone
 
         for (prayerTime in today.prayers) {
+            if (!prayerTime.prayer.isObligatoryPrayer) continue
             val at = ZonedDateTime.of(today.date, prayerTime.time, zone)
             if (at.isAfter(now)) {
                 return NextPrayer(prayerTime.prayer, today.date, prayerTime.time)
             }
         }
 
-        val fajr = tomorrow?.prayers?.firstOrNull() ?: return null
-        return NextPrayer(fajr.prayer, tomorrow.date, fajr.time)
+        val tomorrowFajr = tomorrow?.prayers
+            ?.firstOrNull { it.prayer.isObligatoryPrayer }
+            ?: return null
+        return NextPrayer(tomorrowFajr.prayer, tomorrow.date, tomorrowFajr.time)
     }
 
     /** Non-negative time remaining until [next], expressed in [now]'s zone. */

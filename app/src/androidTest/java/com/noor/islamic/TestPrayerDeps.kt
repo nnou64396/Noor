@@ -41,8 +41,6 @@ class FakePrayerRepository(
         hijriReadable = "12 Rabi' al-awwal 1448",
         timezone = "Africa/Algiers",
         method = CalculationMethod.MUSLIM_WORLD_LEAGUE,
-        latitude = 36.75,
-        longitude = 3.05,
         prayers = listOf(
             PrayerTime(PrayerName.FAJR, LocalTime.of(5, 20)),
             PrayerTime(PrayerName.SUNRISE, LocalTime.of(6, 20)),

@@ -17,7 +17,7 @@ import androidx.room.RoomDatabase
 @Database(
     entities = [AthkarDhikrProgressEntity::class, TasbihSessionEntity::class],
     version = 1,
-    exportSchema = false,
+    exportSchema = true,
 )
 abstract class PracticeStateDatabase : RoomDatabase() {
 

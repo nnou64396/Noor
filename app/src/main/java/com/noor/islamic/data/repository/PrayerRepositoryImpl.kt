@@ -62,7 +62,7 @@ class PrayerRepositoryImpl(
             throw PrayerDataException(PrayerErrorKind.HTTP)
         }
 
-        val schedule = mapper.map(response, date, point)
+        val schedule = mapper.map(response, date)
             ?: throw PrayerDataException(PrayerErrorKind.MALFORMED)
 
         val entity = PrayerEntityMapper.toEntity(schedule)
