@@ -36,8 +36,6 @@ class PrayerScheduleMathTest {
         hijriReadable = null,
         timezone = zone.id,
         method = CalculationMethod.MUSLIM_WORLD_LEAGUE,
-        latitude = 36.75,
-        longitude = 3.05,
         prayers = times,
     )
 
@@ -50,6 +48,80 @@ class PrayerScheduleMathTest {
         assertEquals(PrayerName.FAJR, next?.prayer)
         assertEquals(day, next?.date)
         assertEquals(LocalTime.of(5, 20), next?.time)
+    }
+
+    @Test
+    fun `sunrise is never reported as the next prayer`() {
+        // 05:30 sits between Fajr (05:20) and Sunrise (06:20). Sunrise is a solar
+        // event, not a prayer, so the next prayer must be Dhuhr.
+        val next = PrayerScheduleMath.nextPrayer(schedule(), schedule(day.plusDays(1)), at(day, 5, 30))
+        assertEquals(PrayerName.DHUHR, next?.prayer)
+        assertEquals(LocalTime.of(12, 44), next?.time)
+    }
+
+    @Test
+    fun `next prayer immediately after sunrise is still dhuhr`() {
+        val next = PrayerScheduleMath.nextPrayer(schedule(), schedule(day.plusDays(1)), at(day, 6, 20))
+        assertEquals(PrayerName.DHUHR, next?.prayer)
+        assertEquals(day, next?.date)
+        assertEquals(LocalTime.of(12, 44), next?.time)
+    }
+
+    @Test
+    fun `sunset is never reported as the next prayer`() {
+        // 18:00 sits between Asr (16:30) and Sunset (19:40).
+        val next = PrayerScheduleMath.nextPrayer(schedule(), schedule(day.plusDays(1)), at(day, 18, 0))
+        assertEquals(PrayerName.MAGHRIB, next?.prayer)
+        assertEquals(LocalTime.of(19, 40), next?.time)
+    }
+
+    @Test
+    fun `next prayer between maghrib and isha is isha`() {
+        val next = PrayerScheduleMath.nextPrayer(schedule(), schedule(day.plusDays(1)), at(day, 20, 0))
+        assertEquals(PrayerName.ISHA, next?.prayer)
+        assertEquals(LocalTime.of(21, 0), next?.time)
+    }
+
+    @Test
+    fun `exactly at a prayer time advances to the following prayer`() {
+        val next = PrayerScheduleMath.nextPrayer(schedule(), schedule(day.plusDays(1)), at(day, 12, 44))
+        assertEquals(PrayerName.ASR, next?.prayer)
+    }
+
+    @Test
+    fun `next prayer after isha on the same day is tomorrow's fajr`() {
+        val next = PrayerScheduleMath.nextPrayer(schedule(), schedule(day.plusDays(1)), at(day, 23, 30))
+        assertEquals(PrayerName.FAJR, next?.prayer)
+        assertEquals(day.plusDays(1), next?.date)
+    }
+
+    @Test
+    fun `tomorrow's first entry is used only when it is an obligatory prayer`() {
+        // A tomorrow schedule whose first entry is Sunrise must still yield Fajr.
+        val tomorrowWithSunriseFirst = listOf(
+            PrayerTime(PrayerName.SUNRISE, LocalTime.of(6, 10)),
+            PrayerTime(PrayerName.FAJR, LocalTime.of(5, 10)),
+        )
+        val next = PrayerScheduleMath.nextPrayer(
+            schedule(),
+            schedule(day.plusDays(1), tomorrowWithSunriseFirst),
+            at(day, 22, 0),
+        )
+        assertEquals(PrayerName.FAJR, next?.prayer)
+        assertEquals(LocalTime.of(5, 10), next?.time)
+    }
+
+    @Test
+    fun `obligatoryPrayers excludes the solar events`() {
+        assertEquals(
+            listOf(
+                PrayerName.FAJR, PrayerName.DHUHR, PrayerName.ASR,
+                PrayerName.MAGHRIB, PrayerName.ISHA,
+            ),
+            PrayerName.obligatoryPrayers,
+        )
+        assertEquals(false, PrayerName.SUNRISE.isObligatoryPrayer)
+        assertEquals(false, PrayerName.SUNSET.isObligatoryPrayer)
     }
 
     @Test

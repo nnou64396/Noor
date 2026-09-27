@@ -36,8 +36,6 @@ class PrayerRepositoryTest {
         hijriReadable = "12 Rabi' al-awwal 1448",
         timezone = "Africa/Algiers",
         method = method,
-        latitude = point.latitude,
-        longitude = point.longitude,
         prayers = listOf(
             PrayerTime(PrayerName.FAJR, LocalTime.of(5, 20)),
             PrayerTime(PrayerName.SUNRISE, LocalTime.of(6, 20)),
@@ -175,5 +173,63 @@ class PrayerRepositoryTest {
         )
         val thrown = kotlin.runCatching { repository.refresh(date, point, method) }.exceptionOrNull()
         assertEquals(PrayerErrorKind.HTTP, (thrown as PrayerDataException).kind)
+    }
+
+    @Test
+    fun `the cached row carries no coordinates in any column`() = runTest {
+        val dao = InMemoryDao()
+        val repository = PrayerRepositoryImpl(FakeApi(response = validResponse()), dao)
+        repository.refresh(date, point, method)
+
+        val stored = requireNotNull(dao.store[key])
+        val serialised = PrayerTimesEntity::class.java.declaredFields
+            .filterNot { it.isSynthetic }
+            .joinToString(",") { field ->
+                val accessible = field.apply { isAccessible = true }
+                "${field.name}=${accessible.get(stored)}"
+            }
+
+        listOf("latitude", "longitude", "lat", "lng", "lon").forEach { forbidden ->
+            assertTrue(
+                "PrayerTimesEntity must not expose a '$forbidden' field",
+                PrayerTimesEntity::class.java.declaredFields.none { it.name.equals(forbidden, true) },
+            )
+        }
+        assertTrue(
+            "Persisted prayer row must not contain the precise coordinates: $serialised",
+            !serialised.contains("36.75") && !serialised.contains("3.05"),
+        )
+    }
+
+    @Test
+    fun `the cache key does not leak the coordinates`() = runTest {
+        val key = PrayerCacheKey.of(date, point, method)
+
+        assertTrue("cache key must not contain the latitude", !key.contains("36.75"))
+        assertTrue("cache key must not contain the longitude", !key.contains("3.05"))
+        assertEquals("cache key must be a bare sha-256 hex digest", 64, key.length)
+        assertTrue(key.all { it in "0123456789abcdef" })
+    }
+
+    @Test
+    fun `the cache key is stable for the same request and differs per location`() {
+        assertEquals(PrayerCacheKey.of(date, point, method), PrayerCacheKey.of(date, point, method))
+        assertTrue(
+            PrayerCacheKey.of(date, point, method) !=
+                PrayerCacheKey.of(date, GeographicPoint(36.76, 3.06), method),
+        )
+    }
+
+    @Test
+    fun `a cached row survives a round trip with all seven timings`() = runTest {
+        val dao = InMemoryDao()
+        val repository = PrayerRepositoryImpl(FakeApi(response = validResponse()), dao)
+        repository.refresh(date, point, method)
+
+        val restored = requireNotNull(repository.getCached(date, point, method))
+        assertEquals(date, restored.date)
+        assertEquals("Africa/Algiers", restored.timezone)
+        assertEquals(7, restored.prayers.size)
+        assertEquals(PrayerName.entries.toList(), restored.prayers.map { it.prayer })
     }
 }

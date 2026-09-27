@@ -8,8 +8,15 @@ import com.noor.islamic.domain.model.ThemeMode
  */
 object ThemeManager {
 
+    /**
+     * `setDefaultNightMode` recreates every started Activity, so the call is
+     * skipped when the stored mode is already in effect. This is what keeps the
+     * startup restore from forcing a needless recreate on every cold start.
+     */
     fun apply(themeMode: ThemeMode) {
-        AppCompatDelegate.setDefaultNightMode(themeMode.toAppCompatNightMode())
+        val target = themeMode.toAppCompatNightMode()
+        if (AppCompatDelegate.getDefaultNightMode() == target) return
+        AppCompatDelegate.setDefaultNightMode(target)
     }
 
     fun ThemeMode.toAppCompatNightMode(): Int = when (this) {
