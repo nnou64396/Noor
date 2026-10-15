@@ -4,8 +4,15 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * Cached daily prayer schedule. One row per (date, coarse location, method);
- * pruned aggressively so no location trail accumulates.
+ * Cached daily prayer schedule. One row per (date, location, method).
+ *
+ * Holds no coordinates. The primary key is a SHA-256 digest of the date, a
+ * coarse location and the method, so the device's latitude/longitude is used
+ * only to build that key and to issue the request, then discarded. A precise
+ * location cannot be read out of this table.
+ *
+ * The digest is still location-adjacent (see `PrayerCacheKey`), which is why
+ * `noor.db` is excluded from backup and device transfer.
  */
 @Entity(tableName = "prayer_times")
 data class PrayerTimesEntity(
@@ -15,8 +22,6 @@ data class PrayerTimesEntity(
     val hijriReadable: String?,
     val timezone: String,
     val methodId: Int,
-    val latitude: Double,
-    val longitude: Double,
     /** Times stored as `HH:mm` in the schedule timezone. */
     val fajr: String,
     val sunrise: String,

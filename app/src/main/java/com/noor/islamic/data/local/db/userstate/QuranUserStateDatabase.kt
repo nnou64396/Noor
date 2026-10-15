@@ -15,7 +15,7 @@ import androidx.room.RoomDatabase
 @Database(
     entities = [QuranBookmarkEntity::class, QuranReadingProgressEntity::class],
     version = 1,
-    exportSchema = false,
+    exportSchema = true,
 )
 abstract class QuranUserStateDatabase : RoomDatabase() {
 

@@ -1,5 +1,6 @@
 package com.noor.islamic.data.local.location
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Geocoder
 import com.google.android.gms.location.LocationServices
@@ -46,6 +47,20 @@ class AndroidLocationRepository(
         Result.success(point)
     }
 
+    /**
+     * Lint cannot see that the location permission is already enforced: both
+     * callers (`PrayerViewModel`, `QiblaViewModel`) reach this repository only
+     * after `LocationPermissionChecker.isGranted()` returns true, and the
+     * permission is granted by the user through the UI permission flow.
+     *
+     * A revoked permission therefore surfaces as a `SecurityException` from the
+     * Fused Location Provider, which both helpers already absorb: `currentPoint`
+     * propagates it to the `catch (_: Exception)` in [obtainLocation] to fall
+     * back to the last known fix, and [lastKnownPointOrNull] returns null. The
+     * repository is defensive by design, so the check is suppressed rather than
+     * duplicated here.
+     */
+    @SuppressLint("MissingPermission")
     private fun currentPoint(): GeographicPoint {
         val cancellation = CancellationTokenSource()
         val location = Tasks.await(
@@ -60,6 +75,7 @@ class AndroidLocationRepository(
         throw TimeoutException("No current fix")
     }
 
+    @SuppressLint("MissingPermission")
     private fun lastKnownPointOrNull(): GeographicPoint? =
         try {
             Tasks.await(
@@ -73,8 +89,16 @@ class AndroidLocationRepository(
             null
         }
 
+    /**
+     * Best-effort place name for an already-obtained fix. The geocoder is
+     * advisory: a miss simply leaves the label unset and never fails the load.
+     *
+     * [CancellationException] is rethrown first, matching [obtainLocation] and
+     * [lastKnownPointOrNull]: `runCatching` would otherwise absorb coroutine
+     * cancellation and report it as a geocoder that simply had no answer.
+     */
     override suspend fun cityLabel(point: GeographicPoint): String? = withContext(Dispatchers.IO) {
-        runCatching {
+        try {
             Geocoder(context, Locale.getDefault())
                 .getFromLocation(point.latitude, point.longitude, 1)
                 ?.firstOrNull()
@@ -83,7 +107,11 @@ class AndroidLocationRepository(
                         ?: address.subAdminArea
                         ?: address.adminArea
                 }
-        }.getOrNull()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun android.location.Location.toPoint(): GeographicPoint =

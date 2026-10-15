@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Backup rules for Android 12L and below (android:fullBackupContent).
+
+  This is an allowlist: only the paths below are backed up, and anything added
+  to the app in future is excluded by default rather than by being remembered
+  here. The excluded set is therefore implicitly "everything else", which
+  includes:
+
+    - database/noor.db         prayer-times cache. Re-fetchable from the
+                               network, and deliberately holds no coordinates.
+    - database/quran_reader.db a byte-for-byte copy of the bundled
+                               assets/quran/quran_reader.db asset, which Room
+                               recreates automatically. Backing it up would also
+                               push ~3 MB of immutable data.
+    - their -wal / -shm        SQLite side files of the above.
+
+  Included deliberately, because it is genuine, non-sensitive user data:
+
+    - database/quran_user_state.db     Quran bookmarks and reading progress.
+    - database/noor_practice_state.db  Athkar counters and Tasbih session.
+    - file/datastore/                  Language, theme, onboarding flag,
+                                       reciter and resume position. Holds no
+                                       location.
+
+  app/src/main/res/xml/data_extraction_rules.xml applies the same policy on
+  Android 13+ for both cloud backup and device transfer.
+-->
+<full-backup-content>
+    <include domain="database" path="quran_user_state.db" />
+    <include domain="database" path="noor_practice_state.db" />
+    <include domain="file" path="datastore/" />
+</full-backup-content>

@@ -116,10 +116,6 @@ class AthkarCorpusValidator(
                     }
             }
 
-            if (dhikr.reference.isNullOrBlank()) {
-                problems += "$label: reference is required so every dhikr is attributed"
-            }
-
             if (dhikr.order < 0) {
                 problems += "$label: order must be >= 0"
             } else {

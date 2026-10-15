@@ -1,5 +1,6 @@
 package com.noor.islamic
 
+import android.annotation.SuppressLint
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -24,8 +25,14 @@ import org.junit.Test
 /**
  * Athkar screen rendering. Compiled for device runs; only runs when an
  * emulator/device is available. The Arabic below is a layout fixture, not content.
+ *
+ * The ViewModel is constructed inline in each `setContent` block on purpose: these
+ * tests assert on a specific, pre-seeded repository, and a test rule has no
+ * configuration-change lifecycle to survive, which is the only thing
+ * `viewModel()` buys over direct construction.
  */
 @OptIn(ExperimentalTestApi::class)
+@SuppressLint("ViewModelConstructorInComposable")
 class AthkarScreenTest {
 
     @get:Rule

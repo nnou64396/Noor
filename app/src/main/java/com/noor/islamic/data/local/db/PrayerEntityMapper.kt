@@ -28,8 +28,6 @@ object PrayerEntityMapper {
             hijriReadable = schedule.hijriReadable,
             timezone = schedule.timezone,
             methodId = schedule.method.apiId,
-            latitude = schedule.latitude,
-            longitude = schedule.longitude,
             fajr = time(PrayerName.FAJR),
             sunrise = time(PrayerName.SUNRISE),
             dhuhr = time(PrayerName.DHUHR),
@@ -68,8 +66,6 @@ object PrayerEntityMapper {
             hijriReadable = entity.hijriReadable,
             timezone = entity.timezone,
             method = method,
-            latitude = entity.latitude,
-            longitude = entity.longitude,
             prayers = prayers,
         )
     }

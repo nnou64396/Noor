@@ -17,6 +17,7 @@ import com.noor.islamic.data.local.sensor.HeadingSensor
 import com.noor.islamic.data.local.userdata.AthkarPracticeRepository
 import com.noor.islamic.data.local.userdata.QuranUserStateRepository
 import com.noor.islamic.data.local.userdata.TasbihPracticeRepository
+import com.noor.islamic.data.remote.network.NetworkModule
 import com.noor.islamic.data.remote.prayer.PrayerApiProvider
 import com.noor.islamic.data.remote.prayer.PrayerTimesMapper
 import com.noor.islamic.data.repository.PrayerRepositoryImpl
@@ -35,6 +36,7 @@ import com.noor.islamic.domain.usecase.ObserveSettingsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import okhttp3.OkHttpClient
 
 /**
  * Minimal manual dependency container. Keeps Phase 0 free of a DI
@@ -67,11 +69,21 @@ object ServiceLocator {
 
     val prayerRepository: PrayerRepository by lazy {
         PrayerRepositoryImpl(
-            api = PrayerApiProvider.provide(),
+            api = PrayerApiProvider.provide(provideOkHttpClient()),
             dao = noorDatabase.prayerTimesDao(),
             mapper = PrayerTimesMapper(),
         )
     }
+
+    /**
+     * HTTP logging is enabled only for a debuggable build, and is redacted even
+     * then, so the request's `latitude`/`longitude` never reach Logcat in a
+     * release APK.
+     */
+    private fun provideOkHttpClient(): OkHttpClient =
+        NetworkModule.provideOkHttpClient(
+            logging = NetworkModule.shouldLogHttp(appContext.applicationInfo.flags),
+        )
 
     private val quranReaderDatabase: QuranReaderDatabase by lazy {
         QuranReaderDatabase.create(appContext)

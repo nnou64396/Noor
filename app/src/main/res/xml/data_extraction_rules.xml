@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Backup / device-transfer rules for Android 13 and above
+  (android:dataExtractionRules).
+
+  Cloud backup and device transfer use the same allowlist, so a location cannot
+  reach a restore by either route. Only the paths below are transferred and
+  everything else is excluded by default, which covers the prayer-times cache
+  (database/noor.db) and the bundled Quran database copy
+  (database/quran_reader.db). See res/xml/backup_rules.xml for the rationale
+  behind each included path; that file governs API 31 and below.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="database" path="quran_user_state.db" />
+        <include domain="database" path="noor_practice_state.db" />
+        <include domain="file" path="datastore/" />
+    </cloud-backup>
+
+    <device-transfer>
+        <include domain="database" path="quran_user_state.db" />
+        <include domain="database" path="noor_practice_state.db" />
+        <include domain="file" path="datastore/" />
+    </device-transfer>
+</data-extraction-rules>
