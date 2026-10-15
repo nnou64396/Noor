@@ -73,6 +73,7 @@
     <string name="athkar_reset_dhikr">Reset this dhikr</string>
     <string name="athkar_reset_category">Reset this category</string>
     <string name="athkar_category_open_desc">%1$s, %2$s. Open to start counting.</string>
+    <string name="athkar_source_attribution">Source: rn0x/Adhkar-json (Hisn al-Muslim). No formal license is provided; the repository README says the files may be used freely.</string>
 
     <!-- Shared actions -->
     <string name="action_back">Back</string>

@@ -87,6 +87,11 @@ fun AthkarScreen(
                         onClick = { onOpenCategory(item.category.id) },
                     )
                 }
+                Text(
+                    text = stringResource(R.string.athkar_source_attribution),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }
@@ -112,7 +117,7 @@ private fun AthkarCategoryCard(
     item: AthkarCategoryItem,
     onClick: () -> Unit,
 ) {
-    val title = stringResource(athkarCategoryLabelRes(item.category.id))
+    val title = item.category.titleResKey
     val summary = if (item.progress.hasPrescribedCounts) {
         stringResource(
             R.string.athkar_progress_fmt,

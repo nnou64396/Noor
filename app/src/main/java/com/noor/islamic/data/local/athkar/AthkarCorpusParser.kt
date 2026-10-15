@@ -1,136 +1,106 @@
 package com.noor.islamic.data.local.athkar
 
+import com.google.gson.Gson
+import com.google.gson.JsonParseException
+import com.google.gson.reflect.TypeToken
 import com.noor.islamic.domain.model.athkar.Dhikr
 import com.noor.islamic.domain.model.athkar.DhikrCategory
 import com.noor.islamic.domain.model.athkar.DhikrCount
 import com.noor.islamic.domain.repository.AthkarProvenance
-import org.json.JSONArray
-import org.json.JSONObject
 
 /**
- * Parses the bundled adhkar asset (`assets/athkar/adhkar.json`).
+ * Parses the unmodified `rn0x/Adhkar-json` asset.
  *
- * Parsing is intentionally strict about structure (types, required fields) and
- * silent about content quality: quality rules live in [AthkarCorpusValidator] so
- * that a malformed file and an unacceptable file produce different, testable
- * failures. No text is ever rewritten, normalised or generated here.
+ * The source is a JSON array. Each category has `id`, `category`, `audio`,
+ * `filename`, and `array`; each entry in `array` has `id`, `text`, `count`,
+ * `audio`, and `filename`. Audio paths are retained only in the source asset:
+ * the feature is text-only until matching audio files can also be bundled.
  */
 class AthkarCorpusParser(
-    private val supportedSchemaVersion: Int = AthkarCorpus.SCHEMA_VERSION,
+    private val gson: Gson = Gson(),
 ) {
-
-    /**
-     * @throws AthkarCorpusFormatException when the document is not the expected
-     *   shape. Callers treat this as "no corpus" rather than a crash.
-     */
     fun parse(json: String): AthkarCorpus {
-        val root = try {
-            JSONObject(json)
-        } catch (error: Exception) {
-            throw AthkarCorpusFormatException("adhkar asset is not a JSON object", error)
-        }
+        val source = try {
+            gson.fromJson<List<SourceCategory>>(json, CATEGORY_LIST_TYPE)
+        } catch (error: JsonParseException) {
+            throw AthkarCorpusFormatException("adhkar asset is not a JSON array", error)
+        } ?: throw AthkarCorpusFormatException("adhkar asset is empty")
+        if (source.isEmpty()) throw AthkarCorpusFormatException("adhkar asset is empty")
 
-        val schemaVersion = root.optIntOrThrow("schemaVersion")
-        if (schemaVersion != supportedSchemaVersion) {
-            throw AthkarCorpusFormatException(
-                "unsupported schemaVersion $schemaVersion (expected $supportedSchemaVersion)",
+        val categories = source.mapIndexed { index, category ->
+            category.requireValid(index)
+            DhikrCategory(
+                id = categoryKey(category.id),
+                order = index,
+                titleResKey = category.category,
             )
         }
-
-        val provenance = root.optJSONObjectOrThrow("provenance").toProvenance()
-        val categories = root.optJSONArrayOrThrow("categories").mapObjects { it.toCategory() }
-        val dhikr = root.optJSONArrayOrThrow("adhkar").mapObjects { it.toDhikr() }
+        val dhikr = source.flatMapIndexed { categoryIndex, category ->
+            category.array.mapIndexed { entryIndex, entry ->
+                entry.requireValid(categoryIndex, entryIndex)
+                Dhikr(
+                    id = "${categoryKey(category.id)}-${entry.id}",
+                    categoryId = categoryKey(category.id),
+                    arabicText = entry.text,
+                    repeatCount = DhikrCount.Prescribed(entry.count),
+                    order = entryIndex,
+                )
+            }
+        }
 
         return AthkarCorpus(
-            schemaVersion = schemaVersion,
-            provenance = provenance,
+            schemaVersion = AthkarCorpus.SCHEMA_VERSION,
+            provenance = AthkarProvenance(
+                corpusId = "rn0x/Adhkar-json",
+                title = "Adhkar-json",
+                author = "rn0x",
+                license = "No formal license; the repository README states the files may be used freely.",
+                sourceUrl = SOURCE_URL,
+                isContentBundled = true,
+                bundledDhikrCount = dhikr.size,
+                note = "Text from Hisn al-Muslim as identified by the source repository.",
+            ),
             categories = categories,
             dhikr = dhikr,
         )
     }
 
-    private fun JSONObject.toProvenance() = AthkarProvenance(
-        corpusId = optStringOrThrow("corpusId"),
-        title = optStringOrThrow("title"),
-        author = optStringOrEmpty("author"),
-        edition = optStringOrEmpty("edition"),
-        license = optStringOrEmpty("license"),
-        licenseUrl = optStringOrEmpty("licenseUrl"),
-        sourceUrl = optStringOrEmpty("sourceUrl"),
-        isContentBundled = optBoolean("isContentBundled", false),
-        bundledDhikrCount = optInt("bundledDhikrCount", 0),
-        note = optStringOrEmpty("note"),
-    )
-
-    private fun JSONObject.toCategory() = DhikrCategory(
-        id = optStringOrThrow("id"),
-        order = optInt("order", 0),
-        titleResKey = optStringOrEmpty("titleResKey").ifEmpty { optStringOrThrow("id") },
-    )
-
-    private fun JSONObject.toDhikr() = Dhikr(
-        id = optStringOrThrow("id"),
-        categoryId = optStringOrThrow("categoryId"),
-        arabicText = optStringOrThrow("arabicText"),
-        translation = optStringOrEmpty("translation").ifEmpty { null },
-        repeatCount = optDhikrCountOrThrow("repeatCount"),
-        reference = optStringOrEmpty("reference").ifEmpty { null },
-        order = optInt("order", 0),
-    )
-
-    /**
-     * Reads the declared repetition count as one of exactly three states.
-     *
-     * The JSON type is checked rather than coerced. `org.json`'s `optInt` would
-     * happily turn the string `"33"` and the number `33.5` into `33`, letting a
-     * malformed count reach the corpus as if it were a real prescribed value, so
-     * only a genuine JSON integer is accepted here.
-     *
-     * A declared integer is carried through verbatim, including `0` and negative
-     * values, because those are semantically invalid rather than malformed and
-     * `AthkarCorpusValidator` rejects them with a precise reason — the same
-     * parse-then-validate split already used for `order`. An explicit `null`
-     * means the source prescribes no count. An absent field is a format error:
-     * a corpus has to state which of the two semantics it means rather than let
-     * a missing key be guessed at.
-     */
-    private fun JSONObject.optDhikrCountOrThrow(key: String): DhikrCount {
-        if (!has(key)) throw AthkarCorpusFormatException("missing $key")
-        if (isNull(key)) return DhikrCount.Unspecified
-
-        val declared = opt(key)
-        if (declared !is Int) {
-            throw AthkarCorpusFormatException(
-                "$key must be a positive integer or null (was ${declared.javaClass.simpleName})",
-            )
-        }
-        return DhikrCount.Prescribed(declared)
+    private fun SourceCategory.requireValid(index: Int) {
+        if (id <= 0) throw AthkarCorpusFormatException("categories[$index].id must be positive")
+        if (category.isBlank()) throw AthkarCorpusFormatException("categories[$index].category is blank")
+        if (array.isEmpty()) throw AthkarCorpusFormatException("categories[$index].array is empty")
     }
 
-    private fun JSONObject.optIntOrThrow(key: String): Int =
-        if (has(key)) optInt(key) else throw AthkarCorpusFormatException("missing $key")
-
-    private fun JSONObject.optStringOrThrow(key: String): String {
-        if (!has(key)) throw AthkarCorpusFormatException("missing $key")
-        val value = optString(key)
-        if (value.isEmpty()) throw AthkarCorpusFormatException("blank $key")
-        return value
+    private fun SourceDhikr.requireValid(categoryIndex: Int, entryIndex: Int) {
+        val label = "categories[$categoryIndex].array[$entryIndex]"
+        if (id <= 0) throw AthkarCorpusFormatException("$label.id must be positive")
+        if (text.isBlank()) throw AthkarCorpusFormatException("$label.text is blank")
+        if (count <= 0) throw AthkarCorpusFormatException("$label.count must be positive")
     }
 
-    private fun JSONObject.optStringOrEmpty(key: String): String =
-        if (has(key) && !isNull(key)) optString(key) else ""
+    private fun categoryKey(sourceId: Int): String = "source-$sourceId"
 
-    private fun JSONObject.optJSONObjectOrThrow(key: String): JSONObject =
-        optJSONObject(key) ?: throw AthkarCorpusFormatException("missing object $key")
+    private data class SourceCategory(
+        val id: Int = 0,
+        val category: String = "",
+        val audio: String? = null,
+        val filename: String? = null,
+        val array: List<SourceDhikr> = emptyList(),
+    )
 
-    private fun JSONObject.optJSONArrayOrThrow(key: String): JSONArray =
-        optJSONArray(key) ?: throw AthkarCorpusFormatException("missing array $key")
+    private data class SourceDhikr(
+        val id: Int = 0,
+        val text: String = "",
+        val count: Int = 0,
+        val audio: String? = null,
+        val filename: String? = null,
+    )
 
-    private inline fun <T> JSONArray.mapObjects(transform: (JSONObject) -> T): List<T> =
-        (0 until length()).map { index ->
-            transform(optJSONObject(index) ?: throw AthkarCorpusFormatException("item $index is not an object"))
-        }
+    private companion object {
+        val CATEGORY_LIST_TYPE = object : TypeToken<List<SourceCategory>>() {}.type
+        const val SOURCE_URL = "https://github.com/rn0x/Adhkar-json"
+    }
 }
 
-/** The asset is not the documented shape. Distinct from a validator rejection. */
+/** The asset is not the documented source shape. */
 class AthkarCorpusFormatException(message: String, cause: Throwable? = null) : Exception(message, cause)

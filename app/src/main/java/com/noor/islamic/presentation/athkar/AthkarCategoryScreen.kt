@@ -125,7 +125,7 @@ private fun CategoryHeader(
     onReset: () -> Unit,
 ) {
     val ready = state as? AthkarCategoryUiState.Ready
-    val title = ready?.let { stringResource(athkarCategoryLabelRes(it.category.id)) }
+    val title = ready?.category?.titleResKey
         ?: stringResource(R.string.athkar_title)
 
     Column(modifier = Modifier.padding(horizontal = NoorDimens.Lg, vertical = NoorDimens.Md)) {

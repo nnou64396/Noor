@@ -73,6 +73,7 @@
     <string name="athkar_reset_dhikr">R&#233;initialiser ce dhikr</string>
     <string name="athkar_reset_category">R&#233;initialiser cette cat&#233;gorie</string>
     <string name="athkar_category_open_desc">%1$s, %2$s. Ouvrir pour commencer.</string>
+    <string name="athkar_source_attribution">Source : rn0x/Adhkar-json (Hisn al-Muslim). Aucune licence formelle n&#8217;est fournie ; le README du d&#233;p&#244;t indique que les fichiers peuvent &#234;tre utilis&#233;s librement.</string>
 
     <!-- Shared actions -->
     <string name="action_back">Retour</string>
