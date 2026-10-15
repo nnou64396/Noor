@@ -74,6 +74,7 @@
     <string name="athkar_reset_dhikr">إعادة ضبط هذا الذكر</string>
     <string name="athkar_reset_category">إعادة ضبط المجموعة</string>
     <string name="athkar_category_open_desc">%1$s، %2$s. افتح لبدء التكرار.</string>
+    <string name="athkar_source_attribution">المصدر: rn0x/Adhkar-json (حصن المسلم). لا توجد رخصة رسمية؛ يذكر المستودع أن الملفات متاحة للاستخدام الحر.</string>
 
     <!-- Shared actions -->
     <string name="action_back">رجوع</string>
