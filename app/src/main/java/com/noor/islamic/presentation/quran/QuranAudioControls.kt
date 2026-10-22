@@ -170,7 +170,7 @@ private fun AudioControlButton(
     loading: Boolean = false,
 ) {
     val contentColor = when {
-        active -> MaterialTheme.colorScheme.secondary
+        active -> MaterialTheme.colorScheme.primary
         enabled -> MaterialTheme.colorScheme.onSurface
         else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
     }
@@ -238,8 +238,8 @@ private fun ReciterButton(reciter: Reciter, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.65f),
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         modifier = Modifier
             .heightIn(min = 48.dp)
             .testTag("quran_audio_reciter_button")

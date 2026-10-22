@@ -246,6 +246,50 @@ class QiblaViewModelTest {
         }
 
     @Test
+    fun `a permission revoked from settings is picked up on the next resume`() =
+        runTest(dispatcher) {
+            val checker = FakePermissionChecker(granted = true)
+            val sensor = RecordingHeadingSensor()
+            val location = FakeLocationRepository(success = true)
+            val viewModel = QiblaViewModel(checker, location, sensor)
+            advanceUntilIdle()
+
+            assertEquals(LocationPermissionUiState.GRANTED, viewModel.uiState.value.permission)
+
+            // The user revokes access from the system settings while the app
+            // stays alive. The permission was granted up front (no dialog), so
+            // the check falls back to the "not requested" state.
+            checker.granted = false
+            viewModel.onScreenEntered()
+            advanceUntilIdle()
+
+            assertEquals(LocationPermissionUiState.NOT_REQUESTED, viewModel.uiState.value.permission)
+        }
+
+    @Test
+    fun `a dialog-granted permission revoked later becomes permanently denied and stops the sensor`() =
+        runTest(dispatcher) {
+            val checker = FakePermissionChecker(granted = true)
+            val sensor = RecordingHeadingSensor()
+            val viewModel = QiblaViewModel(checker, FakeLocationRepository(success = true), sensor)
+            viewModel.onPermissionGranted()
+            viewModel.onScreenActive()
+            advanceUntilIdle()
+            assertTrue(sensor.listening)
+
+            // Revoked, rationales are no longer shown -> permanent denial.
+            checker.granted = false
+            viewModel.onScreenEntered()
+            advanceUntilIdle()
+
+            assertEquals(
+                LocationPermissionUiState.DENIED_PERMANENT,
+                viewModel.uiState.value.permission,
+            )
+            assertFalse("A revoked permission must stop the sensor", sensor.listening)
+        }
+
+    @Test
     fun `re-entering an already resolved screen does not fetch the location again`() =
         runTest(dispatcher) {
             val sensor = RecordingHeadingSensor()
@@ -321,7 +365,7 @@ class QiblaViewModelTest {
     )
 
     private class FakePermissionChecker(
-        private val granted: Boolean,
+        var granted: Boolean,
         private val rationale: Boolean = false,
     ) : LocationPermissionChecker {
         override fun isGranted(): Boolean = granted

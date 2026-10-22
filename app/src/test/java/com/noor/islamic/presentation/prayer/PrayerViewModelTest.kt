@@ -2,8 +2,11 @@ package com.noor.islamic.presentation.prayer
 
 import com.noor.islamic.domain.model.CalculationMethod
 import com.noor.islamic.domain.model.CalculationMethodConfig
+import com.noor.islamic.domain.model.AsrSchool
 import com.noor.islamic.domain.model.DailyPrayerSchedule
 import com.noor.islamic.domain.model.GeographicPoint
+import com.noor.islamic.domain.model.Language
+import com.noor.islamic.domain.model.LocationMode
 import com.noor.islamic.domain.model.PrayerDataException
 import com.noor.islamic.domain.model.PrayerErrorKind
 import com.noor.islamic.domain.model.PrayerName
@@ -11,6 +14,8 @@ import com.noor.islamic.domain.model.PrayerTime
 import com.noor.islamic.domain.repository.LocationPermissionChecker
 import com.noor.islamic.domain.repository.LocationRepository
 import com.noor.islamic.domain.repository.PrayerRepository
+import com.noor.islamic.domain.repository.SettingsRepository
+import com.noor.islamic.domain.model.ThemeMode
 import com.noor.islamic.presentation.common.LocationPermissionUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +39,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * Prayer ViewModel over fake collaborators: permission flow, offline-first
@@ -168,6 +175,88 @@ class PrayerViewModelTest {
         }
 
     @Test
+    fun `manual location loads without permission and switching back uses automatic location`() =
+        runTest(dispatcher) {
+            val settings = FakeSettingsRepository().apply {
+                locationMode.value = LocationMode.MANUAL
+                manualLatitude.value = 48.8566
+                manualLongitude.value = 2.3522
+            }
+            val location = FakeLocationRepository(success = true)
+            val prayers = FakePrayerRepository()
+            val viewModel = PrayerViewModel(
+                permissionChecker = FakePermissionChecker(granted = false),
+                locationRepository = location,
+                prayerRepository = prayers,
+                settingsRepository = settings,
+                clock = clock,
+            )
+            advanceUntilIdle()
+
+            assertEquals(LocationMode.MANUAL, viewModel.uiState.value.locationMode)
+            assertEquals(0, location.obtainCount)
+            assertTrue(viewModel.uiState.value.schedule is PrayerScheduleUi.Ready)
+            assertEquals(GeographicPoint(48.8566, 2.3522), prayers.lastPoint)
+
+            settings.setPrayerLocationMode(LocationMode.AUTO)
+            advanceUntilIdle()
+
+            assertEquals(LocationMode.AUTO, viewModel.uiState.value.locationMode)
+            assertEquals(0, location.obtainCount)
+            assertTrue(viewModel.uiState.value.schedule is PrayerScheduleUi.Idle)
+        }
+
+    @Test
+    fun `switching from manual to automatic requests the device location when permitted`() =
+        runTest(dispatcher) {
+            val settings = FakeSettingsRepository().apply {
+                locationMode.value = LocationMode.MANUAL
+                manualLatitude.value = 48.8566
+                manualLongitude.value = 2.3522
+            }
+            val location = FakeLocationRepository(success = true)
+            val prayers = FakePrayerRepository()
+            val viewModel = PrayerViewModel(
+                permissionChecker = FakePermissionChecker(granted = true),
+                locationRepository = location,
+                prayerRepository = prayers,
+                settingsRepository = settings,
+                clock = clock,
+            )
+            advanceUntilIdle()
+            assertEquals(GeographicPoint(48.8566, 2.3522), prayers.lastPoint)
+
+            settings.setPrayerLocationMode(LocationMode.AUTO)
+            advanceUntilIdle()
+
+            assertEquals(1, location.obtainCount)
+            assertEquals(GeographicPoint(36.7538, 3.0588), prayers.lastPoint)
+        }
+
+    @Test
+    fun `selected calculation method and Asr school reach the prayer repository`() =
+        runTest(dispatcher) {
+            val settings = FakeSettingsRepository()
+            val prayers = FakePrayerRepository()
+            val viewModel = PrayerViewModel(
+                permissionChecker = FakePermissionChecker(granted = true),
+                locationRepository = FakeLocationRepository(success = true),
+                prayerRepository = prayers,
+                settingsRepository = settings,
+                clock = clock,
+            )
+            advanceUntilIdle()
+
+            settings.setPrayerCalculationMethod(CalculationMethod.TEHRAN)
+            settings.setPrayerAsrSchool(AsrSchool.HANAFI)
+            advanceUntilIdle()
+
+            assertEquals(CalculationMethod.TEHRAN, prayers.lastMethod)
+            assertEquals(AsrSchool.HANAFI.apiId, prayers.lastSchool)
+            assertEquals(GeographicPoint(36.7538, 3.0588), prayers.lastPoint)
+        }
+
+    @Test
     fun `an unavailable place name still leaves the schedule loaded`() = runTest(dispatcher) {
         // `cityLabel` is a best-effort reverse geocode; failing to resolve a
         // name must not cost the user their prayer times.
@@ -214,6 +303,82 @@ class PrayerViewModelTest {
         val ready = viewModel.uiState.value.schedule as PrayerScheduleUi.Ready
         assertNull(ready.tomorrow)
     }
+
+    @Test
+    fun `a fresh cache for today is served without the network`() = runTest(dispatcher) {
+        // Fetched earlier this same (local) day: an immutable schedule for a
+        // fixed date is still canonical, so the load must not hit the API again.
+        val prayers = FakePrayerRepository(
+            cached = true,
+            fetchedAt = Instant.parse("2026-09-27T07:00:00Z"),
+        )
+        val viewModel = viewModel(prayers = prayers, granted = true)
+        advanceUntilIdle()
+
+        val ready = viewModel.uiState.value.schedule as PrayerScheduleUi.Ready
+        assertTrue(ready.fromCache)
+        assertEquals(today, ready.today.date)
+        assertEquals(0, prayers.refreshCount)
+    }
+
+    @Test
+    fun `a cache fetched on a previous day is refreshed`() = runTest(dispatcher) {
+        // 2026-09-26T22:00:00Z is already 27 Sep in Algeria (+01:00), so local
+        // midnight separates the fetched timestamp from the requested date.
+        val prayers = FakePrayerRepository(
+            cached = true,
+            fetchedAt = Instant.parse("2026-09-26T22:00:00Z"),
+        )
+        val viewModel = viewModel(prayers = prayers, granted = true)
+        advanceUntilIdle()
+
+        val ready = viewModel.uiState.value.schedule as PrayerScheduleUi.Ready
+        assertFalse(ready.fromCache)
+        assertEquals(2, prayers.refreshCount)
+    }
+
+    @Test
+    fun `a network failure without cache keeps its kind`() = runTest(dispatcher) {
+        val viewModel = viewModel(
+            prayers = FakePrayerRepository(refreshFails = true),
+            granted = true,
+        )
+        advanceUntilIdle()
+
+        val failed = viewModel.uiState.value.schedule as PrayerScheduleUi.Failed
+        assertEquals(PrayerErrorKind.NETWORK, failed.kind)
+    }
+
+    @Test
+    fun `an unavailable fix reports a location failure kind`() = runTest(dispatcher) {
+        val viewModel = viewModel(
+            location = FakeLocationRepository(success = false),
+            granted = true,
+        )
+        advanceUntilIdle()
+
+        val failed = viewModel.uiState.value.schedule as PrayerScheduleUi.Failed
+        assertEquals(PrayerErrorKind.LOCATION, failed.kind)
+    }
+
+    @Test
+    fun `a schedule shown for yesterday reloads for today when the day changes`() =
+        runTest(dispatcher) {
+            val movingClock = MutableClock(Instant.parse("2026-09-27T09:00:00Z"))
+            val prayers = FakePrayerRepository()
+            val viewModel = viewModel(prayers = prayers, granted = true, clock = movingClock)
+            advanceUntilIdle()
+            assertEquals(today, (viewModel.uiState.value.schedule as PrayerScheduleUi.Ready).today.date)
+
+            // Midnight passes while the app stays alive; the next entry to the
+            // screen must not keep showing yesterday's schedule.
+            movingClock.set(Instant.parse("2026-09-28T00:05:00Z"))
+            viewModel.onScreenEntered()
+            advanceUntilIdle()
+
+            val ready = viewModel.uiState.value.schedule as PrayerScheduleUi.Ready
+            assertEquals(LocalDate.of(2026, 9, 28), ready.today.date)
+        }
 
     @Test
     fun `repeated resume does not pile up concurrent location requests`() = runTest(dispatcher) {
@@ -331,6 +496,7 @@ class PrayerViewModelTest {
         prayers: PrayerRepository = FakePrayerRepository(),
         granted: Boolean = true,
         rationale: Boolean = false,
+        clock: Clock = this.clock,
     ): PrayerViewModel = PrayerViewModel(
         permissionChecker = FakePermissionChecker(granted = granted, rationale = rationale),
         locationRepository = location,
@@ -365,25 +531,89 @@ class PrayerViewModelTest {
         override suspend fun cityLabel(point: GeographicPoint): String? = label
     }
 
+    private class FakeSettingsRepository : SettingsRepository {
+        val method = MutableStateFlow(CalculationMethodConfig.defaultMethod)
+        val school = MutableStateFlow(AsrSchool.DEFAULT)
+        val locationMode = MutableStateFlow(LocationMode.AUTO)
+        val manualLatitude = MutableStateFlow<Double?>(null)
+        val manualLongitude = MutableStateFlow<Double?>(null)
+
+        override val language: Flow<Language> = MutableStateFlow(Language.ARABIC)
+        override val themeMode: Flow<ThemeMode> = MutableStateFlow(ThemeMode.SYSTEM)
+        override val onboardingComplete: Flow<Boolean> = MutableStateFlow(false)
+        override val prayerCalculationMethod: Flow<CalculationMethod> = method
+        override val prayerAsrSchool: Flow<AsrSchool> = school
+        override val prayerLocationMode: Flow<LocationMode> = locationMode
+        override val prayerManualLatitude: Flow<Double?> = manualLatitude
+        override val prayerManualLongitude: Flow<Double?> = manualLongitude
+
+        override suspend fun setLanguage(language: Language) = Unit
+        override suspend fun setThemeMode(themeMode: ThemeMode) = Unit
+        override suspend fun setOnboardingComplete(completed: Boolean) = Unit
+        override suspend fun getDismissedUpdateVersionCode(): Long = 0L
+        override suspend fun setDismissedUpdateVersionCode(code: Long) = Unit
+        override suspend fun setPrayerCalculationMethod(method: CalculationMethod) {
+            this.method.value = method
+        }
+        override suspend fun setPrayerAsrSchool(school: AsrSchool) {
+            this.school.value = school
+        }
+        override suspend fun setPrayerLocationMode(mode: LocationMode) {
+            locationMode.value = mode
+        }
+        override suspend fun setPrayerManualLocation(latitude: Double, longitude: Double) {
+            manualLatitude.value = latitude
+            manualLongitude.value = longitude
+        }
+        override suspend fun clearPrayerManualLocation() {
+            manualLatitude.value = null
+            manualLongitude.value = null
+        }
+    }
+
     private class FakePrayerRepository(
         private val cached: Boolean = false,
         private val refreshFails: Boolean = false,
         private val tomorrow: Boolean = true,
         private val cancelled: Boolean = false,
         private val tomorrowCancelled: Boolean = false,
+        /** Fetch timestamp for today's cached row (null = the cache is empty). */
+        private val fetchedAt: Instant? = null,
     ) : PrayerRepository {
+
+        var refreshCount = 0
+            private set
+        var lastPoint: GeographicPoint? = null
+            private set
+        var lastMethod: CalculationMethod? = null
+            private set
+        var lastSchool: Int? = null
+            private set
 
         override suspend fun getCached(
             date: LocalDate,
             point: GeographicPoint,
             method: CalculationMethod,
+            school: Int,
         ): DailyPrayerSchedule? = if (cached) schedule(date) else null
+
+        override suspend fun getCachedFetchedAt(
+            date: LocalDate,
+            point: GeographicPoint,
+            method: CalculationMethod,
+            school: Int,
+        ): Instant? = if (cached && date == today) fetchedAt else null
 
         override suspend fun refresh(
             date: LocalDate,
             point: GeographicPoint,
             method: CalculationMethod,
+            school: Int,
         ): DailyPrayerSchedule {
+            refreshCount++
+            lastPoint = point
+            lastMethod = method
+            lastSchool = school
             if (cancelled) throw CancellationException("cancelled")
             // The ViewModel tolerates a missing tomorrow: it only requires today.
             if (refreshFails || (!tomorrow && date > today)) {
@@ -391,6 +621,16 @@ class PrayerViewModelTest {
             }
             if (tomorrowCancelled && date > today) throw CancellationException("cancelled")
             return schedule(date)
+        }
+    }
+
+    /** A [Clock] whose instant a test can advance, to exercise midnight rolls. */
+    private class MutableClock(private var now: Instant) : Clock() {
+        override fun instant(): Instant = now
+        override fun getZone(): ZoneId = ZoneId.of("UTC")
+        override fun withZone(zone: ZoneId): Clock = MutableClock(now)
+        fun set(instant: Instant) {
+            now = instant
         }
     }
 

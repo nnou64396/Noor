@@ -154,7 +154,7 @@ fun QuranSearchScreen(
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(NoorDimens.Xl),
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                     Spacer(Modifier.size(NoorDimens.Md))
                     Text(
@@ -259,7 +259,7 @@ private fun SearchResultRow(
                 Text(
                     text = surah?.nameArabic ?: surahLabel,
                     style = MaterialTheme.typography.titleSmall.copy(textDirection = TextDirection.Rtl),
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.primary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

@@ -1,8 +1,10 @@
 package com.noor.islamic.domain.repository
 
 import com.noor.islamic.domain.model.CalculationMethod
+import com.noor.islamic.domain.model.CalculationMethodConfig
 import com.noor.islamic.domain.model.DailyPrayerSchedule
 import com.noor.islamic.domain.model.GeographicPoint
+import java.time.Instant
 import java.time.LocalDate
 
 /**
@@ -19,7 +21,20 @@ interface PrayerRepository {
         date: LocalDate,
         point: GeographicPoint,
         method: CalculationMethod,
+        school: Int = CalculationMethodConfig.defaultSchool,
     ): DailyPrayerSchedule?
+
+    /**
+     * Reads *when* the cached schedule for [date] at [point] + [method] was
+     * fetched, or null when nothing is cached. Lets the caller decide whether
+     * a cached row for "today" is fresh enough to serve without the network.
+     */
+    suspend fun getCachedFetchedAt(
+        date: LocalDate,
+        point: GeographicPoint,
+        method: CalculationMethod,
+        school: Int = CalculationMethodConfig.defaultSchool,
+    ): Instant?
 
     /**
      * Fetches a fresh schedule for [date] from the API and stores it in the
@@ -31,5 +46,6 @@ interface PrayerRepository {
         date: LocalDate,
         point: GeographicPoint,
         method: CalculationMethod,
+        school: Int = CalculationMethodConfig.defaultSchool,
     ): DailyPrayerSchedule
 }

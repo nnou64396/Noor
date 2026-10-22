@@ -147,7 +147,7 @@ private fun CategoryHeader(
             Text(
                 text = title,
                 style = MaterialTheme.typography.noorDisplay,
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.primary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -187,7 +187,7 @@ private fun CategoryHeader(
                     Icon(
                         imageVector = Icons.Rounded.Refresh,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 }
             }
@@ -202,7 +202,7 @@ private fun CategoryHeader(
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("athkar_category_progress"),
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 )
             }
@@ -263,14 +263,14 @@ private fun DhikrCard(
                         stringResource(R.string.athkar_repeat_of_fmt, target)
                     },
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(Modifier.weight(1f))
                 if (item.isComplete) {
                     Icon(
                         imageVector = Icons.Rounded.CheckCircle,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(NoorDimens.Icon),
                     )
                 } else {
@@ -332,7 +332,7 @@ private fun DhikrCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("athkar_dhikr_progress_${dhikr.id}"),
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 )
                 Spacer(Modifier.size(NoorDimens.Xs))

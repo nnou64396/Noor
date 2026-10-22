@@ -10,23 +10,43 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.noor.islamic.domain.model.AppSettings
+import com.noor.islamic.domain.model.AsrSchool
+import com.noor.islamic.domain.model.CalculationMethod
 import com.noor.islamic.domain.model.Language
+import com.noor.islamic.domain.model.LocationMode
 import com.noor.islamic.domain.model.ThemeMode
+import com.noor.islamic.presentation.SettingsUiState
 import com.noor.islamic.presentation.prayer.PrayerViewModel
 import com.noor.islamic.ui.components.NoorBottomBar
 
 /**
  * Root composable: holds the [Scaffold] and wires the app destinations
  * together with the branded bottom navigation bar.
+ *
+ * The whole subtree is gated on [SettingsUiState.Ready]: until persisted
+ * settings are available the start destination cannot be decided reliably, so
+ * rendering the graph early would flash Onboarding to returning users.
  */
 @Composable
 fun NoorApp(
-    settings: AppSettings,
+    settingsState: SettingsUiState,
     prayerViewModel: PrayerViewModel,
+    updateStatus: com.noor.islamic.domain.model.UpdateStatus = com.noor.islamic.domain.model.UpdateStatus.UpToDate,
+    onCheckForUpdates: () -> Unit = {},
+    onDismissUpdate: (Long) -> Unit = {},
     onLanguageSelected: (Language) -> Unit,
     onThemeSelected: (ThemeMode) -> Unit,
+    onCalculationMethodSelected: (CalculationMethod) -> Unit = {},
+    onAsrSchoolSelected: (AsrSchool) -> Unit = {},
+    onLocationModeSelected: (LocationMode) -> Unit = {},
+    onManualLocationSelected: (Double, Double) -> Unit = { _, _ -> },
     onOnboardingComplete: () -> Unit,
 ) {
+    val settings: AppSettings = when (val state = settingsState) {
+        SettingsUiState.Loading -> return
+        is SettingsUiState.Ready -> state.settings
+    }
+
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
@@ -60,8 +80,15 @@ fun NoorApp(
             contentPadding = innerPadding,
             settings = settings,
             prayerViewModel = prayerViewModel,
+            updateStatus = updateStatus,
+            onCheckForUpdates = onCheckForUpdates,
+            onDismissUpdate = onDismissUpdate,
             onLanguageSelected = onLanguageSelected,
             onThemeSelected = onThemeSelected,
+            onCalculationMethodSelected = onCalculationMethodSelected,
+            onAsrSchoolSelected = onAsrSchoolSelected,
+            onLocationModeSelected = onLocationModeSelected,
+            onManualLocationSelected = onManualLocationSelected,
             onOpenDestination = { route ->
                 navController.navigate(route) {
                     launchSingleTop = true
@@ -70,6 +97,7 @@ fun NoorApp(
             onOnboardingComplete = {
                 onOnboardingComplete()
                 navController.navigate(NoorDestinations.HOME) {
+                    launchSingleTop = true
                     popUpTo(NoorDestinations.ONBOARDING) { inclusive = true }
                 }
             },

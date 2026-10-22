@@ -30,9 +30,9 @@
 
     <!-- Daily section -->
     <string name="daily_verse_title">Verset du jour</string>
-    <string name="daily_verse_placeholder">Un verset choisi du Coran apparaîtra ici chaque jour dans une phase ultérieure.</string>
+    <string name="daily_verse_placeholder">Un verset du Coran apparaîtra ici chaque jour.</string>
     <string name="daily_dhikr_title">Dhikr du jour</string>
-    <string name="daily_dhikr_placeholder">Le dhikr du jour apparaîtra ici dans une phase ultérieure.</string>
+    <string name="daily_dhikr_placeholder">Votre dhikr quotidien apparaîtra ici.</string>
 
     <!-- Tasbih -->
     <string name="tasbih_title">Tasbih</string>
@@ -86,10 +86,38 @@
     <string name="settings_section_appearance">Apparence</string>
     <string name="settings_section_language">Langue</string>
     <string name="settings_section_about">À propos</string>
+    <string name="settings_section_prayer">Heures de prière</string>
     <string name="settings_about_title">À propos de Noor</string>
     <string name="settings_about_body">Noor est une application islamique apaisée qui réunit le Coran, les Adhkar, la prière et la Qibla dans une expérience visuelle moderne inspirée de l&#8217;architecture ottomane.</string>
     <string name="settings_version_title">Version</string>
-    <string name="settings_version_value">0.1.0</string>
+    <string name="pref_prayer_calculation_method">Méthode de calcul</string>
+    <string name="pref_prayer_asr_school">École d’Asr</string>
+    <string name="calculation_method_karachi">Université de Karachi</string>
+    <string name="calculation_method_isna">ISNA</string>
+    <string name="calculation_method_mwl">Ligue mondiale musulmane</string>
+    <string name="calculation_method_umm_al_qura">Umm al-Qura</string>
+    <string name="calculation_method_egyptian">Autorité générale égyptienne</string>
+    <string name="calculation_method_tehran">Téhéran</string>
+    <string name="calculation_method_gulf">Région du Golfe</string>
+    <string name="calculation_method_kuwait">Koweït</string>
+    <string name="calculation_method_qatar">Qatar</string>
+    <string name="calculation_method_singapore">Singapour</string>
+    <string name="calculation_method_french">Musulmans français</string>
+    <string name="calculation_method_turkey">Turquie</string>
+    <string name="calculation_method_russia">Russie</string>
+    <string name="calculation_method_moonsighting">Comité de l’observation</string>
+    <string name="calculation_method_dubai">Dubaï</string>
+    <string name="calculation_method_jakarta">Jakarta</string>
+    <string name="asr_school_standard">Standard (Chafé’i)</string>
+    <string name="asr_school_hanafi">Hanafi</string>
+    <string name="location_mode_auto">Automatique</string>
+    <string name="location_mode_manual">Manuel</string>
+    <string name="pref_prayer_location">Emplacement des prières</string>
+    <string name="manual_location_coordinates">%1$.4f, %2$.4f</string>
+    <string name="manual_location_help">Saisissez les coordonnées en degrés décimaux (latitude de -90 à 90, longitude de -180 à 180).</string>
+    <string name="manual_location_invalid">Saisissez une latitude et une longitude valides.</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
 
     <!-- Dialog -->
     <string name="dialog_ok">OK</string>
@@ -138,6 +166,7 @@
     <string name="quran_sajda">Position de la sajda</string>
     <string name="quran_source_attribution">Texte du Coran : Tanzil Uthmani v1.1 · tanzil.net</string>
     <string name="quran_source_copyright">Copyright © 2007–2026 Projet Tanzil · CC BY 3.0</string>
+    <string name="quran_audio_attribution">Audio du Coran : EveryAyah · everyayah.com</string>
 
     <!-- Phase 4: reader actions -->
     <string name="quran_reader_current_ayah">Verset actuel</string>
@@ -232,6 +261,7 @@
     <string name="prayer_detecting_location">Localisation…</string>
     <string name="prayer_error_title">Impossible de charger les horaires</string>
     <string name="prayer_error_body">Vérifiez votre connexion Internet et réessayez.</string>
+    <string name="prayer_error_network">Impossible de joindre le service des horaires. Vérifiez votre connexion puis réessayez.</string>
 
     <!-- Location permission / status -->
     <string name="location_permission_title">Accès à la position</string>
@@ -253,7 +283,7 @@
     <string name="qibla_north">N</string>
     <string name="qibla_east">E</string>
     <string name="qibla_south">S</string>
-    <string name="qibla_west">W</string>
+    <string name="qibla_west">O</string>
     <string name="qibla_heading_fmt">Cap : %1$d°</string>
     <string name="qibla_kaaba_bearing_fmt">Qibla : %1$d°</string>
     <string name="qibla_calibrate_hint">Pour une boussole plus précise, déplacez le téléphone en formant un huit.</string>
@@ -266,4 +296,17 @@
 
     <!-- Placeholders -->
     <string name="feature_coming_soon">Cette fonctionnalité arrive bientôt</string>
+
+    <!-- App Updates -->
+    <string name="update_available_title">Nouvelle mise à jour disponible (%1$s)</string>
+    <string name="update_available_body">Une nouvelle version de NOOR est disponible avec des améliorations.</string>
+    <string name="update_required_title">Mise à jour recommandée (%1$s)</string>
+    <string name="update_required_body">Une mise à jour importante est disponible pour maintenir le bon fonctionnement de NOOR.</string>
+    <string name="update_action_get">Mettre à jour</string>
+    <string name="update_action_dismiss">Plus tard</string>
+    <string name="update_status_up_to_date">NOOR est à jour</string>
+    <string name="update_status_disabled">Serveur de mise à jour non configuré</string>
+    <string name="update_status_unavailable">Impossible de vérifier les mises à jour</string>
+    <string name="update_check_action">Vérifier les mises à jour</string>
+    <string name="update_section_title">Mises à jour</string>
 </resources>

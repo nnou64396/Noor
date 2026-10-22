@@ -166,7 +166,7 @@ private fun AthkarCategoryCard(
                             .fillMaxWidth()
                             .clearAndSetSemantics { }
                             .testTag("athkar_category_progress_${item.category.id}"),
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     )
                 }
@@ -175,7 +175,7 @@ private fun AthkarCategoryCard(
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary,
+                tint = MaterialTheme.colorScheme.primary,
             )
         }
     }

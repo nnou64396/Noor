@@ -30,9 +30,9 @@
 
     <!-- Daily section -->
     <string name="daily_verse_title">Verse of the day</string>
-    <string name="daily_verse_placeholder">A selected Quran verse will appear here daily in a future phase.</string>
+    <string name="daily_verse_placeholder">A verse of the Quran will appear here every day.</string>
     <string name="daily_dhikr_title">Dhikr of the day</string>
-    <string name="daily_dhikr_placeholder">The daily dhikr will appear here in a future phase.</string>
+    <string name="daily_dhikr_placeholder">Your daily dhikr will appear here.</string>
 
     <!-- Tasbih -->
     <string name="tasbih_title">Tasbih</string>
@@ -86,10 +86,38 @@
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_section_language">Language</string>
     <string name="settings_section_about">About</string>
+    <string name="settings_section_prayer">Prayer times</string>
     <string name="settings_about_title">About Noor</string>
     <string name="settings_about_body">Noor is a calm Islamic app bringing the Quran, Athkar, prayer and Qibla together in a modern visual experience inspired by Ottoman architecture.</string>
     <string name="settings_version_title">Version</string>
-    <string name="settings_version_value">0.1.0</string>
+    <string name="pref_prayer_calculation_method">Calculation method</string>
+    <string name="pref_prayer_asr_school">Asr school</string>
+    <string name="calculation_method_karachi">University of Karachi</string>
+    <string name="calculation_method_isna">ISNA</string>
+    <string name="calculation_method_mwl">Muslim World League</string>
+    <string name="calculation_method_umm_al_qura">Umm al-Qura</string>
+    <string name="calculation_method_egyptian">Egyptian General Authority</string>
+    <string name="calculation_method_tehran">Tehran</string>
+    <string name="calculation_method_gulf">Gulf Region</string>
+    <string name="calculation_method_kuwait">Kuwait</string>
+    <string name="calculation_method_qatar">Qatar</string>
+    <string name="calculation_method_singapore">Singapore</string>
+    <string name="calculation_method_french">French Muslims</string>
+    <string name="calculation_method_turkey">Turkey</string>
+    <string name="calculation_method_russia">Russia</string>
+    <string name="calculation_method_moonsighting">Moon-sighting Committee</string>
+    <string name="calculation_method_dubai">Dubai</string>
+    <string name="calculation_method_jakarta">Jakarta</string>
+    <string name="asr_school_standard">Standard (Shafi’i)</string>
+    <string name="asr_school_hanafi">Hanafi</string>
+    <string name="location_mode_auto">Automatic</string>
+    <string name="location_mode_manual">Manual</string>
+    <string name="pref_prayer_location">Prayer location</string>
+    <string name="manual_location_coordinates">%1$.4f, %2$.4f</string>
+    <string name="manual_location_help">Enter coordinates in decimal degrees (latitude -90 to 90, longitude -180 to 180).</string>
+    <string name="manual_location_invalid">Enter valid latitude and longitude values.</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
 
     <!-- Dialog -->
     <string name="dialog_ok">OK</string>
@@ -138,6 +166,7 @@
     <string name="quran_sajda">Sajdah position</string>
     <string name="quran_source_attribution">Quran text: Tanzil Uthmani v1.1 · tanzil.net</string>
     <string name="quran_source_copyright">Copyright © 2007–2026 Tanzil Project · CC BY 3.0</string>
+    <string name="quran_audio_attribution">Quran audio: EveryAyah · everyayah.com</string>
 
     <!-- Phase 4: reader actions -->
     <string name="quran_reader_current_ayah">Current ayah</string>
@@ -232,6 +261,7 @@
     <string name="prayer_detecting_location">Locating you…</string>
     <string name="prayer_error_title">Could not load prayer times</string>
     <string name="prayer_error_body">Check your internet connection and try again.</string>
+    <string name="prayer_error_network">We couldn’t reach the prayer times service. Check your connection and try again.</string>
 
     <!-- Location permission / status -->
     <string name="location_permission_title">Location access</string>
@@ -266,4 +296,17 @@
 
     <!-- Placeholders -->
     <string name="feature_coming_soon">This feature is coming soon</string>
+
+    <!-- App Updates -->
+    <string name="update_available_title">New Update Available (%1$s)</string>
+    <string name="update_available_body">A new version of NOOR is available with improvements and fixes.</string>
+    <string name="update_required_title">Recommended Update (%1$s)</string>
+    <string name="update_required_body">An important update is available for NOOR to maintain smooth service.</string>
+    <string name="update_action_get">Get Update</string>
+    <string name="update_action_dismiss">Later</string>
+    <string name="update_status_up_to_date">NOOR is up to date</string>
+    <string name="update_status_disabled">Update server unconfigured</string>
+    <string name="update_status_unavailable">Unable to check for updates</string>
+    <string name="update_check_action">Check for Updates</string>
+    <string name="update_section_title">App Updates</string>
 </resources>

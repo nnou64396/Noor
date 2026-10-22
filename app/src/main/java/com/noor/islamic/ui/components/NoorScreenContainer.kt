@@ -12,24 +12,35 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.Dp
 import com.noor.islamic.ui.theme.NoorDimens
 
 /**
- * Standard full-screen container: draws the base background, optionally
- * scrolls its content and applies the Noor spacing rhythm.
+ * Standard full-screen container.
+ *
+ * Draws a very soft vertical wash instead of a flat fill — enough to stop the
+ * page reading as a dead rectangle, shallow enough that no text contrast is
+ * affected. Applies the Noor spacing rhythm and, when [scrollable], the
+ * vertical scroll.
  */
 @Composable
 fun NoorScreenContainer(
     modifier: Modifier = Modifier,
     scrollable: Boolean = true,
     horizontalPadding: Dp = NoorDimens.Lg,
+    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(NoorDimens.Lg),
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val scheme = MaterialTheme.colorScheme
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(
+                Brush.verticalGradient(
+                    listOf(scheme.background, scheme.surfaceContainerLow),
+                ),
+            ),
     ) {
         Column(
             modifier = Modifier
@@ -42,7 +53,7 @@ fun NoorScreenContainer(
                     },
                 )
                 .padding(horizontal = horizontalPadding, vertical = NoorDimens.Lg),
-            verticalArrangement = Arrangement.spacedBy(NoorDimens.Lg),
+            verticalArrangement = verticalArrangement,
         ) {
             content()
         }

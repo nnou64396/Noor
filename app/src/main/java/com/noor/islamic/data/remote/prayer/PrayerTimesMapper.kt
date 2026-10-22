@@ -28,6 +28,7 @@ class PrayerTimesMapper {
     fun map(
         response: TimingsResponse,
         requestedDate: LocalDate,
+        method: CalculationMethod,
     ): DailyPrayerSchedule? {
         val data = response.data ?: return null
         val meta = data.meta ?: return null
@@ -55,7 +56,7 @@ class PrayerTimesMapper {
             date = requestedDate,
             hijriReadable = data.date?.hijri?.readable,
             timezone = timezone,
-            method = CalculationMethod.MUSLIM_WORLD_LEAGUE,
+            method = method,
             prayers = prayers,
         )
     }
