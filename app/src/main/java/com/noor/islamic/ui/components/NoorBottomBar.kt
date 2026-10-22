@@ -1,20 +1,53 @@
 package com.noor.islamic.ui.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.noor.islamic.navigation.NoorTab
+import com.noor.islamic.ui.theme.LocalNoorIsDark
 import com.noor.islamic.ui.theme.NoorDimens
+import com.noor.islamic.ui.theme.NoorGlassBorderDark
+import com.noor.islamic.ui.theme.NoorGlassBorderLight
+import com.noor.islamic.ui.theme.NoorGlassDark
+import com.noor.islamic.ui.theme.NoorGlassLight
 
 /**
- * Noor bottom navigation: glass-tinted surface, gold "glow" for the active
- * destination and the five main tabs.
+ * The Noor bottom navigation.
+ *
+ * A compact, translucent bar with a hairline top edge, a slim pill behind the
+ * active icon and a short cross-fade on selection. Tabs, their order, their
+ * routes and the [onTabSelected] contract are unchanged — this is purely the
+ * visual layer, and every item keeps a 48dp touch target plus `Role.Tab`
+ * semantics so it stays reachable with a screen reader or switch access.
  */
 @Composable
 fun NoorBottomBar(
@@ -22,44 +55,108 @@ fun NoorBottomBar(
     onTabSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val dark = LocalNoorIsDark.current
     val scheme = MaterialTheme.colorScheme
 
-    NavigationBar(
-        modifier = modifier,
-        containerColor = scheme.surfaceContainerHigh.copy(alpha = 0.72f),
-        tonalElevation = NoorDimens.ElNone,
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = if (dark) NoorGlassDark else NoorGlassLight,
+        contentColor = scheme.onSurface,
+        border = BorderStroke(
+            NoorDimens.Hairline,
+            if (dark) NoorGlassBorderDark else NoorGlassBorderLight,
+        ),
     ) {
-        NoorTab.entries.forEach { tab ->
-            val label = stringResource(tab.labelRes)
-            val selected = tab.route == currentRoute
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .height(NoorDimens.BottomBarHeight)
+                .selectableGroup(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            NoorTab.entries.forEach { tab ->
+                val label = stringResource(tab.labelRes)
+                NoorBottomBarItem(
+                    label = label,
+                    selected = tab.route == currentRoute,
+                    icon = tab,
+                    onClick = { onTabSelected(tab.route) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
+}
 
-            NavigationBarItem(
+@Composable
+private fun NoorBottomBarItem(
+    label: String,
+    selected: Boolean,
+    icon: NoorTab,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val scheme = MaterialTheme.colorScheme
+
+    val contentColor by animateColorAsState(
+        targetValue = if (selected) scheme.primary else scheme.onSurfaceVariant,
+        animationSpec = tween(durationMillis = 200),
+        label = "noor_nav_content",
+    )
+    val indicatorColor by animateColorAsState(
+        targetValue = if (selected) {
+            scheme.primaryContainer
+        } else {
+            scheme.primaryContainer.copy(alpha = 0f)
+        },
+        animationSpec = tween(durationMillis = 200),
+        label = "noor_nav_indicator",
+    )
+    val indicatorWidth by animateDpAsState(
+        targetValue = if (selected) NoorDimens.BottomBarIndicatorWidth else 0.dp,
+        animationSpec = tween(durationMillis = 200),
+        label = "noor_nav_indicator_width",
+    )
+
+    Column(
+        modifier = modifier
+            .height(NoorDimens.BottomBarHeight)
+            .selectable(
                 selected = selected,
-                onClick = { onTabSelected(tab.route) },
-                icon = {
-                    Icon(
-                        imageVector = tab.icon,
-                        contentDescription = label,
-                        tint = if (selected) scheme.onSecondaryContainer else scheme.onSurfaceVariant,
-                    )
-                },
-                label = {
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (selected) scheme.onSurface else scheme.onSurfaceVariant,
-                        maxLines = 1,
-                    )
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = scheme.onSecondaryContainer,
-                    selectedTextColor = scheme.onSurface,
-                    indicatorColor = scheme.secondaryContainer,
-                    unselectedIconColor = scheme.onSurfaceVariant,
-                    unselectedTextColor = scheme.onSurfaceVariant,
-                ),
-                modifier = Modifier,
+                onClick = onClick,
+                role = Role.Tab,
+            )
+            .padding(vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .width(indicatorWidth.coerceAtLeast(NoorDimens.BottomBarIndicatorWidth))
+                .height(NoorDimens.BottomBarIndicatorHeight)
+                .clip(MaterialTheme.shapes.extraLarge)
+                .background(indicatorColor),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = icon.icon,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(22.dp),
             )
         }
+
+        Spacer(Modifier.height(3.dp))
+
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = contentColor,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }

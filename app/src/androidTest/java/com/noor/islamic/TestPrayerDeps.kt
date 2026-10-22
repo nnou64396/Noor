@@ -58,6 +58,12 @@ class FakePrayerRepository(
         method: CalculationMethod,
     ): DailyPrayerSchedule? = sample.copy(date = date)
 
+    override suspend fun getCachedFetchedAt(
+        date: LocalDate,
+        point: GeographicPoint,
+        method: CalculationMethod,
+    ): java.time.Instant? = null
+
     override suspend fun refresh(
         date: LocalDate,
         point: GeographicPoint,

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Noor mark — light-surface variant.
+
+  An eight-point khatam star (two overlaid squares) with a gold centre: light
+  radiating from the middle of a geometric Islamic form. Two elements only, so
+  it stays legible down to 16dp, and it reads at a glance on a launcher.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#1B4F8F"
+        android:pathData="M12,3 L13.607,8.12 L18.364,5.636 L15.88,10.393 L21,12 L15.88,13.607 L18.364,18.364 L13.607,15.88 L12,21 L10.393,15.88 L5.636,18.364 L8.12,13.607 L3,12 L8.12,10.393 L5.636,5.636 L10.393,8.12 Z" />
+    <path
+        android:fillColor="#C9A227"
+        android:pathData="M10,12 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 Z" />
+</vector>

@@ -141,7 +141,7 @@ private fun QuranHeader(
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Rounded.Search,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
             IconButton(
@@ -154,19 +154,19 @@ private fun QuranHeader(
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Rounded.Bookmark,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
             Surface(
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.65f),
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
                 modifier = Modifier.size(NoorDimens.IconCircle + 8.dp),
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     androidx.compose.material3.Icon(
                         imageVector = Icons.AutoMirrored.Rounded.MenuBook,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(NoorDimens.Xl),
                     )
                 }
@@ -188,7 +188,7 @@ private fun QuranLoadingState() {
     ) {
         CircularProgressIndicator(
             modifier = Modifier.size(NoorDimens.Xl),
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.primary,
         )
         Spacer(Modifier.size(NoorDimens.Md))
         Text(
@@ -308,7 +308,7 @@ private fun SurahListItem(
                 Text(
                     text = surah.nameTransliteration,
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = MaterialTheme.colorScheme.primary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -350,11 +350,11 @@ private fun SurahListItem(
 private fun SurahNumberMedallion(surahNumber: Int) {
     Surface(
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.72f),
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.72f),
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         border = BorderStroke(
             width = 1.dp,
-            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
         ),
         modifier = Modifier.size(NoorDimens.IconCircle),
     ) {

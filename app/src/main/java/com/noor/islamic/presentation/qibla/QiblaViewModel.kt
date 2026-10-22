@@ -130,9 +130,21 @@ class QiblaViewModel(
     }
 
     private fun refreshPermissionState() {
-        if (!permissionChecker.isGranted()) return
-        _uiState.update {
-            it.copy(permission = LocationPermissionUiState.GRANTED, hasRequestedPermission = permissionRequested)
+        // The previous implementation only moved the state when the permission
+        // was granted, and returned early otherwise. A permission revoked from
+        // the system Settings therefore left the UI thinking it was still
+        // granted — and, worse, left the compass sensor running.
+        val granted = permissionChecker.isGranted()
+        val next = when {
+            granted -> LocationPermissionUiState.GRANTED
+            permissionRequested && !permissionChecker.shouldShowRationale() ->
+                LocationPermissionUiState.DENIED_PERMANENT
+            permissionRequested -> LocationPermissionUiState.DENIED_RETRYABLE
+            else -> LocationPermissionUiState.NOT_REQUESTED
+        }
+        _uiState.update { it.copy(permission = next) }
+        if (!granted && sensorActive) {
+            stopSensor()
         }
     }
 

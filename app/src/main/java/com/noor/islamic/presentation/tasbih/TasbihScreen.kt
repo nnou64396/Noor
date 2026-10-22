@@ -1,5 +1,6 @@
 package com.noor.islamic.presentation.tasbih
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,9 +48,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noor.islamic.R
 import com.noor.islamic.domain.model.tasbih.TasbihSession
 import com.noor.islamic.ui.components.NoorGlassCard
+import com.noor.islamic.ui.components.NoorScreenContainer
 import com.noor.islamic.ui.components.NoorSectionTitle
 import com.noor.islamic.ui.theme.NoorDimens
+import com.noor.islamic.ui.theme.NoorGold
+import com.noor.islamic.ui.theme.noorBody
 import com.noor.islamic.ui.theme.noorDisplay
+import com.noor.islamic.ui.theme.noorLabel
 
 /**
  * The Tasbih counter: one large tap target, the remaining count, and the three
@@ -66,10 +71,9 @@ fun TasbihScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var showCustomTarget by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = NoorDimens.Lg, vertical = NoorDimens.Lg),
+    NoorScreenContainer(
+        modifier = modifier,
+        horizontalPadding = NoorDimens.Lg,
         verticalArrangement = Arrangement.spacedBy(NoorDimens.Lg),
     ) {
         NoorSectionTitle(
@@ -102,7 +106,7 @@ fun TasbihScreen(
                 Icon(
                     imageVector = Icons.Rounded.Remove,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
 
@@ -119,7 +123,7 @@ fun TasbihScreen(
                 Icon(
                     imageVector = Icons.Rounded.Refresh,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
         }
@@ -162,29 +166,32 @@ private fun TasbihCounter(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(260.dp),
+            .height(280.dp),
         contentAlignment = Alignment.Center,
     ) {
         // Track and progress share the same geometry so the ring stays put while
         // the count changes. The whole ring is the tap target.
         CircularProgressIndicator(
             progress = { 1f },
-            modifier = Modifier.size(240.dp),
+            modifier = Modifier.size(248.dp),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            strokeWidth = 12.dp,
+            strokeWidth = 10.dp,
         )
         CircularProgressIndicator(
             progress = { fraction },
             modifier = Modifier
-                .size(240.dp)
+                .size(248.dp)
                 .testTag("tasbih_progress"),
-            color = MaterialTheme.colorScheme.secondary,
-            strokeWidth = 12.dp,
+            // A brand-blue sweep; the completed ring turns gold so finishing a
+            // set is visible without reading the number.
+            color = if (isComplete) NoorGold else MaterialTheme.colorScheme.primary,
+            strokeWidth = 10.dp,
         )
         Box(
             modifier = Modifier
-                .size(240.dp)
+                .size(216.dp)
                 .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
                 .clickable(onClick = onIncrement)
                 .testTag("tasbih_tap_area")
                 .semantics {
@@ -205,8 +212,12 @@ private fun TasbihCounter(
 
     Text(
         text = progressLabel,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.noorBody,
+        color = if (isComplete) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
         textAlign = TextAlign.Center,
         modifier = Modifier
             .fillMaxWidth()
@@ -225,8 +236,8 @@ private fun TargetSelector(
         Column {
             Text(
                 text = stringResource(R.string.tasbih_target_title),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.noorLabel,
+                color = MaterialTheme.colorScheme.primary,
             )
             Spacer(Modifier.size(NoorDimens.Sm))
             Row(

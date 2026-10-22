@@ -1,28 +1,18 @@
 package com.noor.islamic.data.local
 
 import com.noor.islamic.domain.model.CalculationMethod
+import com.noor.islamic.domain.model.CalculationMethodConfig
 import com.noor.islamic.domain.model.GeographicPoint
 import java.math.BigDecimal
-import java.math.RoundingMode
 import java.security.MessageDigest
 import java.time.LocalDate
 
 /**
  * Stable Room primary key for a cached prayer schedule.
  *
- * The key must identity-bind a gregorian date to a location and a calculation
- * method so the cache can be looked up, but the raw coordinates are never
- * written to disk. The identity string is therefore reduced to a SHA-256
- * digest, which keeps the key stable while removing the readable location.
- *
- * Coordinates are rounded to 2 decimals (~1.1 km) *before* hashing, so the
- * cache still hits for a user who has not moved meaningfully between requests.
- *
- * Note this is pseudonymisation, not anonymisation: the digest is unsalted, so
- * anyone holding the table could confirm a *guessed* coarse location by
- * hashing candidate values. The digest does reveal less than the previous
- * plain-text key, but the table is still treated as location-adjacent and is
- * excluded from backup and device transfer.
+ * The key identity-binds a Gregorian date, request location, calculation method,
+ * and Asr school so the cache cannot be incorrectly reused across materially
+ * different request inputs. Raw coordinates are never persisted in cleartext.
  */
 object PrayerCacheKey {
 
@@ -30,10 +20,11 @@ object PrayerCacheKey {
         date: LocalDate,
         point: GeographicPoint,
         method: CalculationMethod,
+        school: Int = CalculationMethodConfig.defaultSchool,
     ): String {
-        val lat = BigDecimal.valueOf(point.latitude).setScale(2, RoundingMode.HALF_UP).toPlainString()
-        val lng = BigDecimal.valueOf(point.longitude).setScale(2, RoundingMode.HALF_UP).toPlainString()
-        val identity = "prayer|$date|$lat|$lng|${method.apiId}"
+        val lat = BigDecimal.valueOf(point.latitude).stripTrailingZeros().toPlainString()
+        val lng = BigDecimal.valueOf(point.longitude).stripTrailingZeros().toPlainString()
+        val identity = "prayer|$date|$lat|$lng|${method.apiId}|$school"
         return sha256Hex(identity)
     }
 

@@ -114,13 +114,22 @@ object ServiceLocator {
     }
 
     /**
+     * The single app-scoped Media3 engine. The in-app controller and the media
+     * session service share this instance, so system transport controls and
+     * in-app playback drive the exact same player.
+     */
+    val quranAudioEngine: Media3AudioEngine by lazy {
+        Media3AudioEngine(appContext)
+    }
+
+    /**
      * Application-scoped audio player. One controller serves every screen, so playback
      * survives navigation and configuration changes without a service or a second player.
      */
     val quranAudioController: QuranAudioController by lazy {
         QuranAudioControllerImpl(
             repository = quranAudioRepository,
-            engine = Media3AudioEngine(appContext),
+            engine = quranAudioEngine,
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
             catalog = EveryAyahReciterCatalog,
         )

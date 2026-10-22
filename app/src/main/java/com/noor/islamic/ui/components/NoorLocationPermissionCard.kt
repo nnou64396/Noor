@@ -39,7 +39,7 @@ fun NoorLocationPermissionCard(
     NoorGlassCard(modifier = modifier.testTag(testTag)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Surface(
-                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
                 shape = MaterialTheme.shapes.extraLarge,
                 modifier = Modifier.size(NoorDimens.IconCircle),
             ) {
@@ -47,7 +47,7 @@ fun NoorLocationPermissionCard(
                     Icon(
                         imageVector = Icons.Rounded.LocationOn,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(NoorDimens.Sm + 8.dp),
                     )
                 }

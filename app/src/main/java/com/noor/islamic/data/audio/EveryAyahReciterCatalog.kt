@@ -54,6 +54,7 @@ object EveryAyahReciterCatalog : ReciterCatalog {
     override fun itemFor(reciter: Reciter, ref: AyahRef): AudioEngineItem = AudioEngineItem(
         mediaId = mediaIdOf(ref),
         uri = ayahAudioUrl(reciter, ref.surahNumber, ref.ayahNumberInSurah),
+        title = "Surah ${ref.surahNumber} · Ayah ${ref.ayahNumberInSurah}",
     )
 
     fun mediaIdOf(ref: AyahRef): String = "${ref.surahNumber}:${ref.ayahNumberInSurah}"

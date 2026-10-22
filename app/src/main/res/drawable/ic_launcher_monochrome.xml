@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive monochrome layer, used by themed-icon launchers (Android 13+).
+  The launcher recolours this, so it carries silhouette only: the star without
+  the gold centre, which would otherwise disappear at small sizes.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#000000"
+        android:pathData="M54,22 L59.713,40.206 L76.627,31.373 L67.794,48.287 L86,54 L67.794,59.713 L76.627,76.627 L59.713,67.794 L54,86 L48.287,67.794 L31.373,76.627 L40.206,59.713 L22,54 L40.206,48.287 L31.373,31.373 L48.287,40.206 Z" />
+</vector>

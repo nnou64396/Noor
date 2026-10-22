@@ -15,18 +15,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.noor.islamic.ui.theme.NoorDimens
 
 /**
- * Onboarding page indicator: the active page is a wider gold pill while the
- * rest are quiet dots. Subtle width animation only — no continuous work.
+ * Onboarding page indicator: the active page is a wider brand-blue pill while
+ * the rest are quiet dots. Subtle width animation only — no continuous work.
+ *
+ * [onDarkSurface] switches to white-on-blue, for the onboarding backdrop.
  */
 @Composable
 fun NoorDotsIndicator(
     count: Int,
     currentIndex: Int,
     modifier: Modifier = Modifier,
+    onDarkSurface: Boolean = false,
 ) {
     Row(
         modifier = modifier.fillMaxWidth().padding(NoorDimens.Md),
@@ -45,10 +49,11 @@ fun NoorDotsIndicator(
                     .width(width)
                     .padding(end = if (index != count - 1) NoorDimens.Sm else 0.dp)
                     .background(
-                        color = if (selected) {
-                            MaterialTheme.colorScheme.secondary
-                        } else {
-                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                        color = when {
+                            onDarkSurface && selected -> heroAccent()
+                            onDarkSurface -> Color.White.copy(alpha = 0.38f)
+                            selected -> MaterialTheme.colorScheme.primary
+                            else -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
                         },
                         shape = CircleShape,
                     ),

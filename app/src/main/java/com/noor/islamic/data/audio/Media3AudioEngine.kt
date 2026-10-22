@@ -1,7 +1,9 @@
 package com.noor.islamic.data.audio
 
 import android.content.Context
+import android.content.Intent
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.datasource.HttpDataSource
@@ -13,10 +15,17 @@ import java.io.IOException
  * Media3/ExoPlayer adapter. Translates player callbacks and errors into the
  * engine-agnostic [AudioEngine] contract; all playback policy lives in
  * `QuranAudioControllerImpl`.
+ *
+ * The player is app-scoped and shared: the service exposes it through a media
+ * session while the in-app controller drives it directly, so both drive the
+ * exact same playback position.
  */
 class Media3AudioEngine(context: Context) : AudioEngine {
 
-    private val player: ExoPlayer = ExoPlayer.Builder(context.applicationContext).build()
+    private val appContext: Context = context.applicationContext
+
+    /** Shared with [QuranMediaSessionService]; internal to this module on purpose. */
+    internal val player: ExoPlayer = ExoPlayer.Builder(appContext).build()
 
     private var listener: AudioEngineListener? = null
 
@@ -58,6 +67,9 @@ class Media3AudioEngine(context: Context) : AudioEngine {
                 MediaItem.Builder()
                     .setMediaId(item.mediaId)
                     .setUri(item.uri)
+                    .setMediaMetadata(
+                        MediaMetadata.Builder().setTitle(item.title).build(),
+                    )
                     .build()
             },
         )
@@ -68,6 +80,9 @@ class Media3AudioEngine(context: Context) : AudioEngine {
     }
 
     override fun play() {
+        // Bring the media session service up so system transport controls and
+        // the media playback foreground service are available for this batch.
+        startMediaSessionService()
         player.play()
     }
 
@@ -78,6 +93,10 @@ class Media3AudioEngine(context: Context) : AudioEngine {
     override fun stopAndClear() {
         player.stop()
         player.clearMediaItems()
+        // No queue, no playback: release the media service. The shared player
+        // itself is untouched (the session releases only the session, never
+        // the player).
+        appContext.stopService(Intent(appContext, QuranMediaSessionService::class.java))
     }
 
     override fun seekTo(index: Int, positionMs: Long) {
@@ -96,6 +115,12 @@ class Media3AudioEngine(context: Context) : AudioEngine {
 
     private fun notifyChanged() {
         listener?.onEngineChanged()
+    }
+
+    private fun startMediaSessionService() {
+        val intent = Intent(appContext, QuranMediaSessionService::class.java)
+        runCatching { appContext.startForegroundService(intent) }
+            .onFailure { appContext.startService(intent) }
     }
 
     private fun PlaybackException.toEngineFailure(): AudioEngineFailure {

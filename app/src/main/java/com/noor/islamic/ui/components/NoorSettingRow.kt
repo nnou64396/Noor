@@ -1,8 +1,7 @@
 package com.noor.islamic.ui.components
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,18 +21,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.noor.islamic.ui.theme.NoorDimens
-import com.noor.islamic.ui.theme.NoorGlassBorderDark
-import com.noor.islamic.ui.theme.NoorGlassBorderLight
+import com.noor.islamic.ui.theme.noorBody
+import com.noor.islamic.ui.theme.noorCaption
 
 /**
- * A tappable row used in Settings — icon chip, title (and optional
- * subtitle), trailing slot, and a disclosure chevron when clickable.
+ * A tappable row used in Settings: icon chip, title (and optional subtitle),
+ * trailing slot, and a disclosure chevron when clickable.
+ *
+ * Colours come from the active [MaterialTheme.colorScheme] rather than from
+ * `isSystemInDarkTheme()`, so a row stays correct when the user pins Light or
+ * Dark independently of the system setting.
  */
 @Composable
 fun NoorSettingRow(
@@ -44,35 +45,41 @@ fun NoorSettingRow(
     onClick: (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null,
 ) {
-    val dark = isSystemInDarkTheme()
     val shape = MaterialTheme.shapes.medium
-    val containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.55f)
-    val borderColor = if (dark) NoorGlassBorderDark else NoorGlassBorderLight
 
-    var rowModifier = modifier
-        .clip(shape)
-        .background(containerColor)
-        .padding(horizontal = NoorDimens.Md, vertical = NoorDimens.Md)
-    if (onClick != null) {
-        rowModifier = rowModifier.clickable(onClick = onClick)
-    }
-
-    Surface(color = Color.Transparent) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = shape,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        border = BorderStroke(
+            NoorDimens.Hairline,
+            MaterialTheme.colorScheme.outlineVariant,
+        ),
+    ) {
         Row(
-            modifier = rowModifier.fillMaxWidth(),
+            modifier = Modifier
+                .then(
+                    if (onClick != null) {
+                        Modifier.clickable(onClick = onClick)
+                    } else {
+                        Modifier
+                    },
+                )
+                .padding(horizontal = NoorDimens.Md, vertical = NoorDimens.Md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (icon != null) {
                 Surface(
-                    color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.primaryContainer,
                     shape = CircleShape,
-                    modifier = Modifier.size(NoorDimens.Md + 8.dp),
+                    modifier = Modifier.size(NoorDimens.Md + 10.dp),
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.size(NoorDimens.Md),
                         )
                     }
@@ -83,7 +90,7 @@ fun NoorSettingRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.noorBody,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -92,7 +99,7 @@ fun NoorSettingRow(
                     Spacer(Modifier.height(2.dp))
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.noorCaption,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -106,9 +113,10 @@ fun NoorSettingRow(
             } else if (onClick != null) {
                 Spacer(Modifier.width(NoorDimens.Sm))
                 Icon(
+                    // AutoMirrored so the chevron points the right way in RTL.
                     imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 )
             }
         }

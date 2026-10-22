@@ -1,5 +1,10 @@
 package com.noor.islamic.presentation.quran
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -51,6 +57,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.noor.islamic.R
@@ -65,6 +72,7 @@ import com.noor.islamic.ui.components.NoorSecondaryButton
 import com.noor.islamic.ui.theme.NoorDimens
 import com.noor.islamic.ui.theme.NoorFonts
 import com.noor.islamic.ui.theme.noorDisplay
+import com.noor.islamic.ui.theme.noorQuranArabic
 import com.noor.islamic.ui.theme.noorTitle
 
 /** Header + trailing attribution occupy the first and last items of the list. */
@@ -89,6 +97,30 @@ fun QuranReaderScreen(
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { }
+
+    /**
+     * Asks for POST_NOTIFICATIONS the first time the user starts recitation, so
+     * the Media3 media notification can surface. Asking is fire-and-forget:
+     * playback always proceeds, and a denial never blocks audio.
+     */
+    val requestNotificationPermissionOnce: () -> Unit = {
+        if (!NotificationPermissionAsked.value) {
+            NotificationPermissionAsked.value = true
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
     QuranReaderScreenContent(
         surahNumber = surahNumber,
         state = state,
@@ -100,8 +132,14 @@ fun QuranReaderScreen(
         onRetry = viewModel::retry,
         onAyahClick = viewModel::selectAyah,
         onBookmarkClick = viewModel::toggleBookmarkOf,
-        onPlayAyah = viewModel::playAyah,
-        onTogglePlayback = viewModel::togglePlayback,
+        onPlayAyah = { ayah ->
+            requestNotificationPermissionOnce()
+            viewModel.playAyah(ayah)
+        },
+        onTogglePlayback = {
+            requestNotificationPermissionOnce()
+            viewModel.togglePlayback()
+        },
         onNextAyah = viewModel::skipToNextAyah,
         onPreviousAyah = viewModel::skipToPreviousAyah,
         onSeek = viewModel::seekAudio,
@@ -248,7 +286,7 @@ private fun ReaderLoadingState() {
     ) {
         CircularProgressIndicator(
             modifier = Modifier.size(NoorDimens.Xl),
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.primary,
         )
         Spacer(Modifier.size(NoorDimens.Md))
         Text(
@@ -370,7 +408,7 @@ private fun ReaderHeader(surah: Surah) {
         Text(
             text = surah.nameTransliteration,
             style = MaterialTheme.typography.noorTitle,
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
         )
         Text(
@@ -439,11 +477,19 @@ private fun AyahItem(
         Surface(
             onClick = onClick,
             color = if (isCurrent) {
-                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.40f)
             } else {
-                MaterialTheme.colorScheme.surface
+                MaterialTheme.colorScheme.surfaceContainerLow
             },
             shape = MaterialTheme.shapes.medium,
+            border = if (isCurrent) {
+                null
+            } else {
+                BorderStroke(
+                    NoorDimens.Hairline,
+                    MaterialTheme.colorScheme.outlineVariant,
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .semantics(mergeDescendants = true) {
@@ -468,12 +514,7 @@ private fun AyahItem(
                 ) {
                     Text(
                         text = ayah.textUthmani,
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            fontFamily = NoorFonts.Display,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 26.sp,
-                            lineHeight = 52.sp,
-                            letterSpacing = 0.sp,
+                        style = MaterialTheme.typography.noorQuranArabic.copy(
                             textDirection = TextDirection.Rtl,
                         ),
                         color = MaterialTheme.colorScheme.onSurface,
@@ -484,7 +525,7 @@ private fun AyahItem(
                         Text(
                             text = stringResource(R.string.quran_sajda),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.secondary,
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -531,7 +572,7 @@ private fun AyahActionButton(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(NoorDimens.Icon),
         )
     }
@@ -543,14 +584,18 @@ private fun AyahNumberMarker(number: Int, isCurrent: Boolean, currentLabel: Stri
     Surface(
         shape = CircleShape,
         color = if (isCurrent) {
-            MaterialTheme.colorScheme.secondaryContainer
+            MaterialTheme.colorScheme.primary
         } else {
-            MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.72f)
+            MaterialTheme.colorScheme.primaryContainer
         },
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        contentColor = if (isCurrent) {
+            MaterialTheme.colorScheme.onPrimary
+        } else {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        },
         border = BorderStroke(
             width = 1.dp,
-            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
         ),
         modifier = Modifier
             .size(40.dp)
@@ -595,4 +640,12 @@ private fun SourceAttribution() {
 private fun RevelationType.labelRes(): Int = when (this) {
     RevelationType.MECCAN -> R.string.quran_revelation_meccan
     RevelationType.MEDINAN -> R.string.quran_revelation_medinan
+}
+
+/**
+ * Remembers that POST_NOTIFICATIONS has already been asked for in this process.
+ * Keeps the permission prompt from reappearing after the user has answered it.
+ */
+private object NotificationPermissionAsked {
+    var value: Boolean = false
 }
