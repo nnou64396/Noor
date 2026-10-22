@@ -8,10 +8,13 @@ import com.noor.islamic.domain.model.CalculationMethod
 import com.noor.islamic.domain.model.Language
 import com.noor.islamic.domain.model.LocationMode
 import com.noor.islamic.domain.model.ThemeMode
+import com.noor.islamic.domain.model.UpdateStatus
 import com.noor.islamic.domain.repository.SettingsRepository
+import com.noor.islamic.domain.repository.UpdateRepository
 import com.noor.islamic.domain.usecase.ObserveSettingsUseCase
 import com.noor.islamic.utils.LocaleManager
 import com.noor.islamic.utils.ThemeManager
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -33,9 +36,31 @@ sealed interface SettingsUiState {
 
 class MainViewModel(
     private val repository: SettingsRepository,
+    private val updateRepository: UpdateRepository? = null,
 ) : ViewModel() {
 
     private val observeSettings = ObserveSettingsUseCase(repository)
+
+    val updateStatus: StateFlow<UpdateStatus> = updateRepository?.updateStatus
+        ?: MutableStateFlow(UpdateStatus.UpToDate)
+
+    init {
+        checkForUpdates()
+    }
+
+    fun checkForUpdates(forceCheck: Boolean = false) {
+        val updateRepo = updateRepository ?: return
+        viewModelScope.launch {
+            updateRepo.checkForUpdates(forceCheck = forceCheck)
+        }
+    }
+
+    fun dismissUpdate(versionCode: Long) {
+        val updateRepo = updateRepository ?: return
+        viewModelScope.launch {
+            updateRepo.dismissUpdate(versionCode)
+        }
+    }
 
     /** [SettingsUiState.Ready] as soon as the store answers; [SettingsUiState.Loading] until then. */
     val settingsState: StateFlow<SettingsUiState> = observeSettings()

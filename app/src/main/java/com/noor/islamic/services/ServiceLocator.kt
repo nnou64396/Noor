@@ -32,6 +32,9 @@ import com.noor.islamic.domain.repository.QuranRepository
 import com.noor.islamic.domain.repository.ReadingProgressRepository
 import com.noor.islamic.domain.repository.SettingsRepository
 import com.noor.islamic.domain.repository.TasbihRepository
+import com.noor.islamic.data.remote.update.UpdateApi
+import com.noor.islamic.data.repository.UpdateRepositoryImpl
+import com.noor.islamic.domain.repository.UpdateRepository
 import com.noor.islamic.domain.usecase.ObserveSettingsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +60,34 @@ object ServiceLocator {
 
     val observeSettings: ObserveSettingsUseCase by lazy {
         ObserveSettingsUseCase(settingsRepository)
+    }
+
+    private val updateApi: UpdateApi? by lazy {
+        runCatching {
+            NetworkModule.provideRetrofit(
+                baseUrl = "https://example.com/",
+                client = provideOkHttpClient(),
+            ).create(UpdateApi::class.java)
+        }.getOrNull()
+    }
+
+    val updateRepository: UpdateRepository by lazy {
+        val versionCode = runCatching {
+            val pInfo = appContext.packageManager.getPackageInfo(appContext.packageName, 0)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                pInfo.longVersionCode
+            } else {
+                @Suppress("DEPRECATION")
+                pInfo.versionCode.toLong()
+            }
+        }.getOrDefault(1L)
+
+        UpdateRepositoryImpl(
+            currentVersionCode = versionCode,
+            settingsRepository = settingsRepository,
+            manifestUrlProvider = { UpdateRepositoryImpl.MANIFEST_URL },
+            apiProvider = { updateApi },
+        )
     }
 
     private val noorDatabase: NoorDatabase by lazy {

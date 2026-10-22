@@ -79,12 +79,22 @@ fun HomeScreen(
     quran: HomeQuranUiState? = null,
     onTogglePlayback: () -> Unit = {},
     practice: HomePracticeUiState? = null,
+    updateStatus: com.noor.islamic.domain.model.UpdateStatus = com.noor.islamic.domain.model.UpdateStatus.UpToDate,
+    onDismissUpdate: (Long) -> Unit = {},
 ) {
     val prayerState by prayerViewModel.uiState.collectAsStateWithLifecycle()
     val next by prayerViewModel.nextPrayer.collectAsStateWithLifecycle()
 
     NoorScreenContainer(modifier = modifier) {
         HomeHeader()
+
+        if (updateStatus is com.noor.islamic.domain.model.UpdateStatus.UpdateAvailable || updateStatus is com.noor.islamic.domain.model.UpdateStatus.UpdateRequired) {
+            Spacer(Modifier.size(NoorDimens.Sm))
+            com.noor.islamic.ui.components.UpdateBannerCard(
+                updateStatus = updateStatus,
+                onDismiss = onDismissUpdate,
+            )
+        }
 
         HomeHeroSection(
             state = prayerState,

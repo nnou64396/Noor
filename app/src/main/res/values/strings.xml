@@ -296,4 +296,17 @@
 
     <!-- Placeholders -->
     <string name="feature_coming_soon">هذه الميزة ستُتاح قريباً</string>
+
+    <!-- App Updates -->
+    <string name="update_available_title">تحديث جديد متوفر (%1$s)</string>
+    <string name="update_available_body">يتوفر إصدار جديد من تطبيق نور بأداء وتحسينات أفضل.</string>
+    <string name="update_required_title">تحديث موصى به (%1$s)</string>
+    <string name="update_required_body">يتوفر تحديث مهم لتطبيق نور للحفاظ على استقرار الخدمات.</string>
+    <string name="update_action_get">تحديث الآن</string>
+    <string name="update_action_dismiss">لاحقاً</string>
+    <string name="update_status_up_to_date">التطبيق محدّث لأحدث إصدار</string>
+    <string name="update_status_disabled">خادم التحديثات غير مجهّز</string>
+    <string name="update_status_unavailable">تعذّر التحقق من التحديثات</string>
+    <string name="update_check_action">التحقق من التحديثات</string>
+    <string name="update_section_title">تحديثات التطبيق</string>
 </resources>

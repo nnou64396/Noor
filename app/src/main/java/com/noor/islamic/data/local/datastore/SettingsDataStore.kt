@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.noor.islamic.domain.model.AsrSchool
@@ -15,6 +16,7 @@ import com.noor.islamic.domain.model.LocationMode
 import com.noor.islamic.domain.model.ThemeMode
 import com.noor.islamic.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.noorDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -113,6 +115,16 @@ class SettingsDataStore internal constructor(
         }
     }
 
+    override suspend fun getDismissedUpdateVersionCode(): Long {
+        return dataStore.data.first()[Keys.DISMISSED_UPDATE_VERSION_CODE] ?: 0L
+    }
+
+    override suspend fun setDismissedUpdateVersionCode(code: Long) {
+        dataStore.edit { prefs ->
+            prefs[Keys.DISMISSED_UPDATE_VERSION_CODE] = code
+        }
+    }
+
     private object Keys {
         val LANGUAGE = stringPreferencesKey("language")
         val THEME_MODE = stringPreferencesKey("theme_mode")
@@ -122,5 +134,6 @@ class SettingsDataStore internal constructor(
         val PRAYER_LOCATION_MODE = stringPreferencesKey("prayer_location_mode")
         val PRAYER_MANUAL_LATITUDE = doublePreferencesKey("prayer_manual_latitude")
         val PRAYER_MANUAL_LONGITUDE = doublePreferencesKey("prayer_manual_longitude")
+        val DISMISSED_UPDATE_VERSION_CODE = longPreferencesKey("dismissed_update_version_code")
     }
 }

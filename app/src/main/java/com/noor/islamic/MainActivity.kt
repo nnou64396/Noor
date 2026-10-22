@@ -24,7 +24,10 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val viewModel: MainViewModel = viewModel {
-                MainViewModel(ServiceLocator.settingsRepository)
+                MainViewModel(
+                    repository = ServiceLocator.settingsRepository,
+                    updateRepository = ServiceLocator.updateRepository,
+                )
             }
             val settingsState by viewModel.settingsState.collectAsStateWithLifecycle()
 
@@ -37,6 +40,8 @@ class MainActivity : AppCompatActivity() {
                 )
             }
 
+            val updateStatus by viewModel.updateStatus.collectAsStateWithLifecycle()
+
             val themeMode = (settingsState as? SettingsUiState.Ready)
                 ?.settings?.themeMode
                 ?: ThemeMode.DEFAULT
@@ -44,6 +49,9 @@ class MainActivity : AppCompatActivity() {
                 NoorApp(
                     settingsState = settingsState,
                     prayerViewModel = prayerViewModel,
+                    updateStatus = updateStatus,
+                    onCheckForUpdates = { viewModel.checkForUpdates(forceCheck = true) },
+                    onDismissUpdate = viewModel::dismissUpdate,
                     onLanguageSelected = viewModel::setLanguage,
                     onThemeSelected = viewModel::setThemeMode,
                     onCalculationMethodSelected = viewModel::setPrayerCalculationMethod,

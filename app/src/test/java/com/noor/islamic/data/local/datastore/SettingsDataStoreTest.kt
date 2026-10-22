@@ -79,6 +79,7 @@ class SettingsDataStoreTest {
         repository.setPrayerAsrSchool(AsrSchool.HANAFI)
         repository.setPrayerLocationMode(LocationMode.MANUAL)
         repository.setPrayerManualLocation(36.7538, 3.0588)
+        repository.prayerManualLatitude.first()
 
         val restored = SettingsDataStore(dataStore)
         assertEquals(CalculationMethod.TURKEY, restored.prayerCalculationMethod.first())

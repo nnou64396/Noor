@@ -28,4 +28,6 @@ interface SettingsRepository {
     suspend fun setPrayerLocationMode(mode: LocationMode)
     suspend fun setPrayerManualLocation(latitude: Double, longitude: Double)
     suspend fun clearPrayerManualLocation()
+    suspend fun getDismissedUpdateVersionCode(): Long
+    suspend fun setDismissedUpdateVersionCode(code: Long)
 }

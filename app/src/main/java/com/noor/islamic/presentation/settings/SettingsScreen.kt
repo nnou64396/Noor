@@ -67,6 +67,9 @@ fun SettingsScreen(
     onAsrSchoolSelected: (AsrSchool) -> Unit = {},
     onLocationModeSelected: (LocationMode) -> Unit = {},
     onManualLocationSelected: (Double, Double) -> Unit = { _, _ -> },
+    updateStatus: com.noor.islamic.domain.model.UpdateStatus = com.noor.islamic.domain.model.UpdateStatus.UpToDate,
+    onCheckForUpdates: () -> Unit = {},
+    onDismissUpdate: (Long) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -150,6 +153,29 @@ fun SettingsScreen(
                 },
                 icon = Icons.Rounded.LocationOn,
                 onClick = { showLocationModeDialog = true },
+            )
+
+            NoorSectionTitle(
+                title = stringResource(R.string.update_section_title),
+                icon = Icons.Rounded.Info,
+            )
+            if (updateStatus is com.noor.islamic.domain.model.UpdateStatus.UpdateAvailable || updateStatus is com.noor.islamic.domain.model.UpdateStatus.UpdateRequired) {
+                com.noor.islamic.ui.components.UpdateBannerCard(
+                    updateStatus = updateStatus,
+                    onDismiss = onDismissUpdate,
+                )
+            }
+            NoorSettingRow(
+                title = stringResource(R.string.update_check_action),
+                subtitle = when (updateStatus) {
+                    is com.noor.islamic.domain.model.UpdateStatus.UpToDate -> stringResource(R.string.update_status_up_to_date)
+                    is com.noor.islamic.domain.model.UpdateStatus.Disabled -> stringResource(R.string.update_status_disabled)
+                    is com.noor.islamic.domain.model.UpdateStatus.CheckUnavailable -> stringResource(R.string.update_status_unavailable)
+                    is com.noor.islamic.domain.model.UpdateStatus.UpdateAvailable -> stringResource(R.string.update_available_title, updateStatus.info.latestVersion)
+                    is com.noor.islamic.domain.model.UpdateStatus.UpdateRequired -> stringResource(R.string.update_required_title, updateStatus.info.latestVersion)
+                },
+                icon = Icons.Rounded.Info,
+                onClick = onCheckForUpdates,
             )
 
             NoorSectionTitle(

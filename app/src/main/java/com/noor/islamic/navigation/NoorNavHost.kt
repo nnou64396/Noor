@@ -59,6 +59,9 @@ fun NoorNavHost(
     contentPadding: PaddingValues,
     settings: AppSettings,
     prayerViewModel: PrayerViewModel,
+    updateStatus: com.noor.islamic.domain.model.UpdateStatus = com.noor.islamic.domain.model.UpdateStatus.UpToDate,
+    onCheckForUpdates: () -> Unit = {},
+    onDismissUpdate: (Long) -> Unit = {},
     onLanguageSelected: (Language) -> Unit,
     onThemeSelected: (ThemeMode) -> Unit,
     onCalculationMethodSelected: (CalculationMethod) -> Unit = {},
@@ -71,6 +74,9 @@ fun NoorNavHost(
     val currentContentPadding by rememberUpdatedState(contentPadding)
     val currentSettings by rememberUpdatedState(settings)
     val currentPrayerViewModel by rememberUpdatedState(prayerViewModel)
+    val currentUpdateStatus by rememberUpdatedState(updateStatus)
+    val currentOnCheckForUpdates by rememberUpdatedState(onCheckForUpdates)
+    val currentOnDismissUpdate by rememberUpdatedState(onDismissUpdate)
     val currentOnLanguageSelected by rememberUpdatedState(onLanguageSelected)
     val currentOnThemeSelected by rememberUpdatedState(onThemeSelected)
     val currentOnCalculationMethodSelected by rememberUpdatedState(onCalculationMethodSelected)
@@ -113,6 +119,8 @@ fun NoorNavHost(
                     quran = quranState,
                     onTogglePlayback = homeQuranViewModel::togglePlayback,
                     practice = practiceState,
+                    updateStatus = currentUpdateStatus,
+                    onDismissUpdate = currentOnDismissUpdate,
                     modifier = Modifier.fillMaxSize().padding(currentContentPadding),
                 )
             }
@@ -251,6 +259,9 @@ fun NoorNavHost(
                     onAsrSchoolSelected = currentOnAsrSchoolSelected,
                     onLocationModeSelected = currentOnLocationModeSelected,
                     onManualLocationSelected = currentOnManualLocationSelected,
+                    updateStatus = currentUpdateStatus,
+                    onCheckForUpdates = currentOnCheckForUpdates,
+                    onDismissUpdate = currentOnDismissUpdate,
                     modifier = Modifier.fillMaxSize().padding(currentContentPadding),
                 )
             }

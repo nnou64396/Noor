@@ -296,4 +296,17 @@
 
     <!-- Placeholders -->
     <string name="feature_coming_soon">Cette fonctionnalité arrive bientôt</string>
+
+    <!-- App Updates -->
+    <string name="update_available_title">Nouvelle mise à jour disponible (%1$s)</string>
+    <string name="update_available_body">Une nouvelle version de NOOR est disponible avec des améliorations.</string>
+    <string name="update_required_title">Mise à jour recommandée (%1$s)</string>
+    <string name="update_required_body">Une mise à jour importante est disponible pour maintenir le bon fonctionnement de NOOR.</string>
+    <string name="update_action_get">Mettre à jour</string>
+    <string name="update_action_dismiss">Plus tard</string>
+    <string name="update_status_up_to_date">NOOR est à jour</string>
+    <string name="update_status_disabled">Serveur de mise à jour non configuré</string>
+    <string name="update_status_unavailable">Impossible de vérifier les mises à jour</string>
+    <string name="update_check_action">Vérifier les mises à jour</string>
+    <string name="update_section_title">Mises à jour</string>
 </resources>

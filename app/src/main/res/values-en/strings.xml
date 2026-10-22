@@ -296,4 +296,17 @@
 
     <!-- Placeholders -->
     <string name="feature_coming_soon">This feature is coming soon</string>
+
+    <!-- App Updates -->
+    <string name="update_available_title">New Update Available (%1$s)</string>
+    <string name="update_available_body">A new version of NOOR is available with improvements and fixes.</string>
+    <string name="update_required_title">Recommended Update (%1$s)</string>
+    <string name="update_required_body">An important update is available for NOOR to maintain smooth service.</string>
+    <string name="update_action_get">Get Update</string>
+    <string name="update_action_dismiss">Later</string>
+    <string name="update_status_up_to_date">NOOR is up to date</string>
+    <string name="update_status_disabled">Update server unconfigured</string>
+    <string name="update_status_unavailable">Unable to check for updates</string>
+    <string name="update_check_action">Check for Updates</string>
+    <string name="update_section_title">App Updates</string>
 </resources>
