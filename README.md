@@ -105,8 +105,8 @@ See [RELEASE.md](RELEASE.md) for detailed signing instructions.
 - **Status**: Audio is streamed on-demand; no local distribution
 
 ### Athkar/Adhkar
-- **Source**: Based on "Hisn Al-Muslim" (حصن المسلم) by Sa'id bin Wahf Al-Qahtani
-- **Attribution**: rn0x/Adhkar-json repository
+- **Source**: Based on "Hisn Al-Muslim" (حصن المسلم) by Sa'id bin Wahf Al-Qahtani via [rn0x/Adhkar-json](https://github.com/rn0x/Adhkar-json)
+- **Attribution**: Sourced from [rn0x/Adhkar-json](https://github.com/rn0x/Adhkar-json), which publicly states free use ("هذه الملفات بدون رخصة استخدام، يحق لك فعل ما تريد بها مجانا وبدون أي مسائلة قانونية"). Displayed in-app on the Athkar screen.
 - **Status**: Content is bundled as an offline JSON dataset
 
 ## Status

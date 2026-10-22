@@ -54,7 +54,7 @@ This repository does not yet have a code license. By default, all rights are res
 
 - **Quran text**: Licensed under CC BY 3.0 by Tanzil (attribution required)
 - **Quran audio**: Streamed from EveryAyah (link-back required, license varies by reciter)
-- **Athkar dataset**: Based on Hisn Al-Muslim (license status unclear - requires clarification)
+- **Athkar dataset**: Sourced from [rn0x/Adhkar-json](https://github.com/rn0x/Adhkar-json) (Hisn Al-Muslim), published under a free-use grant by the repository maintainer.
 
 The code license you choose applies only to the source code you wrote, not to the Quran text, audio recitations, or Athkar content. These have their own independent licensing requirements that must be respected regardless of the code license.
 
