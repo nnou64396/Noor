@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Foreground playback while audio is streaming. Declared but never
+         auto-prompted: Android only shows the runtime dialog after a user
+         action, and the media3 notification is what uses this permission on
+         API 33+. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <application
         android:name=".NoorApplication"
@@ -35,6 +43,22 @@
             <meta-data
                 android:name="autoStoreLocales"
                 android:value="false" />
+        </service>
+
+        <!-- Media3 media session service: exposes the shared app-scoped player
+             to the system (lockscreen/notification transport controls) and
+             hosts the media playback foreground service while audio plays.
+             export is required so system media controls and other media apps
+             can bind; lint's ExportedService check would prefer a permission,
+             but that would break media-session discoverability. -->
+        <service
+            android:name=".data.audio.QuranMediaSessionService"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
         </service>
     </application>
 

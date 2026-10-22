@@ -58,4 +58,6 @@ fun interface AudioEngineListener {
 data class AudioEngineItem(
     val mediaId: String,
     val uri: String,
+    /** Optional display line for the system media notification. */
+    val title: String? = null,
 )

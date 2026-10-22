@@ -9,36 +9,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
+import com.noor.islamic.ui.theme.NoorDimens
 
 /**
- * A refined ornamental divider: two thin gold hairlines meeting a small
- * diamond in the middle. Used sparingly to separate sections.
+ * Section divider: a pair of hairline rules meeting a small diamond.
+ *
+ * The rule is blue and low-contrast by default, so it separates content
+ * without drawing attention. Pass [accent] to render the centre diamond in
+ * gold — used sparingly, on the top-level boundaries only.
  */
 @Composable
 fun NoorOrnamentalDivider(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.secondary,
+    color: Color = MaterialTheme.colorScheme.outline,
+    accent: Color = color,
 ) {
-    Canvas(modifier = modifier.fillMaxWidth().height(12.dp)) {
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(NoorDimens.Md + 4.dp),
+    ) {
         val y = size.height / 2f
-        val diamondSize = 7.dp.toPx()
+        val diamondSize = 6.dp.toPx()
         val gap = diamondSize + 8.dp.toPx()
-        val lineColor = color.copy(alpha = 0.38f)
-        val strokeWidth = 1.dp.toPx()
+        val lineColor = color.copy(alpha = 0.45f)
 
         drawLine(
             color = lineColor,
             start = Offset(0f, y),
             end = Offset(size.width / 2f - gap, y),
-            strokeWidth = strokeWidth,
+            strokeWidth = NoorDimens.Hairline.toPx(),
         )
         drawLine(
             color = lineColor,
             start = Offset(size.width / 2f + gap, y),
             end = Offset(size.width, y),
-            strokeWidth = strokeWidth,
+            strokeWidth = NoorDimens.Hairline.toPx(),
         )
 
         val diamond = Path().apply {
@@ -48,7 +55,6 @@ fun NoorOrnamentalDivider(
             lineTo(size.width / 2f - diamondSize / 2f, y)
             close()
         }
-        drawPath(path = diamond, color = color)
-        drawCircle(color = color.copy(alpha = 0.7f), radius = 1.5.dp.toPx(), center = Offset(size.width / 2f, y), style = Stroke(width = 1.dp.toPx()))
+        drawPath(path = diamond, color = accent)
     }
 }

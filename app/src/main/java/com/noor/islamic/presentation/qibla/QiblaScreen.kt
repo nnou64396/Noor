@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Explore
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +27,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,7 +44,10 @@ import com.noor.islamic.ui.components.NoorLocationPermissionCard
 import com.noor.islamic.ui.components.NoorPrimaryButton
 import com.noor.islamic.ui.components.NoorScreenContainer
 import com.noor.islamic.ui.theme.NoorDimens
+import com.noor.islamic.ui.theme.noorCaption
 import com.noor.islamic.ui.theme.noorLargeTitle
+import com.noor.islamic.ui.theme.noorSecondary
+import com.noor.islamic.ui.theme.noorTitle
 
 /**
  * Qibla destination.
@@ -51,6 +58,9 @@ import com.noor.islamic.ui.theme.noorLargeTitle
  * driven by the *visible* lifecycle rather than by the ViewModel's existence:
  * it runs only between ON_START and ON_STOP, which covers both tapping another
  * tab and the Activity going to the background.
+ *
+ * None of that lifecycle wiring is touched by the redesign; the dial simply
+ * gets a quieter surface and the two readings become legible stat chips.
  */
 @Composable
 fun QiblaScreen(modifier: Modifier = Modifier) {
@@ -120,12 +130,14 @@ private fun QiblaScreenContent(
             style = MaterialTheme.typography.noorLargeTitle,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer(Modifier.size(NoorDimens.Sm))
+        Spacer(Modifier.size(NoorDimens.Xs))
         Text(
             text = stringResource(R.string.qibla_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.noorSecondary,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
+        Spacer(Modifier.size(NoorDimens.Md))
 
         when {
             !state.sensorAvailable -> {
@@ -153,15 +165,15 @@ private fun QiblaScreenContent(
                     NoorGlassCard(modifier = Modifier.fillMaxWidth()) {
                         Text(
                             text = stringResource(R.string.location_unavailable_title),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.noorTitle,
                             color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
                         )
-                        Spacer(Modifier.size(NoorDimens.Md))
+                        Spacer(Modifier.size(NoorDimens.Sm))
                         Text(
                             text = stringResource(R.string.location_unavailable_body),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.noorSecondary,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
@@ -176,7 +188,13 @@ private fun QiblaScreenContent(
             }
 
             else -> {
-                NoorGlassCard(modifier = Modifier.fillMaxWidth().testTag("qibla_compass")) {
+                NoorGlassCard(
+                    onClick = null,
+                    elevation = NoorDimens.ElNone,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("qibla_compass"),
+                ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.fillMaxWidth(),
@@ -193,23 +211,23 @@ private fun QiblaScreenContent(
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            horizontalArrangement = Arrangement.spacedBy(NoorDimens.Sm),
                         ) {
-                            Text(
+                            QiblaStat(
                                 text = stringResource(
                                     R.string.qibla_heading_fmt,
                                     state.headingDegrees.toInt(),
                                 ),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                emphasised = false,
+                                modifier = Modifier.weight(1f),
                             )
-                            Text(
+                            QiblaStat(
                                 text = stringResource(
                                     R.string.qibla_kaaba_bearing_fmt,
                                     state.bearingToKaaba?.toInt() ?: 0,
                                 ),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.secondary,
+                                emphasised = true,
+                                modifier = Modifier.weight(1f),
                             )
                         }
 
@@ -217,7 +235,7 @@ private fun QiblaScreenContent(
                             Spacer(Modifier.size(NoorDimens.Md))
                             Text(
                                 text = stringResource(R.string.qibla_calibrate_hint),
-                                style = MaterialTheme.typography.bodySmall,
+                                style = MaterialTheme.typography.noorCaption,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
                             )
@@ -226,6 +244,46 @@ private fun QiblaScreenContent(
                 }
             }
         }
+    }
+}
+
+/**
+ * One reading. The Kaaba bearing is the number the user is aiming at, so it
+ * gets the emphasised (blue) treatment; the heading is supporting context.
+ */
+@Composable
+private fun QiblaStat(
+    text: String,
+    emphasised: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.medium,
+        color = if (emphasised) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerLow
+        },
+        contentColor = if (emphasised) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.noorCaption,
+            color = if (emphasised) {
+                MaterialTheme.colorScheme.onPrimaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = NoorDimens.Sm, vertical = 10.dp),
+        )
     }
 }
 
@@ -238,12 +296,13 @@ private fun QiblaLoadingCard() {
         ) {
             CircularProgressIndicator(
                 modifier = Modifier.size(NoorDimens.Xl),
-                color = MaterialTheme.colorScheme.secondary,
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 3.dp,
             )
             Spacer(Modifier.size(NoorDimens.Md))
             Text(
                 text = stringResource(R.string.location_detecting),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.noorSecondary,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }

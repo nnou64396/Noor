@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -18,11 +18,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.noor.islamic.ui.theme.NoorAccent
 import com.noor.islamic.ui.theme.NoorDimens
+import com.noor.islamic.ui.theme.noorSecondary
+import com.noor.islamic.ui.theme.noorTitle
 
 /**
- * Polished empty/"coming soon" state used by feature screens that will get
- * real content in later phases. Icon sits in a soft gold-tinted disc.
+ * Polished empty / "coming soon" state.
+ *
+ * This is a designed state, not a failure state: a soft blue disc holds the
+ * icon, the headline explains what will appear, and a single gold hairline
+ * closes the composition. Copy is capped with `widthIn(max = ...)` rather than
+ * a fixed width, so it stays comfortable on a narrow phone and does not stretch
+ * on a large one.
  */
 @Composable
 fun NoorEmptyState(
@@ -30,6 +38,7 @@ fun NoorEmptyState(
     title: String,
     modifier: Modifier = Modifier,
     description: String? = null,
+    action: @Composable (() -> Unit)? = null,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -37,16 +46,16 @@ fun NoorEmptyState(
         verticalArrangement = Arrangement.Center,
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
+            color = MaterialTheme.colorScheme.primaryContainer,
             shape = MaterialTheme.shapes.extraLarge,
-            modifier = Modifier.size(NoorDimens.IconCircle + 16.dp),
+            modifier = Modifier.size(NoorDimens.IconCircle + 20.dp),
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.size(NoorDimens.Xl - 4.dp),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(NoorDimens.Xl),
                 )
             }
         }
@@ -55,7 +64,7 @@ fun NoorEmptyState(
 
         Text(
             text = title,
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.noorTitle,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
         )
@@ -64,14 +73,23 @@ fun NoorEmptyState(
             Spacer(Modifier.height(NoorDimens.Sm))
             Text(
                 text = description,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.noorSecondary,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.width(280.dp),
+                modifier = Modifier.widthIn(max = NoorDimens.ReadableWidthMax),
             )
         }
 
+        if (action != null) {
+            Spacer(Modifier.height(NoorDimens.Lg))
+            action()
+        }
+
         Spacer(Modifier.height(NoorDimens.Lg))
-        NoorOrnamentalDivider(modifier = Modifier.width(112.dp))
+        NoorOrnamentalDivider(
+            modifier = Modifier.widthIn(max = 140.dp),
+            color = MaterialTheme.colorScheme.outline,
+            accent = NoorAccent.Decorative,
+        )
     }
 }

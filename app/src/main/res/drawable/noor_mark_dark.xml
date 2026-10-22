@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Noor mark — dark-surface variant.
+
+  Same geometry as noor_mark, with tones lifted so the mark keeps its contrast
+  against the midnight background instead of disappearing into it.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#8FC0EE"
+        android:pathData="M12,3 L13.607,8.12 L18.364,5.636 L15.88,10.393 L21,12 L15.88,13.607 L18.364,18.364 L13.607,15.88 L12,21 L10.393,15.88 L5.636,18.364 L8.12,13.607 L3,12 L8.12,10.393 L5.636,5.636 L10.393,8.12 Z" />
+    <path
+        android:fillColor="#E3C766"
+        android:pathData="M10,12 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 Z" />
+</vector>

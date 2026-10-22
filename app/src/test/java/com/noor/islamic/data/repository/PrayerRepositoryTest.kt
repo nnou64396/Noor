@@ -8,6 +8,7 @@ import com.noor.islamic.data.remote.prayer.PrayerApi
 import com.noor.islamic.data.remote.prayer.TimingsResponse
 import com.noor.islamic.domain.model.CalculationMethod
 import com.noor.islamic.domain.model.CalculationMethodConfig
+import com.noor.islamic.domain.model.AsrSchool
 import com.noor.islamic.domain.model.DailyPrayerSchedule
 import com.noor.islamic.domain.model.GeographicPoint
 import com.noor.islamic.domain.model.PrayerDataException
@@ -48,6 +49,16 @@ class PrayerRepositoryTest {
     )
 
     private class FakeApi(var response: TimingsResponse? = null, var error: Exception? = null) : PrayerApi {
+        var lastRequest: Request? = null
+
+        data class Request(
+            val date: String,
+            val latitude: Double,
+            val longitude: Double,
+            val method: Int,
+            val school: Int,
+        )
+
         override suspend fun getTimings(
             date: String,
             latitude: Double,
@@ -55,6 +66,7 @@ class PrayerRepositoryTest {
             method: Int,
             school: Int,
         ): TimingsResponse {
+            lastRequest = Request(date, latitude, longitude, method, school)
             error?.let { throw it }
             return response ?: throw IOException("no response configured")
         }
@@ -122,6 +134,22 @@ class PrayerRepositoryTest {
         val cached = repository.getCached(date, point, method)
 
         assertEquals(PrayerName.FAJR, cached?.prayers?.first()?.prayer)
+    }
+
+    @Test
+    fun `getCachedFetchedAt reports the store time and null when empty`() = runTest {
+        val dao = InMemoryDao()
+        val repository = PrayerRepositoryImpl(FakeApi(response = validResponse()), dao)
+
+        assertNull(repository.getCachedFetchedAt(date, point, method))
+
+        repository.refresh(date, point, method)
+
+        val fetchedAt = repository.getCachedFetchedAt(date, point, method)
+        assertNotNull(fetchedAt)
+        // A refresh stamps the row with "now"; it must fall inside a plausible
+        // window around this test run.
+        assertTrue(fetchedAt!!.toEpochMilli() >= System.currentTimeMillis() - 60_000)
     }
 
     @Test
@@ -216,8 +244,44 @@ class PrayerRepositoryTest {
         assertEquals(PrayerCacheKey.of(date, point, method), PrayerCacheKey.of(date, point, method))
         assertTrue(
             PrayerCacheKey.of(date, point, method) !=
-                PrayerCacheKey.of(date, GeographicPoint(36.76, 3.06), method),
+                PrayerCacheKey.of(date, GeographicPoint(36.751, 3.051), method),
         )
+    }
+
+    @Test
+    fun `cache identity differs by calculation method and Asr school`() {
+        val defaultKey = PrayerCacheKey.of(date, point, method, AsrSchool.STANDARD.apiId)
+
+        assertTrue(
+            defaultKey != PrayerCacheKey.of(date, point, CalculationMethod.TURKEY, AsrSchool.STANDARD.apiId),
+        )
+        assertTrue(
+            defaultKey != PrayerCacheKey.of(date, point, method, AsrSchool.HANAFI.apiId),
+        )
+    }
+
+    @Test
+    fun `refresh sends selected method and school and caches under their identity`() = runTest {
+        val api = FakeApi(response = validResponse())
+        val dao = InMemoryDao()
+        val repository = PrayerRepositoryImpl(api, dao)
+        val selectedMethod = CalculationMethod.TURKEY
+        val selectedSchool = AsrSchool.HANAFI
+
+        repository.refresh(date, point, selectedMethod, selectedSchool.apiId)
+
+        assertEquals(
+            FakeApi.Request(
+                date = "24-09-2026",
+                latitude = point.latitude,
+                longitude = point.longitude,
+                method = selectedMethod.apiId,
+                school = selectedSchool.apiId,
+            ),
+            api.lastRequest,
+        )
+        assertNotNull(dao.store[PrayerCacheKey.of(date, point, selectedMethod, selectedSchool.apiId)])
+        assertNull(repository.getCached(date, point, method, AsrSchool.STANDARD.apiId))
     }
 
     @Test

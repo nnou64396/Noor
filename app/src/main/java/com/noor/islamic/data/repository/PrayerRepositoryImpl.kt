@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
+import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -38,15 +39,28 @@ class PrayerRepositoryImpl(
         date: LocalDate,
         point: GeographicPoint,
         method: CalculationMethod,
+        school: Int,
     ): DailyPrayerSchedule? = withContext(ioDispatcher) {
-        val entity = dao.get(PrayerCacheKey.of(date, point, method)) ?: return@withContext null
+        val entity = dao.get(PrayerCacheKey.of(date, point, method, school)) ?: return@withContext null
         PrayerEntityMapper.toDomain(entity)
+    }
+
+    override suspend fun getCachedFetchedAt(
+        date: LocalDate,
+        point: GeographicPoint,
+        method: CalculationMethod,
+        school: Int,
+    ): Instant? = withContext(ioDispatcher) {
+        dao.get(PrayerCacheKey.of(date, point, method, school))
+            ?.fetchedAtEpochMillis
+            ?.let { Instant.ofEpochMilli(it) }
     }
 
     override suspend fun refresh(
         date: LocalDate,
         point: GeographicPoint,
         method: CalculationMethod,
+        school: Int,
     ): DailyPrayerSchedule = withContext(ioDispatcher) {
         val response = apiCall {
             api.getTimings(
@@ -54,7 +68,7 @@ class PrayerRepositoryImpl(
                 latitude = point.latitude,
                 longitude = point.longitude,
                 method = method.apiId,
-                school = CalculationMethodConfig.defaultSchool,
+                school = school,
             )
         }
 
@@ -62,11 +76,11 @@ class PrayerRepositoryImpl(
             throw PrayerDataException(PrayerErrorKind.HTTP)
         }
 
-        val schedule = mapper.map(response, date)
+        val schedule = mapper.map(response, date, method)
             ?: throw PrayerDataException(PrayerErrorKind.MALFORMED)
 
         val entity = PrayerEntityMapper.toEntity(schedule)
-            .copy(cacheKey = PrayerCacheKey.of(date, point, method))
+            .copy(cacheKey = PrayerCacheKey.of(date, point, method, school))
 
         dao.upsert(entity)
         dao.pruneBefore(System.currentTimeMillis() - CACHE_RETENTION_MILLIS)

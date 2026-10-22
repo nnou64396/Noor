@@ -1,6 +1,7 @@
 package com.noor.islamic.data.remote.prayer
 
 import com.google.gson.Gson
+import com.noor.islamic.domain.model.CalculationMethod
 import com.noor.islamic.domain.model.PrayerName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -43,7 +44,7 @@ class PrayerTimesMapperTest {
 
     @Test
     fun `maps a valid response into the seven canonical prayers in order`() {
-        val schedule = mapper.map(parse(validJson), date)
+        val schedule = mapper.map(parse(validJson), date, CalculationMethod.MUSLIM_WORLD_LEAGUE)
 
         assertEquals(date, schedule?.date)
         assertEquals("12 Rabi' al-awwal 1448", schedule?.hijriReadable)
@@ -69,8 +70,8 @@ class PrayerTimesMapperTest {
         // The AlAdhan response echoes the requested coordinates back in `meta`.
         // The mapper must tolerate them, and the domain type has nowhere to put
         // them, so they are dropped here rather than persisted downstream.
-        val withCoordinates = mapper.map(parse(validJson), date)
-        val withoutCoordinates = mapper.map(parse(validJson.replace(COORDINATE_ECHO, "")), date)
+        val withCoordinates = mapper.map(parse(validJson), date, CalculationMethod.MUSLIM_WORLD_LEAGUE)
+        val withoutCoordinates = mapper.map(parse(validJson.replace(COORDINATE_ECHO, "")), date, CalculationMethod.MUSLIM_WORLD_LEAGUE)
 
         assertNotNull(withCoordinates)
         assertNotNull(withoutCoordinates)
@@ -80,31 +81,41 @@ class PrayerTimesMapperTest {
 
     @Test
     fun `a response without meta coordinates still maps`() {
-        val mapped = mapper.map(parse(validJson.replace(COORDINATE_ECHO, "")), date)
+        val mapped = mapper.map(parse(validJson.replace(COORDINATE_ECHO, "")), date, CalculationMethod.MUSLIM_WORLD_LEAGUE)
         assertNotNull(mapped)
         assertEquals(7, mapped!!.prayers.size)
     }
 
     @Test
+    fun `the requested calculation method is carried into the domain schedule`() {
+        // The mapper must never silently switch the user's calculation method
+        // to a hard-coded default.
+        for (method in CalculationMethod.entries) {
+            val schedule = mapper.map(parse(validJson), date, method)
+            assertEquals(method, schedule?.method)
+        }
+    }
+
+    @Test
     fun `returns null when the isha timing is missing`() {
         val json = validJson.replace("\"Maghrib\": \"19:38\", \"Isha\": \"20:59\"", "\"Maghrib\": \"19:38\"")
-        assertNull(mapper.map(parse(json), date))
+        assertNull(mapper.map(parse(json), date, CalculationMethod.MUSLIM_WORLD_LEAGUE))
     }
 
     @Test
     fun `returns null on an unparseable time`() {
         val json = validJson.replace("\"Fajr\": \"05:20\"", "\"Fajr\": \"zz:20\"")
-        assertNull(mapper.map(parse(json), date))
+        assertNull(mapper.map(parse(json), date, CalculationMethod.MUSLIM_WORLD_LEAGUE))
     }
 
     @Test
     fun `returns null on an invalid timezone`() {
         val json = validJson.replace("\"Africa/Algiers\"", "\"Not/AZone\"")
-        assertNull(mapper.map(parse(json), date))
+        assertNull(mapper.map(parse(json), date, CalculationMethod.MUSLIM_WORLD_LEAGUE))
     }
 
     @Test
     fun `returns null when the data payload is absent`() {
-        assertNull(mapper.map(TimingsResponse(code = 200, status = "OK", data = null), date))
+        assertNull(mapper.map(TimingsResponse(code = 200, status = "OK", data = null), date, CalculationMethod.MUSLIM_WORLD_LEAGUE))
     }
 }

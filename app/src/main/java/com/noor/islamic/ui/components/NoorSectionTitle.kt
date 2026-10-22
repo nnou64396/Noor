@@ -15,16 +15,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import com.noor.islamic.ui.theme.NoorDimens
+import com.noor.islamic.ui.theme.noorTitle
 
 /**
- * Section heading with an optional icon and the ornamental divider rule.
+ * Section heading: a small blue icon, the title, and a hairline rule.
+ *
+ * The rule is what separates sections; the title is what orients. Keeping the
+ * icon in `primary` rather than an accent colour is what makes the icon read
+ * as part of the blue identity instead of as decoration.
  */
 @Composable
 fun NoorSectionTitle(
     title: String,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
+    trailing: @Composable (() -> Unit)? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -36,15 +43,23 @@ fun NoorSectionTitle(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(NoorDimens.Md),
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(NoorDimens.Md + 2.dp),
                 )
             }
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.noorTitle,
                 color = MaterialTheme.colorScheme.onSurface,
+                modifier = if (trailing == null) {
+                    Modifier.weight(1f, fill = false)
+                } else {
+                    Modifier.weight(1f)
+                },
             )
+            if (trailing != null) {
+                trailing()
+            }
         }
         Spacer(Modifier.height(NoorDimens.Sm))
         NoorOrnamentalDivider()

@@ -30,4 +30,25 @@ class SettingsMappingTest {
         assertEquals(ThemeMode.LIGHT, ThemeMode.fromStorageKey("light"))
         assertEquals(ThemeMode.DARK, ThemeMode.fromStorageKey("dark"))
     }
+
+    @Test
+    fun prayerSettings_defaultToExistingCalculationAndAutomaticLocation() {
+        assertEquals(CalculationMethod.MUSLIM_WORLD_LEAGUE, CalculationMethod.fromStorageKey(null))
+        assertEquals(AsrSchool.STANDARD, AsrSchool.fromStorageKey(null))
+        assertEquals(LocationMode.AUTO, LocationMode.fromStorageKey(null))
+    }
+
+    @Test
+    fun prayerSettings_unknownValuesFallBackToDefaults() {
+        assertEquals(CalculationMethod.MUSLIM_WORLD_LEAGUE, CalculationMethod.fromStorageKey("invalid"))
+        assertEquals(AsrSchool.STANDARD, AsrSchool.fromStorageKey("invalid"))
+        assertEquals(LocationMode.AUTO, LocationMode.fromStorageKey("invalid"))
+    }
+
+    @Test
+    fun prayerSettings_storageKeysRestoreSelectedValues() {
+        assertEquals(CalculationMethod.TURKEY, CalculationMethod.fromStorageKey("turkey"))
+        assertEquals(AsrSchool.HANAFI, AsrSchool.fromStorageKey("hanafi"))
+        assertEquals(LocationMode.MANUAL, LocationMode.fromStorageKey("manual"))
+    }
 }

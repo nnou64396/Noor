@@ -179,6 +179,7 @@ dependencies {
     // strictly separate from the offline Quran text database and importer pipeline.
     implementation(libs.androidx.media3.common)
     implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.session)
 
     // Network
     implementation(libs.retrofit)
