@@ -31,6 +31,7 @@
 -keep class com.noor.islamic.data.remote.prayer.TimingsMeta { *; }
 -keep class com.noor.islamic.data.remote.prayer.HijriDate { *; }
 -keep class com.noor.islamic.data.remote.prayer.GregorianDate { *; }
+-keep class com.noor.islamic.data.remote.update.** { *; }
 
 # --- Coil ---
 -dontwarn coil.**
