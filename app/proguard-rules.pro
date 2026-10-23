@@ -33,6 +33,13 @@
 -keep class com.noor.islamic.data.remote.prayer.GregorianDate { *; }
 -keep class com.noor.islamic.data.remote.update.** { *; }
 
+# The bundled adhkar parser uses private Gson DTOs for the asset shape. Gson
+# binds their JSON keys to property names reflectively, so R8 must not remove or
+# rename them in a minified release build. Without these rules the release app
+# silently falls back to the empty corpus and shows the "coming soon" state.
+-keep class com.noor.islamic.data.local.athkar.AthkarCorpusParser$SourceCategory { *; }
+-keep class com.noor.islamic.data.local.athkar.AthkarCorpusParser$SourceDhikr { *; }
+
 # --- Coil ---
 -dontwarn coil.**
 -dontwarn android.graphics.ImageDecoder

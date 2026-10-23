@@ -1,6 +1,7 @@
 package com.noor.islamic.data.local.athkar
 
 import android.content.Context
+import android.util.Log
 import java.io.InputStreamReader
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -41,25 +42,38 @@ class AssetAthkarCorpusSource(
 
     private fun readAndValidate(): AthkarCorpus {
         val json = runCatching { readAsset() }
-            .getOrElse { return AthkarCorpus.empty("adhkar asset could not be read: ${it.message}") }
+            .getOrElse { return unavailable("adhkar asset could not be read: ${it.message}") }
 
         val corpus = runCatching { parser.parse(json) }
             .getOrElse {
-                return AthkarCorpus.empty("adhkar asset is malformed: ${it.message}")
+                return unavailable("adhkar asset is malformed: ${it.message}")
             }
 
         // A corpus that fails the content rules is dropped entirely rather than
         // partially displayed.
-        val problems = runCatching { validator.validate(corpus) }.getOrDefault(emptyList())
+        val problems = runCatching { validator.validate(corpus) }
+            .getOrElse {
+                return unavailable("adhkar validation failed: ${it.message}")
+            }
         if (problems.isNotEmpty()) {
-            return AthkarCorpus.empty("adhkar asset was rejected: ${problems.first()}")
+            return unavailable("adhkar asset was rejected: ${problems.first()}")
         }
         return corpus
+    }
+
+    /**
+     * Keeps the user-facing state generic while leaving a safe diagnostic trail
+     * for developers. Corpus errors describe the asset shape, never user data.
+     */
+    private fun unavailable(note: String): AthkarCorpus {
+        Log.w(TAG, note)
+        return AthkarCorpus.empty(note)
     }
 
     private fun readAsset(): String = assetReader(assetPath)
 
     companion object {
+        private const val TAG = "AthkarCorpusSource"
         const val DEFAULT_ASSET_PATH = "athkar/adhkar.json"
     }
 }
