@@ -9,6 +9,7 @@ import com.noor.islamic.domain.model.ThemeMode
 import com.noor.islamic.domain.usecase.ObserveSettingsUseCase
 import com.noor.islamic.utils.SettingsBootstrapper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -19,17 +20,29 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
 
 /**
  * Covers what a fresh process start observes, which is the contract
  * `SettingsBootstrapper` relies on to restore the language and theme before the
  * first frame.
+ *
+ * Runs under Robolectric for the same reason as [SettingsDataStoreTest]: a plain
+ * JVM unit test reports `Build.VERSION.SDK_INT == 0`, which sends DataStore down
+ * its pre-API-26 `File.renameTo` path. That path cannot replace an existing file
+ * on Windows, while every supported Android version uses `Files.move`.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33])
 class SettingsBootstrapTest {
 
+    private lateinit var testDir: File
     private lateinit var testFile: File
     private lateinit var scope: TestScope
     private lateinit var dataStore: DataStore<Preferences>
@@ -37,7 +50,11 @@ class SettingsBootstrapTest {
 
     @Before
     fun setUp() {
-        testFile = File.createTempFile("noor_bootstrap_test", ".preferences_pb")
+        testDir = Files.createTempDirectory("noor_bootstrap_test").toFile()
+        testFile = File(testDir, "noor_settings.preferences_pb")
+        // Eager dispatch is required here: the class under test reads settings
+        // through a deliberately blocking `runBlocking`, so the DataStore work it
+        // awaits has to run on the calling thread instead of a queued dispatcher.
         scope = TestScope(UnconfinedTestDispatcher())
         dataStore = PreferenceDataStoreFactory.create(scope = scope) { testFile }
         repository = SettingsDataStore(dataStore)
@@ -45,7 +62,8 @@ class SettingsBootstrapTest {
 
     @After
     fun tearDown() {
-        testFile.delete()
+        scope.cancel()
+        testDir.deleteRecursively()
     }
 
     /**
@@ -134,6 +152,22 @@ class SettingsBootstrapTest {
 
         repository.setThemeMode(ThemeMode.DARK)
 
+        assertEquals(ThemeMode.DARK, settingsAsSeenAtStartup().themeMode)
+    }
+
+    // --- File lifecycle regression --------------------------------------------
+
+    @Test
+    fun `a write creates the store file that a later process start reads`() = scope.runTest {
+        assertFalse(testFile.exists())
+
+        repository.setLanguage(Language.FRENCH)
+        repository.setThemeMode(ThemeMode.DARK)
+
+        assertTrue(testFile.isFile)
+        assertTrue(testFile.length() > 0L)
+        assertFalse(File(testFile.absolutePath + ".tmp").exists())
+        assertEquals(Language.FRENCH, settingsAsSeenAtStartup().language)
         assertEquals(ThemeMode.DARK, settingsAsSeenAtStartup().themeMode)
     }
 
