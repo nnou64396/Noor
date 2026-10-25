@@ -219,7 +219,6 @@ jobs:
         with:
           files: |
             app/build/outputs/apk/release/app-release.apk
-            app/build/outputs/bundle/release/app-release.aab
             noor-update.json
           body: |
             # NOOR ${{ steps.metadata.outputs.versionName }}
