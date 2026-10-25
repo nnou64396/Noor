@@ -62,6 +62,18 @@ class MainViewModel(
         }
     }
 
+    fun downloadAndVerifyUpdate(info: com.noor.islamic.domain.model.AppUpdateInfo) {
+        val updateRepo = updateRepository ?: return
+        viewModelScope.launch {
+            updateRepo.downloadAndVerifyUpdate(info)
+        }
+    }
+
+    fun installUpdate(context: android.content.Context) {
+        val updateRepo = updateRepository ?: return
+        updateRepo.installUpdate(context)
+    }
+
     /** [SettingsUiState.Ready] as soon as the store answers; [SettingsUiState.Loading] until then. */
     val settingsState: StateFlow<SettingsUiState> = observeSettings()
         .map { SettingsUiState.Ready(it) }

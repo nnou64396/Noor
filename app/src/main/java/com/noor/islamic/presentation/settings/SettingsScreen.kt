@@ -173,6 +173,9 @@ fun SettingsScreen(
                     is com.noor.islamic.domain.model.UpdateStatus.CheckUnavailable -> stringResource(R.string.update_status_unavailable)
                     is com.noor.islamic.domain.model.UpdateStatus.UpdateAvailable -> stringResource(R.string.update_available_title, updateStatus.info.latestVersion)
                     is com.noor.islamic.domain.model.UpdateStatus.UpdateRequired -> stringResource(R.string.update_required_title, updateStatus.info.latestVersion)
+                    is com.noor.islamic.domain.model.UpdateStatus.Downloading -> stringResource(R.string.update_downloading_fmt, (updateStatus.progress * 100).toInt())
+                    is com.noor.islamic.domain.model.UpdateStatus.VerificationFailed -> stringResource(R.string.update_verification_failed_title)
+                    is com.noor.islamic.domain.model.UpdateStatus.ReadyToInstall -> stringResource(R.string.update_ready_title, updateStatus.info.latestVersion)
                 },
                 icon = Icons.Rounded.Info,
                 onClick = onCheckForUpdates,

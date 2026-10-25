@@ -309,4 +309,9 @@
     <string name="update_status_unavailable">تعذّر التحقق من التحديثات</string>
     <string name="update_check_action">التحقق من التحديثات</string>
     <string name="update_section_title">تحديثات التطبيق</string>
+    <string name="update_downloading_fmt">جارٍ تنزيل التحديث… %1$d%%</string>
+    <string name="update_verification_failed_title">فشل التحقق من صحة التحديث</string>
+    <string name="update_ready_title">التحديث جاهز (الإصدار %1$s)</string>
+    <string name="update_ready_body">تم تنزيل التحديث والتحقق منه بنجاح. اضغط تثبيت للتطبيق.</string>
+    <string name="update_action_install">تثبيت التحديث</string>
 </resources>

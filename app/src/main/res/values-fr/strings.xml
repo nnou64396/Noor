@@ -309,4 +309,9 @@
     <string name="update_status_unavailable">Impossible de vérifier les mises à jour</string>
     <string name="update_check_action">Vérifier les mises à jour</string>
     <string name="update_section_title">Mises à jour</string>
+    <string name="update_downloading_fmt">Téléchargement… %1$d%%</string>
+    <string name="update_verification_failed_title">Échec de la vérification</string>
+    <string name="update_ready_title">Mise à jour prête (v%1$s)</string>
+    <string name="update_ready_body">La mise à jour a été téléchargée et vérifiée avec succès. Touchez installer.</string>
+    <string name="update_action_install">Installer</string>
 </resources>

@@ -309,4 +309,9 @@
     <string name="update_status_unavailable">Unable to check for updates</string>
     <string name="update_check_action">Check for Updates</string>
     <string name="update_section_title">App Updates</string>
+    <string name="update_downloading_fmt">Downloading update… %1$d%%</string>
+    <string name="update_verification_failed_title">Update Verification Failed</string>
+    <string name="update_ready_title">Update Ready (v%1$s)</string>
+    <string name="update_ready_body">The update has been downloaded and verified successfully. Tap install to apply.</string>
+    <string name="update_action_install">Install Update</string>
 </resources>

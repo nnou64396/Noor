@@ -21,6 +21,9 @@ import com.noor.islamic.data.remote.network.NetworkModule
 import com.noor.islamic.data.remote.prayer.PrayerApiProvider
 import com.noor.islamic.data.remote.prayer.PrayerTimesMapper
 import com.noor.islamic.data.repository.PrayerRepositoryImpl
+import com.noor.islamic.data.remote.update.UpdateApi
+import com.noor.islamic.data.repository.UpdateRepositoryImpl
+import com.noor.islamic.data.update.ApkDownloader
 import com.noor.islamic.domain.audio.QuranAudioController
 import com.noor.islamic.domain.repository.AthkarProgressRepository
 import com.noor.islamic.domain.repository.DhikrRepository
@@ -32,8 +35,6 @@ import com.noor.islamic.domain.repository.QuranRepository
 import com.noor.islamic.domain.repository.ReadingProgressRepository
 import com.noor.islamic.domain.repository.SettingsRepository
 import com.noor.islamic.domain.repository.TasbihRepository
-import com.noor.islamic.data.remote.update.UpdateApi
-import com.noor.islamic.data.repository.UpdateRepositoryImpl
 import com.noor.islamic.domain.repository.UpdateRepository
 import com.noor.islamic.domain.usecase.ObserveSettingsUseCase
 import kotlinx.coroutines.CoroutineScope
@@ -65,10 +66,14 @@ object ServiceLocator {
     private val updateApi: UpdateApi? by lazy {
         runCatching {
             NetworkModule.provideRetrofit(
-                baseUrl = "https://example.com/",
+                baseUrl = "https://api.github.com/",
                 client = provideOkHttpClient(),
             ).create(UpdateApi::class.java)
         }.getOrNull()
+    }
+
+    private val apkDownloader: ApkDownloader by lazy {
+        ApkDownloader(appContext, provideOkHttpClient())
     }
 
     val updateRepository: UpdateRepository by lazy {
@@ -83,9 +88,10 @@ object ServiceLocator {
         }.getOrDefault(1L)
 
         UpdateRepositoryImpl(
+            context = appContext,
             currentVersionCode = versionCode,
             settingsRepository = settingsRepository,
-            manifestUrlProvider = { UpdateRepositoryImpl.MANIFEST_URL },
+            apkDownloader = apkDownloader,
             apiProvider = { updateApi },
         )
     }
@@ -140,7 +146,7 @@ object ServiceLocator {
 
     val readingProgressRepository: ReadingProgressRepository get() = quranUserStateRepository
 
-    private val quranAudioRepository: QuranAudioRepository by lazy {
+    val quranAudioRepository: QuranAudioRepository by lazy {
         QuranAudioPreferences.create(appContext)
     }
 

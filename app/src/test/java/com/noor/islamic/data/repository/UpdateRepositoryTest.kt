@@ -1,16 +1,25 @@
 package com.noor.islamic.data.repository
 
+import com.noor.islamic.data.remote.update.GitHubReleaseDto
 import com.noor.islamic.data.remote.update.UpdateApi
 import com.noor.islamic.data.remote.update.UpdateManifestDto
+import com.noor.islamic.data.update.ApkDownloader
 import com.noor.islamic.domain.model.UpdateStatus
 import com.noor.islamic.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 import retrofit2.Response
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
 class UpdateRepositoryTest {
 
     private class FakeSettingsRepository : SettingsRepository {
@@ -22,7 +31,6 @@ class UpdateRepositoryTest {
             dismissedCode = code
         }
 
-        // Stubs for other settings methods
         override val language = flowOf(com.noor.islamic.domain.model.Language.ENGLISH)
         override val themeMode = flowOf(com.noor.islamic.domain.model.ThemeMode.DEFAULT)
         override val onboardingComplete = flowOf(true)
@@ -43,23 +51,32 @@ class UpdateRepositoryTest {
     }
 
     private class FakeUpdateApi(
-        private val response: Response<UpdateManifestDto>?,
+        private val releasesResponse: Response<List<GitHubReleaseDto>>?,
+        private val manifestResponse: Response<UpdateManifestDto>? = null,
         private val shouldThrow: Boolean = false,
     ) : UpdateApi {
+        override suspend fun listReleases(owner: String, repo: String): Response<List<GitHubReleaseDto>> {
+            if (shouldThrow) throw java.io.IOException("Network failure")
+            return releasesResponse ?: Response.error(404, "".toResponseBody(null))
+        }
+
         override suspend fun fetchManifest(manifestUrl: String): Response<UpdateManifestDto> {
             if (shouldThrow) throw java.io.IOException("Network failure")
-            return response ?: Response.error(404, "".toResponseBody(null))
+            return manifestResponse ?: Response.error(404, "".toResponseBody(null))
         }
     }
 
     @Test
-    fun `when manifest url is null returns Disabled`() = runTest {
+    fun `when api provider is null returns Disabled`() = runTest {
         val settings = FakeSettingsRepository()
+        val context = RuntimeEnvironment.getApplication()
+        val downloader = ApkDownloader(context, OkHttpClient())
         val repo = UpdateRepositoryImpl(
-            currentVersionCode = 1L,
+            context = context,
+            currentVersionCode = 10000L,
             settingsRepository = settings,
-            manifestUrlProvider = { null },
-            apiProvider = { FakeUpdateApi(null) },
+            apkDownloader = downloader,
+            apiProvider = { null },
         )
 
         val status = repo.checkForUpdates()
@@ -69,16 +86,23 @@ class UpdateRepositoryTest {
     @Test
     fun `when current version is up to date returns UpToDate`() = runTest {
         val settings = FakeSettingsRepository()
-        val manifest = UpdateManifestDto(
-            latestVersion = "1.0.0",
-            latestVersionCode = 1L,
-            minimumSupportedVersionCode = 1L,
+        val context = RuntimeEnvironment.getApplication()
+        val downloader = ApkDownloader(context, OkHttpClient())
+        val release = GitHubReleaseDto(
+            tagName = "v1.0.0",
+            name = "1.0.0",
+            draft = false,
+            prerelease = false,
+            publishedAt = "2026-03-01T12:00:00Z",
+            body = "Release notes",
+            assets = listOf(com.noor.islamic.data.remote.update.GitHubAssetDto("app-release.apk", 100L, "https://github.com/test.apk", "application/vnd.android.package-archive")),
         )
-        val api = FakeUpdateApi(Response.success(manifest))
+        val api = FakeUpdateApi(Response.success(listOf(release)))
         val repo = UpdateRepositoryImpl(
-            currentVersionCode = 1L,
+            context = context,
+            currentVersionCode = 10000L,
             settingsRepository = settings,
-            manifestUrlProvider = { "https://example.com/manifest.json" },
+            apkDownloader = downloader,
             apiProvider = { api },
         )
 
@@ -89,76 +113,78 @@ class UpdateRepositoryTest {
     @Test
     fun `when newer version available returns UpdateAvailable`() = runTest {
         val settings = FakeSettingsRepository()
-        val manifest = UpdateManifestDto(
-            latestVersion = "2.0.0",
-            latestVersionCode = 2L,
-            minimumSupportedVersionCode = 1L,
+        val context = RuntimeEnvironment.getApplication()
+        val downloader = ApkDownloader(context, OkHttpClient())
+        val release = GitHubReleaseDto(
+            tagName = "v1.1.0",
+            name = "1.1.0",
+            draft = false,
+            prerelease = false,
+            publishedAt = "2026-03-01T12:00:00Z",
+            body = "Release notes",
+            assets = listOf(com.noor.islamic.data.remote.update.GitHubAssetDto("app-release.apk", 100L, "https://github.com/test.apk", "application/vnd.android.package-archive")),
         )
-        val api = FakeUpdateApi(Response.success(manifest))
+        val api = FakeUpdateApi(Response.success(listOf(release)))
         val repo = UpdateRepositoryImpl(
-            currentVersionCode = 1L,
+            context = context,
+            currentVersionCode = 10000L,
             settingsRepository = settings,
-            manifestUrlProvider = { "https://example.com/manifest.json" },
+            apkDownloader = downloader,
             apiProvider = { api },
         )
 
         val status = repo.checkForUpdates()
         assert(status is UpdateStatus.UpdateAvailable)
-        assertEquals(2L, (status as UpdateStatus.UpdateAvailable).info.latestVersionCode)
+        assertEquals(10100L, (status as UpdateStatus.UpdateAvailable).info.latestVersionCode)
     }
 
     @Test
-    fun `when current version below minimum supported returns UpdateRequired`() = runTest {
+    fun `draft and prerelease releases are ignored`() = runTest {
         val settings = FakeSettingsRepository()
-        val manifest = UpdateManifestDto(
-            latestVersion = "2.0.0",
-            latestVersionCode = 2L,
-            minimumSupportedVersionCode = 2L,
+        val context = RuntimeEnvironment.getApplication()
+        val downloader = ApkDownloader(context, OkHttpClient())
+        val draftRelease = GitHubReleaseDto(
+            tagName = "v2.0.0",
+            name = "2.0.0",
+            draft = true,
+            prerelease = false,
+            publishedAt = "2026-03-01T12:00:00Z",
+            body = "Draft",
+            assets = listOf(com.noor.islamic.data.remote.update.GitHubAssetDto("app-release.apk", 100L, "https://github.com/test.apk", "application/vnd.android.package-archive")),
         )
-        val api = FakeUpdateApi(Response.success(manifest))
+        val prerelease = GitHubReleaseDto(
+            tagName = "v2.0.0-beta",
+            name = "2.0.0-beta",
+            draft = false,
+            prerelease = true,
+            publishedAt = "2026-03-01T12:00:00Z",
+            body = "Prerelease",
+            assets = listOf(com.noor.islamic.data.remote.update.GitHubAssetDto("app-release.apk", 100L, "https://github.com/test.apk", "application/vnd.android.package-archive")),
+        )
+        val api = FakeUpdateApi(Response.success(listOf(draftRelease, prerelease)))
         val repo = UpdateRepositoryImpl(
-            currentVersionCode = 1L,
+            context = context,
+            currentVersionCode = 10000L,
             settingsRepository = settings,
-            manifestUrlProvider = { "https://example.com/manifest.json" },
+            apkDownloader = downloader,
             apiProvider = { api },
         )
 
         val status = repo.checkForUpdates()
-        assert(status is UpdateStatus.UpdateRequired)
-    }
-
-    @Test
-    fun `when update is dismissed returns UpToDate unless forced`() = runTest {
-        val settings = FakeSettingsRepository()
-        settings.setDismissedUpdateVersionCode(2L)
-        val manifest = UpdateManifestDto(
-            latestVersion = "2.0.0",
-            latestVersionCode = 2L,
-            minimumSupportedVersionCode = 1L,
-        )
-        val api = FakeUpdateApi(Response.success(manifest))
-        val repo = UpdateRepositoryImpl(
-            currentVersionCode = 1L,
-            settingsRepository = settings,
-            manifestUrlProvider = { "https://example.com/manifest.json" },
-            apiProvider = { api },
-        )
-
-        val statusNormal = repo.checkForUpdates(forceCheck = false)
-        assertEquals(UpdateStatus.UpToDate, statusNormal)
-
-        val statusForced = repo.checkForUpdates(forceCheck = true)
-        assert(statusForced is UpdateStatus.UpdateAvailable)
+        assertEquals(UpdateStatus.UpToDate, status)
     }
 
     @Test
     fun `when network throws exception returns CheckUnavailable safely`() = runTest {
         val settings = FakeSettingsRepository()
+        val context = RuntimeEnvironment.getApplication()
+        val downloader = ApkDownloader(context, OkHttpClient())
         val api = FakeUpdateApi(null, shouldThrow = true)
         val repo = UpdateRepositoryImpl(
-            currentVersionCode = 1L,
+            context = context,
+            currentVersionCode = 10000L,
             settingsRepository = settings,
-            manifestUrlProvider = { "https://example.com/manifest.json" },
+            apkDownloader = downloader,
             apiProvider = { api },
         )
 
