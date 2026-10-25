@@ -45,6 +45,7 @@ class UpdateRepositoryImpl(
         return try {
             val response = api.listReleases()
             if (!response.isSuccessful) {
+                android.util.Log.w("UpdateRepository", "Failed to list releases: HTTP ${response.code()} ${response.message()}")
                 _updateStatus.value = UpdateStatus.CheckUnavailable
                 return UpdateStatus.CheckUnavailable
             }
@@ -130,7 +131,8 @@ class UpdateRepositoryImpl(
             status
         } catch (e: CancellationException) {
             throw e
-        } catch (_: Throwable) {
+        } catch (t: Throwable) {
+            android.util.Log.e("UpdateRepository", "Error checking for updates", t)
             _updateStatus.value = UpdateStatus.CheckUnavailable
             UpdateStatus.CheckUnavailable
         }
