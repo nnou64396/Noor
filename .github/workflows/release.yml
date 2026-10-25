@@ -72,75 +72,103 @@ jobs:
             exit 1
           fi
 
-          # 1. Verify Package Name and Version from APK
-          BADGING=$("$AAPT" dump badging "$APK_PATH")
-          PKG_NAME=$(echo "$BADGING" | grep "package:" | sed -n "s/.*name='\([^']*\)'.*/\1/p")
-          VERSION_NAME=$(echo "$BADGING" | grep "package:" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")
-          VERSION_CODE=$(echo "$BADGING" | grep "package:" | sed -n "s/.*versionCode='\([^']*\)'.*/\1/p")
-
-          echo "Extracted Package: $PKG_NAME"
-          echo "Extracted Version Name: $VERSION_NAME"
-          echo "Extracted Version Code: $VERSION_CODE"
-
-          if [ "$PKG_NAME" != "$EXPECTED_PACKAGE" ]; then
-            echo "Error: Package name mismatch. Expected $EXPECTED_PACKAGE, got $PKG_NAME"
-            exit 1
-          fi
-
-          # 2. Verify APK Signature and Certificate Fingerprint
-          CERT_OUTPUT=$("$APKSIGNER" verify --print-certs "$APK_PATH")
-          echo "Signing verification output:"
-          echo "$CERT_OUTPUT"
-
-          FINGERPRINT=$(echo "$CERT_OUTPUT" | grep -i "SHA-256 digest:" | head -n 1 | awk '{print $NF}' | tr '[:upper:]' '[:lower:]')
-          echo "Extracted Certificate SHA-256: $FINGERPRINT"
-          echo "Expected Certificate SHA-256:  $EXPECTED_FINGERPRINT"
-
-          if [ "$FINGERPRINT" != "$EXPECTED_FINGERPRINT" ]; then
-            echo "Error: Signing certificate SHA-256 fingerprint does not match trusted production identity."
-            exit 1
-          fi
-
-          # 3. Calculate SHA-256 Checksum of exact APK
-          SHA256=$(sha256sum "$APK_PATH" | awk '{print $1}')
-          echo "APK SHA-256: $SHA256"
-
-          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
-          echo "versionName=$VERSION_NAME" >> $GITHUB_OUTPUT
-          echo "versionCode=$VERSION_CODE" >> $GITHUB_OUTPUT
-
-          # 4. Generate and Rigorously Validate JSON Update Manifest via Python
+          # Execute robust Python verification and manifest generation script
           python3 -c "
-          import json, sys, re
+          import subprocess, re, json, sys, hashlib, os
 
+          apk_path = '$APK_PATH'
           expected_pkg = '$EXPECTED_PACKAGE'
-          expected_version_name = '$VERSION_NAME'
-          expected_version_code = int('$VERSION_CODE')
-          expected_sha256 = '$SHA256'
-          expected_asset = 'app-release.apk'
+          expected_fingerprint = '$EXPECTED_FINGERPRINT'
+          apksigner_path = '$APKSIGNER'
+          aapt_path = '$AAPT'
 
+          # 1. Extract Badging metadata robustly
+          try:
+              badging_bytes = subprocess.check_output([aapt_path, 'dump', 'badging', apk_path])
+          except Exception as e:
+              print(f'Error executing aapt dump badging: {e}', file=sys.stderr)
+              sys.exit(1)
+
+          badging = badging_bytes.decode('utf-8', errors='ignore')
+
+          pkg_match = re.search(r\"^package:\\s*name='([^']+)'\", badging, re.MULTILINE)
+          ver_name_match = re.search(r\"versionName='([^']+)'\", badging)
+          ver_code_match = re.search(r\"versionCode='([^']+)'\", badging)
+
+          pkg_name = pkg_match.group(1) if pkg_match else ''
+          version_name = ver_name_match.group(1) if ver_name_match else ''
+          version_code = ver_code_match.group(1) if ver_code_match else ''
+
+          print(f'Extracted Package: {pkg_name}')
+          print(f'Extracted Version Name: {version_name}')
+          print(f'Extracted Version Code: {version_code}')
+
+          if pkg_name != expected_pkg:
+              print(f'Error: Package name mismatch. Expected {expected_pkg}, got {pkg_name}', file=sys.stderr)
+              sys.exit(1)
+
+          # 2. Verify Signature & Cert Fingerprint
+          try:
+              cert_bytes = subprocess.check_output([apksigner_path, 'verify', '--print-certs', apk_path])
+          except Exception as e:
+              print(f'Error executing apksigner verify: {e}', file=sys.stderr)
+              sys.exit(1)
+
+          cert_output = cert_bytes.decode('utf-8', errors='ignore')
+          print('Signing verification output:')
+          print(cert_output)
+
+          fingerprint_match = re.search(r'SHA-256 digest:\\s*([0-9a-fA-F:]+)', cert_output)
+          if not fingerprint_match:
+              print('Error: Could not extract SHA-256 certificate digest.', file=sys.stderr)
+              sys.exit(1)
+
+          extracted_fp = fingerprint_match.group(1).replace(':', '').lower()
+          print(f'Extracted Certificate SHA-256: {extracted_fp}')
+          print(f'Expected Certificate SHA-256:  {expected_fingerprint}')
+
+          if extracted_fp != expected_fingerprint.lower():
+              print('Error: Signing certificate SHA-256 fingerprint does not match trusted production identity.', file=sys.stderr)
+              sys.exit(1)
+
+          # 3. Calculate SHA-256 Checksum
+          sha256_hash = hashlib.sha256()
+          with open(apk_path, 'rb') as f:
+              for byte_block in iter(lambda: f.read(65536), b''):
+                  sha256_hash.update(byte_block)
+          apk_sha256 = sha256_hash.hexdigest()
+          print(f'APK SHA-256: {apk_sha256}')
+
+          # Write GitHub outputs
+          github_output_path = os.environ.get('GITHUB_OUTPUT')
+          if github_output_path:
+              with open(github_output_path, 'a') as gh_out:
+                  gh_out.write(f'sha256={apk_sha256}\n')
+                  gh_out.write(f'versionName={version_name}\n')
+                  gh_out.write(f'versionCode={version_code}\n')
+
+          # 4. Generate & Validate JSON Manifest
           manifest_data = {
               'schemaVersion': 1,
-              'versionName': expected_version_name,
-              'versionCode': expected_version_code,
+              'versionName': version_name,
+              'versionCode': int(version_code),
               'minimumSupportedVersionCode': 1,
               'mandatory': False,
-              'apkAsset': expected_asset,
-              'sha256': expected_sha256,
+              'apkAsset': 'app-release.apk',
+              'sha256': apk_sha256,
               'releaseNotes': {
-                  'en': 'Official release of NOOR v' + expected_version_name + '.',
-                  'ar': 'الإصدار الرسمي لتطبيق نور v' + expected_version_name + '.',
-                  'fr': 'Version officielle de NOOR v' + expected_version_name + '.'
+                  'en': 'Official release of NOOR v' + version_name + '.',
+                  'ar': 'الإصدار الرسمي لتطبيق نور v' + version_name + '.',
+                  'fr': 'Version officielle de NOOR v' + version_name + '.'
               },
               'publishedAt': '$(date -u +"%Y-%m-%dT%H:%M:%SZ")'
           }
 
-          # Write UTF-8 JSON
           manifest_path = 'noor-update.json'
           with open(manifest_path, 'w', encoding='utf-8') as f:
               json.dump(manifest_data, f, indent=2, ensure_ascii=False)
 
-          # Rigorous Validation
+          # Validate generated JSON
           with open(manifest_path, 'r', encoding='utf-8') as f:
               parsed = json.load(f)
 
@@ -153,27 +181,25 @@ jobs:
               'minimumSupportedVersionCode', 'mandatory', 
               'apkAsset', 'sha256', 'releaseNotes', 'publishedAt'
           ]
-
           for field in required_fields:
               if field not in parsed:
                   print(f'Error: Missing required field: {field}', file=sys.stderr)
                   sys.exit(1)
 
-          # Type and value checks
           if not isinstance(parsed['versionCode'], int) or isinstance(parsed['versionCode'], bool) or parsed['versionCode'] <= 0:
               print('Error: versionCode must be a positive integer.', file=sys.stderr)
               sys.exit(1)
 
-          if parsed['versionCode'] != expected_version_code:
-              print(f'Error: versionCode mismatch: manifest has {parsed[\"versionCode\"]}, APK has {expected_version_code}', file=sys.stderr)
+          if parsed['versionCode'] != int(version_code):
+              print('Error: versionCode mismatch.', file=sys.stderr)
               sys.exit(1)
 
-          if parsed['versionName'] != expected_version_name:
-              print(f'Error: versionName mismatch: manifest has {parsed[\"versionName\"]}, APK has {expected_version_name}', file=sys.stderr)
+          if parsed['versionName'] != version_name:
+              print('Error: versionName mismatch.', file=sys.stderr)
               sys.exit(1)
 
-          if parsed['apkAsset'] != expected_asset:
-              print(f'Error: apkAsset must be {expected_asset}', file=sys.stderr)
+          if parsed['apkAsset'] != 'app-release.apk':
+              print('Error: apkAsset must be app-release.apk', file=sys.stderr)
               sys.exit(1)
 
           sha_regex = re.compile(r'^[a-fA-F0-9]{64}$')
@@ -181,11 +207,11 @@ jobs:
               print('Error: sha256 must be exactly 64 hexadecimal characters.', file=sys.stderr)
               sys.exit(1)
 
-          if parsed['sha256'].lower() != expected_sha256.lower():
+          if parsed['sha256'].lower() != apk_sha256.lower():
               print('Error: sha256 checksum mismatch with uploaded APK.', file=sys.stderr)
               sys.exit(1)
 
-          print('SUCCESS: noor-update.json generated and validated successfully.')
+          print('SUCCESS: APK verified and noor-update.json validated successfully.')
           "
 
       - name: Create GitHub Release and Upload Assets
