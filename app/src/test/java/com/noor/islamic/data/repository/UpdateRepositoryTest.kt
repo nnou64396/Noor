@@ -1,5 +1,6 @@
 package com.noor.islamic.data.repository
 
+import com.noor.islamic.data.remote.network.NetworkModule
 import com.noor.islamic.data.remote.update.GitHubReleaseDto
 import com.noor.islamic.data.remote.update.UpdateApi
 import com.noor.islamic.data.remote.update.UpdateManifestDto
@@ -10,7 +11,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -21,6 +28,19 @@ import retrofit2.Response
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
 class UpdateRepositoryTest {
+
+    private lateinit var mockWebServer: MockWebServer
+
+    @Before
+    fun setUp() {
+        mockWebServer = MockWebServer()
+        mockWebServer.start()
+    }
+
+    @After
+    fun tearDown() {
+        mockWebServer.shutdown()
+    }
 
     private class FakeSettingsRepository : SettingsRepository {
         private var dismissedCode = 0L
@@ -64,6 +84,49 @@ class UpdateRepositoryTest {
             if (shouldThrow) throw java.io.IOException("Network failure")
             return manifestResponse ?: Response.error(404, "".toResponseBody(null))
         }
+    }
+
+    @Test
+    fun `networkModule provideRetrofit configures GsonConverterFactory and headers for UpdateApi`() = runTest {
+        val retrofit = NetworkModule.provideRetrofit(
+            baseUrl = mockWebServer.url("/").toString(),
+            client = OkHttpClient(),
+        )
+        val api = retrofit.create(UpdateApi::class.java)
+
+        val jsonResponse = """
+            [
+              {
+                "tag_name": "v1.1.0",
+                "name": "1.1.0",
+                "draft": false,
+                "prerelease": false,
+                "published_at": "2026-03-01T12:00:00Z",
+                "body": "Release notes",
+                "assets": [
+                  {
+                    "name": "app-release.apk",
+                    "size": 5000000,
+                    "browser_download_url": "https://github.com/test.apk",
+                    "content_type": "application/vnd.android.package-archive"
+                  }
+                ]
+              }
+            ]
+        """.trimIndent()
+
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(jsonResponse))
+
+        val response = api.listReleases()
+        assertTrue(response.isSuccessful)
+        val releases = response.body()
+        assertNotNull(releases)
+        assertEquals(1, releases?.size)
+        assertEquals("v1.1.0", releases?.first()?.tagName)
+
+        val recordedRequest = mockWebServer.takeRequest()
+        assertEquals("Noor-Android", recordedRequest.getHeader("User-Agent"))
+        assertEquals("application/vnd.github+json", recordedRequest.getHeader("Accept"))
     }
 
     @Test
@@ -134,7 +197,7 @@ class UpdateRepositoryTest {
         )
 
         val status = repo.checkForUpdates()
-        assert(status is UpdateStatus.UpdateAvailable)
+        assertTrue(status is UpdateStatus.UpdateAvailable)
         assertEquals(10100L, (status as UpdateStatus.UpdateAvailable).info.latestVersionCode)
     }
 
@@ -172,6 +235,25 @@ class UpdateRepositoryTest {
 
         val status = repo.checkForUpdates()
         assertEquals(UpdateStatus.UpToDate, status)
+    }
+
+    @Test
+    fun `http 403 429 500 responses return CheckUnavailable`() = runTest {
+        val settings = FakeSettingsRepository()
+        val context = RuntimeEnvironment.getApplication()
+        val downloader = ApkDownloader(context, OkHttpClient())
+
+        val api403 = FakeUpdateApi(Response.error(403, "".toResponseBody(null)))
+        val repo403 = UpdateRepositoryImpl(context, 10000L, settings, downloader) { api403 }
+        assertEquals(UpdateStatus.CheckUnavailable, repo403.checkForUpdates())
+
+        val api429 = FakeUpdateApi(Response.error(429, "".toResponseBody(null)))
+        val repo429 = UpdateRepositoryImpl(context, 10000L, settings, downloader) { api429 }
+        assertEquals(UpdateStatus.CheckUnavailable, repo429.checkForUpdates())
+
+        val api500 = FakeUpdateApi(Response.error(500, "".toResponseBody(null)))
+        val repo500 = UpdateRepositoryImpl(context, 10000L, settings, downloader) { api500 }
+        assertEquals(UpdateStatus.CheckUnavailable, repo500.checkForUpdates())
     }
 
     @Test

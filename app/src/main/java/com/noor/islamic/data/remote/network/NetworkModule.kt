@@ -99,5 +99,6 @@ object NetworkModule {
     ): Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(client)
+        .addConverterFactory(retrofit2.converter.gson.GsonConverterFactory.create())
         .build()
 }
