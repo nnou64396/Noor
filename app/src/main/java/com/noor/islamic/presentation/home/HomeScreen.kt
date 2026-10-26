@@ -1,5 +1,6 @@
 package com.noor.islamic.presentation.home
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noor.islamic.R
+import com.noor.islamic.domain.model.AppUpdateInfo
+import com.noor.islamic.domain.model.UpdateStatus
+import com.noor.islamic.domain.model.isActionableUpdate
 import com.noor.islamic.navigation.NoorDestinations
 import com.noor.islamic.presentation.common.LocationPermissionUiState
 import com.noor.islamic.presentation.common.NoorFormatters
@@ -79,8 +83,12 @@ fun HomeScreen(
     quran: HomeQuranUiState? = null,
     onTogglePlayback: () -> Unit = {},
     practice: HomePracticeUiState? = null,
-    updateStatus: com.noor.islamic.domain.model.UpdateStatus = com.noor.islamic.domain.model.UpdateStatus.UpToDate,
-    onDismissUpdate: (Long) -> Unit = {},
+    updateStatus: UpdateStatus,
+    onDismissUpdate: (Long) -> Unit,
+    onDownloadAndVerifyUpdate: (AppUpdateInfo) -> Unit,
+    onInstallUpdate: (Context) -> Unit,
+    onRetryUpdate: (AppUpdateInfo, Context) -> Unit,
+    onOpenInstallSettings: () -> Unit,
 ) {
     val prayerState by prayerViewModel.uiState.collectAsStateWithLifecycle()
     val next by prayerViewModel.nextPrayer.collectAsStateWithLifecycle()
@@ -88,11 +96,15 @@ fun HomeScreen(
     NoorScreenContainer(modifier = modifier) {
         HomeHeader()
 
-        if (updateStatus is com.noor.islamic.domain.model.UpdateStatus.UpdateAvailable || updateStatus is com.noor.islamic.domain.model.UpdateStatus.UpdateRequired) {
+        if (updateStatus.isActionableUpdate) {
             Spacer(Modifier.size(NoorDimens.Sm))
             com.noor.islamic.ui.components.UpdateBannerCard(
                 updateStatus = updateStatus,
                 onDismiss = onDismissUpdate,
+                onDownloadAndVerify = onDownloadAndVerifyUpdate,
+                onInstall = onInstallUpdate,
+                onRetry = onRetryUpdate,
+                onOpenInstallSettings = onOpenInstallSettings,
             )
         }
 

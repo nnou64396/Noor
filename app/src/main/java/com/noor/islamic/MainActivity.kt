@@ -1,13 +1,16 @@
 package com.noor.islamic
 
 import android.os.Bundle
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.noor.islamic.data.local.location.AndroidLocationPermissionChecker
+import com.noor.islamic.data.update.ApkInstaller
 import com.noor.islamic.domain.model.ThemeMode
 import com.noor.islamic.navigation.NoorApp
 import com.noor.islamic.presentation.MainViewModel
@@ -42,6 +45,12 @@ class MainActivity : AppCompatActivity() {
 
             val updateStatus by viewModel.updateStatus.collectAsStateWithLifecycle()
 
+            val installPermissionLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.StartActivityForResult(),
+            ) {
+                viewModel.onInstallPermissionResult(this@MainActivity)
+            }
+
             val themeMode = (settingsState as? SettingsUiState.Ready)
                 ?.settings?.themeMode
                 ?: ThemeMode.DEFAULT
@@ -52,6 +61,21 @@ class MainActivity : AppCompatActivity() {
                     updateStatus = updateStatus,
                     onCheckForUpdates = { viewModel.checkForUpdates(forceCheck = true) },
                     onDismissUpdate = viewModel::dismissUpdate,
+                    onDownloadAndVerifyUpdate = viewModel::downloadAndVerifyUpdate,
+                    onInstallUpdate = viewModel::installUpdate,
+                    onRetryUpdate = viewModel::retryUpdate,
+                    onOpenInstallSettings = {
+                        val settingsIntent =
+                            ApkInstaller.buildInstallPermissionSettingsIntent(this@MainActivity)
+                        runCatching { installPermissionLauncher.launch(settingsIntent) }
+                            .onFailure {
+                                runCatching {
+                                    installPermissionLauncher.launch(
+                                        ApkInstaller.buildAppDetailsSettingsIntent(this@MainActivity),
+                                    )
+                                }
+                            }
+                    },
                     onLanguageSelected = viewModel::setLanguage,
                     onThemeSelected = viewModel::setThemeMode,
                     onCalculationMethodSelected = viewModel::setPrayerCalculationMethod,

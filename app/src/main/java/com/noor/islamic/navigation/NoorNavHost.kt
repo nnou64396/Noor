@@ -1,5 +1,6 @@
 package com.noor.islamic.navigation
 
+import android.content.Context
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,11 +18,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.noor.islamic.domain.model.AppSettings
+import com.noor.islamic.domain.model.AppUpdateInfo
 import com.noor.islamic.domain.model.AsrSchool
 import com.noor.islamic.domain.model.CalculationMethod
 import com.noor.islamic.domain.model.Language
 import com.noor.islamic.domain.model.LocationMode
 import com.noor.islamic.domain.model.ThemeMode
+import com.noor.islamic.domain.model.UpdateStatus
 import com.noor.islamic.presentation.athkar.AthkarCategoryScreen
 import com.noor.islamic.presentation.athkar.AthkarCategoryViewModel
 import com.noor.islamic.presentation.athkar.AthkarScreen
@@ -59,9 +62,13 @@ fun NoorNavHost(
     contentPadding: PaddingValues,
     settings: AppSettings,
     prayerViewModel: PrayerViewModel,
-    updateStatus: com.noor.islamic.domain.model.UpdateStatus = com.noor.islamic.domain.model.UpdateStatus.UpToDate,
-    onCheckForUpdates: () -> Unit = {},
-    onDismissUpdate: (Long) -> Unit = {},
+    updateStatus: UpdateStatus,
+    onCheckForUpdates: () -> Unit,
+    onDismissUpdate: (Long) -> Unit,
+    onDownloadAndVerifyUpdate: (AppUpdateInfo) -> Unit,
+    onInstallUpdate: (Context) -> Unit,
+    onRetryUpdate: (AppUpdateInfo, Context) -> Unit,
+    onOpenInstallSettings: () -> Unit,
     onLanguageSelected: (Language) -> Unit,
     onThemeSelected: (ThemeMode) -> Unit,
     onCalculationMethodSelected: (CalculationMethod) -> Unit = {},
@@ -77,6 +84,10 @@ fun NoorNavHost(
     val currentUpdateStatus by rememberUpdatedState(updateStatus)
     val currentOnCheckForUpdates by rememberUpdatedState(onCheckForUpdates)
     val currentOnDismissUpdate by rememberUpdatedState(onDismissUpdate)
+    val currentOnDownloadAndVerifyUpdate by rememberUpdatedState(onDownloadAndVerifyUpdate)
+    val currentOnInstallUpdate by rememberUpdatedState(onInstallUpdate)
+    val currentOnRetryUpdate by rememberUpdatedState(onRetryUpdate)
+    val currentOnOpenInstallSettings by rememberUpdatedState(onOpenInstallSettings)
     val currentOnLanguageSelected by rememberUpdatedState(onLanguageSelected)
     val currentOnThemeSelected by rememberUpdatedState(onThemeSelected)
     val currentOnCalculationMethodSelected by rememberUpdatedState(onCalculationMethodSelected)
@@ -121,6 +132,10 @@ fun NoorNavHost(
                     practice = practiceState,
                     updateStatus = currentUpdateStatus,
                     onDismissUpdate = currentOnDismissUpdate,
+                    onDownloadAndVerifyUpdate = currentOnDownloadAndVerifyUpdate,
+                    onInstallUpdate = currentOnInstallUpdate,
+                    onRetryUpdate = currentOnRetryUpdate,
+                    onOpenInstallSettings = currentOnOpenInstallSettings,
                     modifier = Modifier.fillMaxSize().padding(currentContentPadding),
                 )
             }
@@ -262,6 +277,10 @@ fun NoorNavHost(
                     updateStatus = currentUpdateStatus,
                     onCheckForUpdates = currentOnCheckForUpdates,
                     onDismissUpdate = currentOnDismissUpdate,
+                    onDownloadAndVerifyUpdate = currentOnDownloadAndVerifyUpdate,
+                    onInstallUpdate = currentOnInstallUpdate,
+                    onRetryUpdate = currentOnRetryUpdate,
+                    onOpenInstallSettings = currentOnOpenInstallSettings,
                     modifier = Modifier.fillMaxSize().padding(currentContentPadding),
                 )
             }

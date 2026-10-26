@@ -107,6 +107,15 @@ jobs:
               print(f'Error: Package name mismatch. Expected {expected_pkg}, got {pkg_name}', file=sys.stderr)
               sys.exit(1)
 
+          # 1b. The pushed tag must match the built version, so a stale version
+          # in the commit can never be published under a newer release tag.
+          tag_ref = os.environ.get('GITHUB_REF_NAME', '')
+          expected_tag = 'v' + version_name
+          if tag_ref != expected_tag:
+              print(f'Error: Git tag {tag_ref!r} does not match the built APK version {expected_tag!r}. Refusing to publish.', file=sys.stderr)
+              sys.exit(1)
+          print(f'Tag/version match verified: {tag_ref}')
+
           # 2. Verify Signature & Cert Fingerprint
           try:
               cert_bytes = subprocess.check_output([apksigner_path, 'verify', '--print-certs', apk_path])

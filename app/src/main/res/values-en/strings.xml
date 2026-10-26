@@ -314,4 +314,9 @@
     <string name="update_ready_title">Update Ready (v%1$s)</string>
     <string name="update_ready_body">The update has been downloaded and verified successfully. Tap install to apply.</string>
     <string name="update_action_install">Install Update</string>
+    <string name="update_failed_title">Update Failed</string>
+    <string name="update_install_failed_title">Installation Failed</string>
+    <string name="update_permission_title">Allow App Installation</string>
+    <string name="update_permission_body">Android requires your permission to install the verified NOOR update. Open settings, allow NOOR to install apps, then return here.</string>
+    <string name="update_action_open_settings">Open Settings</string>
 </resources>

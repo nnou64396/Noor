@@ -314,4 +314,9 @@
     <string name="update_ready_title">التحديث جاهز (الإصدار %1$s)</string>
     <string name="update_ready_body">تم تنزيل التحديث والتحقق منه بنجاح. اضغط تثبيت للتطبيق.</string>
     <string name="update_action_install">تثبيت التحديث</string>
+    <string name="update_failed_title">تعذّر إكمال التحديث</string>
+    <string name="update_install_failed_title">تعذّر بدء التثبيت</string>
+    <string name="update_permission_title">السماح بتثبيت التطبيقات</string>
+    <string name="update_permission_body">يتطلب أندرويد إذنك لتثبيت تحديث نور الذي تم التحقق منه. افتح الإعدادات، واسمح لنور بتثبيت التطبيقات، ثم عد إلى هنا.</string>
+    <string name="update_action_open_settings">فتح الإعدادات</string>
 </resources>

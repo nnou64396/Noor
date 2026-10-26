@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.noor.islamic.R
 import com.noor.islamic.domain.model.AppUpdateInfo
 import com.noor.islamic.domain.model.UpdateStatus
+import com.noor.islamic.domain.model.isActionableUpdate
 import com.noor.islamic.ui.theme.NoorDimens
 
 /**
@@ -31,20 +32,26 @@ import com.noor.islamic.ui.theme.NoorDimens
 fun UpdateBannerCard(
     updateStatus: UpdateStatus,
     onDismiss: (Long) -> Unit,
-    onDownloadAndVerify: (AppUpdateInfo) -> Unit = {},
-    onInstall: (Context) -> Unit = {},
+    onDownloadAndVerify: (AppUpdateInfo) -> Unit,
+    onInstall: (Context) -> Unit,
+    onRetry: (AppUpdateInfo, Context) -> Unit,
+    onOpenInstallSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    if (!updateStatus.isActionableUpdate) return
+
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
 
     val info: AppUpdateInfo? = when (updateStatus) {
         is UpdateStatus.UpdateAvailable -> updateStatus.info
         is UpdateStatus.UpdateRequired -> updateStatus.info
-        is UpdateStatus.Downloading -> null
-        is UpdateStatus.VerificationFailed -> null
+        is UpdateStatus.VerificationFailed -> updateStatus.info
         is UpdateStatus.ReadyToInstall -> updateStatus.info
-        else -> return
+        is UpdateStatus.InstallPermissionRequired -> updateStatus.info
+        is UpdateStatus.InstallFailed -> updateStatus.info
+        is UpdateStatus.Downloading -> null
+        else -> null
     }
 
     val isRequired = updateStatus is UpdateStatus.UpdateRequired
@@ -77,7 +84,7 @@ fun UpdateBannerCard(
                 }
                 is UpdateStatus.VerificationFailed -> {
                     Text(
-                        text = stringResource(R.string.update_verification_failed_title),
+                        text = stringResource(R.string.update_failed_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.error,
@@ -85,6 +92,32 @@ fun UpdateBannerCard(
                     Text(
                         text = updateStatus.reason,
                         style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                is UpdateStatus.InstallFailed -> {
+                    Text(
+                        text = stringResource(R.string.update_install_failed_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    Text(
+                        text = updateStatus.reason,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                is UpdateStatus.InstallPermissionRequired -> {
+                    Text(
+                        text = stringResource(R.string.update_permission_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        text = stringResource(R.string.update_permission_body),
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -133,6 +166,14 @@ fun UpdateBannerCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 when (updateStatus) {
+                    is UpdateStatus.InstallPermissionRequired -> {
+                        Button(
+                            onClick = onOpenInstallSettings,
+                            modifier = Modifier.testTag("update_open_settings_button"),
+                        ) {
+                            Text(text = stringResource(R.string.update_action_open_settings))
+                        }
+                    }
                     is UpdateStatus.ReadyToInstall -> {
                         Button(
                             onClick = { onInstall(context) },
@@ -142,16 +183,26 @@ fun UpdateBannerCard(
                         }
                     }
                     is UpdateStatus.Downloading -> {
-                        // In-progress, action disabled
+                        // In progress: no action that could start a second download.
                     }
                     is UpdateStatus.VerificationFailed -> {
-                        Button(
-                            onClick = {
-                                // Retry check or download
-                            },
-                            modifier = Modifier.testTag("update_retry_button"),
-                        ) {
-                            Text(text = stringResource(R.string.action_retry))
+                        if (info != null) {
+                            Button(
+                                onClick = { onRetry(info, context) },
+                                modifier = Modifier.testTag("update_retry_button"),
+                            ) {
+                                Text(text = stringResource(R.string.action_retry))
+                            }
+                        }
+                    }
+                    is UpdateStatus.InstallFailed -> {
+                        if (info != null) {
+                            Button(
+                                onClick = { onRetry(info, context) },
+                                modifier = Modifier.testTag("update_retry_button"),
+                            ) {
+                                Text(text = stringResource(R.string.action_retry))
+                            }
                         }
                     }
                     else -> {

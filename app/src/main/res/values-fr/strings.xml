@@ -314,4 +314,9 @@
     <string name="update_ready_title">Mise à jour prête (v%1$s)</string>
     <string name="update_ready_body">La mise à jour a été téléchargée et vérifiée avec succès. Touchez installer.</string>
     <string name="update_action_install">Installer</string>
+    <string name="update_failed_title">Échec de la mise à jour</string>
+    <string name="update_install_failed_title">Échec de l\'installation</string>
+    <string name="update_permission_title">Autoriser l\'installation</string>
+    <string name="update_permission_body">Android exige votre autorisation pour installer la mise à jour vérifiée de NOOR. Ouvrez les paramètres, autorisez NOOR à installer des applications, puis revenez ici.</string>
+    <string name="update_action_open_settings">Ouvrir les paramètres</string>
 </resources>

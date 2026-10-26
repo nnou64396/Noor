@@ -1,5 +1,6 @@
 package com.noor.islamic.presentation.settings
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,12 +41,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import com.noor.islamic.R
+import com.noor.islamic.domain.model.AppUpdateInfo
 import com.noor.islamic.domain.model.AsrSchool
 import com.noor.islamic.domain.model.CalculationMethod
 import com.noor.islamic.domain.model.CalculationMethodConfig
 import com.noor.islamic.domain.model.Language
 import com.noor.islamic.domain.model.LocationMode
 import com.noor.islamic.domain.model.ThemeMode
+import com.noor.islamic.domain.model.UpdateStatus
+import com.noor.islamic.domain.model.isActionableUpdate
 import com.noor.islamic.ui.components.NoorScreenContainer
 import com.noor.islamic.ui.components.NoorSectionTitle
 import com.noor.islamic.ui.components.NoorSettingRow
@@ -67,9 +71,13 @@ fun SettingsScreen(
     onAsrSchoolSelected: (AsrSchool) -> Unit = {},
     onLocationModeSelected: (LocationMode) -> Unit = {},
     onManualLocationSelected: (Double, Double) -> Unit = { _, _ -> },
-    updateStatus: com.noor.islamic.domain.model.UpdateStatus = com.noor.islamic.domain.model.UpdateStatus.UpToDate,
-    onCheckForUpdates: () -> Unit = {},
-    onDismissUpdate: (Long) -> Unit = {},
+    updateStatus: UpdateStatus,
+    onCheckForUpdates: () -> Unit,
+    onDismissUpdate: (Long) -> Unit,
+    onDownloadAndVerifyUpdate: (AppUpdateInfo) -> Unit,
+    onInstallUpdate: (Context) -> Unit,
+    onRetryUpdate: (AppUpdateInfo, Context) -> Unit,
+    onOpenInstallSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -159,23 +167,29 @@ fun SettingsScreen(
                 title = stringResource(R.string.update_section_title),
                 icon = Icons.Rounded.Info,
             )
-            if (updateStatus is com.noor.islamic.domain.model.UpdateStatus.UpdateAvailable || updateStatus is com.noor.islamic.domain.model.UpdateStatus.UpdateRequired) {
+            if (updateStatus.isActionableUpdate) {
                 com.noor.islamic.ui.components.UpdateBannerCard(
                     updateStatus = updateStatus,
                     onDismiss = onDismissUpdate,
+                    onDownloadAndVerify = onDownloadAndVerifyUpdate,
+                    onInstall = onInstallUpdate,
+                    onRetry = onRetryUpdate,
+                    onOpenInstallSettings = onOpenInstallSettings,
                 )
             }
             NoorSettingRow(
                 title = stringResource(R.string.update_check_action),
                 subtitle = when (updateStatus) {
-                    is com.noor.islamic.domain.model.UpdateStatus.UpToDate -> stringResource(R.string.update_status_up_to_date)
-                    is com.noor.islamic.domain.model.UpdateStatus.Disabled -> stringResource(R.string.update_status_disabled)
-                    is com.noor.islamic.domain.model.UpdateStatus.CheckUnavailable -> stringResource(R.string.update_status_unavailable)
-                    is com.noor.islamic.domain.model.UpdateStatus.UpdateAvailable -> stringResource(R.string.update_available_title, updateStatus.info.latestVersion)
-                    is com.noor.islamic.domain.model.UpdateStatus.UpdateRequired -> stringResource(R.string.update_required_title, updateStatus.info.latestVersion)
-                    is com.noor.islamic.domain.model.UpdateStatus.Downloading -> stringResource(R.string.update_downloading_fmt, (updateStatus.progress * 100).toInt())
-                    is com.noor.islamic.domain.model.UpdateStatus.VerificationFailed -> stringResource(R.string.update_verification_failed_title)
-                    is com.noor.islamic.domain.model.UpdateStatus.ReadyToInstall -> stringResource(R.string.update_ready_title, updateStatus.info.latestVersion)
+                    is UpdateStatus.UpToDate -> stringResource(R.string.update_status_up_to_date)
+                    is UpdateStatus.Disabled -> stringResource(R.string.update_status_disabled)
+                    is UpdateStatus.CheckUnavailable -> stringResource(R.string.update_status_unavailable)
+                    is UpdateStatus.UpdateAvailable -> stringResource(R.string.update_available_title, updateStatus.info.latestVersion)
+                    is UpdateStatus.UpdateRequired -> stringResource(R.string.update_required_title, updateStatus.info.latestVersion)
+                    is UpdateStatus.Downloading -> stringResource(R.string.update_downloading_fmt, (updateStatus.progress * 100).toInt())
+                    is UpdateStatus.VerificationFailed -> stringResource(R.string.update_failed_title)
+                    is UpdateStatus.ReadyToInstall -> stringResource(R.string.update_ready_title, updateStatus.info.latestVersion)
+                    is UpdateStatus.InstallPermissionRequired -> stringResource(R.string.update_permission_title)
+                    is UpdateStatus.InstallFailed -> stringResource(R.string.update_install_failed_title)
                 },
                 icon = Icons.Rounded.Info,
                 onClick = onCheckForUpdates,

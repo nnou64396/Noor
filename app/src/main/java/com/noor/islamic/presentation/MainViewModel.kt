@@ -1,8 +1,10 @@
 package com.noor.islamic.presentation
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.noor.islamic.domain.model.AppSettings
+import com.noor.islamic.domain.model.AppUpdateInfo
 import com.noor.islamic.domain.model.AsrSchool
 import com.noor.islamic.domain.model.CalculationMethod
 import com.noor.islamic.domain.model.Language
@@ -62,17 +64,31 @@ class MainViewModel(
         }
     }
 
-    fun downloadAndVerifyUpdate(info: com.noor.islamic.domain.model.AppUpdateInfo) {
+    fun downloadAndVerifyUpdate(info: AppUpdateInfo) {
         val updateRepo = updateRepository ?: return
         viewModelScope.launch {
             updateRepo.downloadAndVerifyUpdate(info)
         }
     }
 
-    fun installUpdate(context: android.content.Context) {
+    fun retryUpdate(info: AppUpdateInfo, context: Context) {
+        val updateRepo = updateRepository ?: return
+        viewModelScope.launch {
+            updateRepo.retryUpdate(info, context)
+        }
+    }
+
+    fun installUpdate(context: Context) {
         val updateRepo = updateRepository ?: return
         updateRepo.installUpdate(context)
     }
+
+    /**
+     * Called after returning from the unknown-app-sources settings screen.
+     * When permission was granted, installation resumes automatically.
+     */
+    fun onInstallPermissionResult(context: Context): Boolean =
+        updateRepository?.onInstallPermissionResult(context) ?: false
 
     /** [SettingsUiState.Ready] as soon as the store answers; [SettingsUiState.Loading] until then. */
     val settingsState: StateFlow<SettingsUiState> = observeSettings()

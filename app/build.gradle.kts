@@ -62,8 +62,8 @@ android {
         applicationId = "com.noor.islamic"
         minSdk = 26
         targetSdk = 37
-        versionCode = 5
-        versionName = "1.1.3"
+        versionCode = 6
+        versionName = "1.1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -202,6 +202,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
     testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.compose.ui.test.junit4)
 
     // Instrumented tests
     androidTestImplementation(libs.androidx.test.junit)

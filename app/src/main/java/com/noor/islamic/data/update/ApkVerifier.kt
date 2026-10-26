@@ -7,7 +7,20 @@ import java.io.File
 import java.security.MessageDigest
 import java.util.Locale
 
-object ApkVerifier {
+/**
+ * Testable boundary around APK integrity verification.
+ */
+fun interface ApkVerificationService {
+    fun verifyApk(
+        context: Context,
+        apkFile: File,
+        expectedVersionCode: Long,
+        expectedSha256: String,
+        actualSha256: String,
+    ): ApkVerifier.VerificationResult
+}
+
+object ApkVerifier : ApkVerificationService {
     private const val EXPECTED_PACKAGE_NAME = "com.noor.islamic"
     private const val EXPECTED_CERT_SHA256 = "6c4e68e4f8a1bc982a09611886f0eda25893642e24f14fa77642ea1a6b3ef83d"
 
@@ -18,7 +31,7 @@ object ApkVerifier {
         val versionName: String? = null,
     )
 
-    fun verifyApk(
+    override fun verifyApk(
         context: Context,
         apkFile: File,
         expectedVersionCode: Long,

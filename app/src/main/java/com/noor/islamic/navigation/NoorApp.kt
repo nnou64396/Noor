@@ -1,5 +1,6 @@
 package com.noor.islamic.navigation
 
+import android.content.Context
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -10,11 +11,13 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.noor.islamic.domain.model.AppSettings
+import com.noor.islamic.domain.model.AppUpdateInfo
 import com.noor.islamic.domain.model.AsrSchool
 import com.noor.islamic.domain.model.CalculationMethod
 import com.noor.islamic.domain.model.Language
 import com.noor.islamic.domain.model.LocationMode
 import com.noor.islamic.domain.model.ThemeMode
+import com.noor.islamic.domain.model.UpdateStatus
 import com.noor.islamic.presentation.SettingsUiState
 import com.noor.islamic.presentation.prayer.PrayerViewModel
 import com.noor.islamic.ui.components.NoorBottomBar
@@ -31,9 +34,13 @@ import com.noor.islamic.ui.components.NoorBottomBar
 fun NoorApp(
     settingsState: SettingsUiState,
     prayerViewModel: PrayerViewModel,
-    updateStatus: com.noor.islamic.domain.model.UpdateStatus = com.noor.islamic.domain.model.UpdateStatus.UpToDate,
-    onCheckForUpdates: () -> Unit = {},
-    onDismissUpdate: (Long) -> Unit = {},
+    updateStatus: UpdateStatus,
+    onCheckForUpdates: () -> Unit,
+    onDismissUpdate: (Long) -> Unit,
+    onDownloadAndVerifyUpdate: (AppUpdateInfo) -> Unit,
+    onInstallUpdate: (Context) -> Unit,
+    onRetryUpdate: (AppUpdateInfo, Context) -> Unit,
+    onOpenInstallSettings: () -> Unit,
     onLanguageSelected: (Language) -> Unit,
     onThemeSelected: (ThemeMode) -> Unit,
     onCalculationMethodSelected: (CalculationMethod) -> Unit = {},
@@ -83,6 +90,10 @@ fun NoorApp(
             updateStatus = updateStatus,
             onCheckForUpdates = onCheckForUpdates,
             onDismissUpdate = onDismissUpdate,
+            onDownloadAndVerifyUpdate = onDownloadAndVerifyUpdate,
+            onInstallUpdate = onInstallUpdate,
+            onRetryUpdate = onRetryUpdate,
+            onOpenInstallSettings = onOpenInstallSettings,
             onLanguageSelected = onLanguageSelected,
             onThemeSelected = onThemeSelected,
             onCalculationMethodSelected = onCalculationMethodSelected,
