@@ -1,4 +1,4 @@
-name: Release NOOR Android
+﻿name: Release NOOR Android
 
 on:
   push:
@@ -54,7 +54,7 @@ jobs:
         id: metadata
         env:
           EXPECTED_FINGERPRINT: "6c4e68e4f8a1bc982a09611886f0eda25893642e24f14fa77642ea1a6b3ef83d"
-          EXPECTED_PACKAGE: "com.noor.islamic"
+          EXPECTED_PACKAGE: "dz.techvision.noor"
         run: |
           APK_PATH="app/build/outputs/apk/release/app-release.apk"
           if [ ! -f "$APK_PATH" ]; then
@@ -237,7 +237,7 @@ jobs:
             ### Version Metadata
             * **Version Name**: `${{ steps.metadata.outputs.versionName }}`
             * **Version Code**: `${{ steps.metadata.outputs.versionCode }}`
-            * **Application ID**: `com.noor.islamic`
+            * **Application ID**: `dz.techvision.noor`
 
             ### SHA-256 Checksum
             \`\`\`
@@ -245,3 +245,4 @@ jobs:
             \`\`\`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

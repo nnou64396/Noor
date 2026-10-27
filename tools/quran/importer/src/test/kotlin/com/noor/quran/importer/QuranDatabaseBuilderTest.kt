@@ -1,4 +1,4 @@
-package com.noor.quran.importer
+﻿package com.noor.quran.importer
 
 import com.noor.quran.common.ArabicSearchNormalizer
 import com.noor.quran.common.QuranMetadata
@@ -42,7 +42,7 @@ class QuranDatabaseBuilderTest {
     }
 
     private fun schemaFile(): File =
-        File("../../../app/schemas/com.noor.islamic.data.local.db.quran.QuranReaderDatabase/1.json")
+        File("../../../app/schemas/dz.techvision.noor.data.local.db.quran.QuranReaderDatabase/1.json")
             .also { check(it.isFile) { "room schema json not found: $it" } }
 
     private fun parse(): Parsed = Parsed(

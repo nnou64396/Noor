@@ -1,0 +1,124 @@
+﻿package dz.techvision.noor.data.local.location
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.location.Geocoder
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.Tasks
+import dz.techvision.noor.domain.model.GeographicPoint
+import dz.techvision.noor.domain.repository.LocationRepository
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.Locale
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+
+/**
+ * Play-Services Fused Location Provider implementation of [LocationRepository].
+ *
+ * Privacy: uses a single current fix (falling back to the last known one),
+ * never tracks the user, never stores coordinates, and only ever sends them
+ * to the prayer-times API request in the repository layer.
+ */
+class AndroidLocationRepository(
+    private val context: Context,
+) : LocationRepository {
+
+    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+    override suspend fun obtainLocation(): Result<GeographicPoint> = withContext(Dispatchers.IO) {
+        val point: GeographicPoint = try {
+            currentPoint()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            val fallback = lastKnownPointOrNull()
+            if (fallback != null) {
+                fallback
+            } else {
+                return@withContext Result.failure(
+                    IllegalStateException("No current or last-known location fix available"),
+                )
+            }
+        }
+        Result.success(point)
+    }
+
+    /**
+     * Lint cannot see that the location permission is already enforced: both
+     * callers (`PrayerViewModel`, `QiblaViewModel`) reach this repository only
+     * after `LocationPermissionChecker.isGranted()` returns true, and the
+     * permission is granted by the user through the UI permission flow.
+     *
+     * A revoked permission therefore surfaces as a `SecurityException` from the
+     * Fused Location Provider, which both helpers already absorb: `currentPoint`
+     * propagates it to the `catch (_: Exception)` in [obtainLocation] to fall
+     * back to the last known fix, and [lastKnownPointOrNull] returns null. The
+     * repository is defensive by design, so the check is suppressed rather than
+     * duplicated here.
+     */
+    @SuppressLint("MissingPermission")
+    private fun currentPoint(): GeographicPoint {
+        val cancellation = CancellationTokenSource()
+        val location = Tasks.await(
+            fusedLocationClient.getCurrentLocation(
+                Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                cancellation.token,
+            ),
+            CURRENT_FIX_TIMEOUT_SECONDS,
+            TimeUnit.SECONDS,
+        )
+        if (location != null) return location.toPoint()
+        throw TimeoutException("No current fix")
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun lastKnownPointOrNull(): GeographicPoint? =
+        try {
+            Tasks.await(
+                fusedLocationClient.lastLocation,
+                LAST_KNOWN_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS,
+            )?.toPoint()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        }
+
+    /**
+     * Best-effort place name for an already-obtained fix. The geocoder is
+     * advisory: a miss simply leaves the label unset and never fails the load.
+     *
+     * [CancellationException] is rethrown first, matching [obtainLocation] and
+     * [lastKnownPointOrNull]: `runCatching` would otherwise absorb coroutine
+     * cancellation and report it as a geocoder that simply had no answer.
+     */
+    override suspend fun cityLabel(point: GeographicPoint): String? = withContext(Dispatchers.IO) {
+        try {
+            Geocoder(context, Locale.getDefault())
+                .getFromLocation(point.latitude, point.longitude, 1)
+                ?.firstOrNull()
+                ?.let { address ->
+                    address.locality
+                        ?: address.subAdminArea
+                        ?: address.adminArea
+                }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun android.location.Location.toPoint(): GeographicPoint =
+        GeographicPoint(latitude = latitude, longitude = longitude)
+
+    private companion object {
+        const val CURRENT_FIX_TIMEOUT_SECONDS = 10L
+        const val LAST_KNOWN_TIMEOUT_SECONDS = 3L
+    }
+}

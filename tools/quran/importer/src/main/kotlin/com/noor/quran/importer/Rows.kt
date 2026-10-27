@@ -1,4 +1,4 @@
-package com.noor.quran.importer
+﻿package com.noor.quran.importer
 
 import com.noor.quran.common.ArabicSearchNormalizer
 import com.noor.quran.common.AyahAttributes
@@ -12,7 +12,7 @@ data class RowSets(
 
 /**
  * Builds the exact row maps the app's Room entities expect. Column keys are the
- * snake_case names pinned by `@ColumnInfo` in [com.noor.islamic.data.local.db.quran]'s
+ * snake_case names pinned by `@ColumnInfo` in [dz.techvision.noor.data.local.db.quran]'s
  * entities; [Main.assertColumnContract] fails the build if they ever drift apart.
  */
 internal fun buildSurahRows(

@@ -1,4 +1,4 @@
-# Release & Automatic Update Guide
+﻿# Release & Automatic Update Guide
 
 ## Building
 
@@ -40,7 +40,7 @@ NOOR includes a secure, store-independent automatic update system that integrate
 3. **Secure Download**: The APK is downloaded over HTTPS into app-private cache with progress tracking and size limits.
 4. **Integrity & Signature Verification**:
    - Incremental SHA-256 calculation matches the published release checksum.
-   - Package name is verified as `com.noor.islamic`.
+   - Package name is verified as `dz.techvision.noor`.
    - Version code is verified as newer than the installed app.
    - Signing certificate is verified against the trusted production fingerprint (`6c4e68e4f8a1bc982a09611886f0eda25893642e24f14fa77642ea1a6b3ef83d`).
 5. **Installation**: Secure `FileProvider` shares the verified APK with Android's package installer (`ACTION_VIEW`).
@@ -52,3 +52,4 @@ NOOR includes a secure, store-independent automatic update system that integrate
 2. Commit changes and push to `main`.
 3. Create and push a version tag starting with `v` (e.g., `git tag v1.1.0 && git push origin v1.1.0`).
 4. The GitHub Actions workflow (`.github/workflows/release.yml`) automatically builds the signed APK/AAB, computes the SHA-256 checksum, generates `noor-update.json`, and attaches all assets to the official GitHub Release.
+

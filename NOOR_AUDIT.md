@@ -1,4 +1,4 @@
-# Noor (نور) — Technical Audit
+﻿# Noor (نور) — Technical Audit
 
 ## Executive summary
 
@@ -25,7 +25,7 @@ The codebase is more mature than a placeholder and includes production-oriented 
 - `build.gradle.kts` sets the app plugin and Kotlin Compose/KSP plugins.
 - `settings.gradle.kts` includes the app module and the custom `tools:quran` modules.
 - `app/build.gradle.kts` declares:
-  - `namespace = "com.noor.islamic"`
+  - `namespace = "dz.techvision.noor"`
   - `compileSdk = 37`
   - `targetSdk = 37`
   - `minSdk = 26`
@@ -275,3 +275,4 @@ This is a better-than-average privacy posture for a location-aware app.
 ## Final assessment
 
 The repository is not a mock project or empty shell. It is a real Kotlin Android app with a credible Compose architecture, local offline data, remote prayer integration, audio playback, and substantial Islamic utility features. The strongest areas are Quran access and prayer-time handling. The largest product gap is a lack of prayer-notification/reminder functionality and user-configurable regional calculation settings. The major verification limitation is environmental: the project cannot be compiled in this session because Java is absent.
+

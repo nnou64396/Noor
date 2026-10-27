@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "versionName": "1.1.4",
+  "versionCode": 6,
+  "minimumSupportedVersionCode": 1,
+  "mandatory": false,
+  "apkAsset": "app-release.apk",
+  "sha256": "0451bce4199a6702821c0033fc7d6631a807a5f4794eccc6550ea3cb849642a7",
+  "releaseNotes": {
+    "en": "Official release of NOOR v1.1.4.",
+    "ar": "الإصدار الرسمي لتطبيق نور v1.1.4.",
+    "fr": "Version officielle de NOOR v1.1.4."
+  },
+  "publishedAt": "2026-10-26T12:39:46Z"
+}

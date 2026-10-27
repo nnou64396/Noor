@@ -34,7 +34,7 @@ val generateQuranDb = tasks.register<JavaExec>("generateQuranDb") {
 
     val sourcesDir = rootProject.layout.projectDirectory.dir("tools/quran/importer/_sources")
     val schemaFile = rootProject.layout.projectDirectory
-        .dir("app/schemas/com.noor.islamic.data.local.db.quran.QuranReaderDatabase/1.json")
+        .dir("app/schemas/dz.techvision.noor.data.local.db.quran.QuranReaderDatabase/1.json")
     val assetsDir = rootProject.layout.projectDirectory.dir("app/src/main/assets/quran")
 
     inputs.dir(sourcesDir)
