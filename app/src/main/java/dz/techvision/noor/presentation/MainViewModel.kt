@@ -129,6 +129,18 @@ class MainViewModel(
         viewModelScope.launch { repository.clearPrayerManualLocation() }
     }
 
+    fun setNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch { repository.setNotificationsEnabled(enabled) }
+    }
+
+    fun setPrayerRemindersEnabled(enabled: Boolean) {
+        viewModelScope.launch { repository.setPrayerRemindersEnabled(enabled) }
+    }
+
+    fun setUpdateNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch { repository.setUpdateNotificationsEnabled(enabled) }
+    }
+
     fun completeOnboarding() {
         viewModelScope.launch { repository.setOnboardingComplete(true) }
     }

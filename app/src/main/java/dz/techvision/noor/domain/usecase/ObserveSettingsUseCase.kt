@@ -23,6 +23,9 @@ private data class SettingsState(
     val locationMode: LocationMode = LocationMode.DEFAULT,
     val manualLatitude: Double? = null,
     val manualLongitude: Double? = null,
+    val notificationsEnabled: Boolean = true,
+    val prayerRemindersEnabled: Boolean = true,
+    val updateNotificationsEnabled: Boolean = true,
 )
 
 class ObserveSettingsUseCase(
@@ -55,6 +58,15 @@ class ObserveSettingsUseCase(
             .combine(repository.prayerManualLongitude) { state, manualLongitude ->
                 state.copy(manualLongitude = manualLongitude)
             }
+            .combine(repository.notificationsEnabled) { state, notificationsEnabled ->
+                state.copy(notificationsEnabled = notificationsEnabled)
+            }
+            .combine(repository.prayerRemindersEnabled) { state, prayerRemindersEnabled ->
+                state.copy(prayerRemindersEnabled = prayerRemindersEnabled)
+            }
+            .combine(repository.updateNotificationsEnabled) { state, updateNotificationsEnabled ->
+                state.copy(updateNotificationsEnabled = updateNotificationsEnabled)
+            }
             .map { state ->
                 AppSettings(
                     language = state.language,
@@ -65,6 +77,9 @@ class ObserveSettingsUseCase(
                     locationMode = state.locationMode,
                     manualLatitude = state.manualLatitude,
                     manualLongitude = state.manualLongitude,
+                    notificationsEnabled = state.notificationsEnabled,
+                    prayerRemindersEnabled = state.prayerRemindersEnabled,
+                    updateNotificationsEnabled = state.updateNotificationsEnabled,
                 )
             }
 }

@@ -17,6 +17,8 @@ import dz.techvision.noor.domain.repository.LocationRepository
 import dz.techvision.noor.domain.repository.PrayerRepository
 import dz.techvision.noor.domain.repository.SettingsRepository
 import dz.techvision.noor.presentation.common.LocationPermissionUiState
+import dz.techvision.noor.services.PrayerAlarmScheduler
+import dz.techvision.noor.services.ServiceLocator
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -149,6 +152,34 @@ class PrayerViewModel(
                         }
                         onLocationSettingsChanged(mode, candidate)
                     }
+            }
+            viewModelScope.launch {
+                repo.notificationsEnabled.collect { enabled ->
+                    val ctx = ServiceLocator.contextOrNull ?: return@collect
+                    val schedule = _uiState.value.schedule
+                    if (schedule is PrayerScheduleUi.Ready) {
+                        val reminders = repo.prayerRemindersEnabled.first()
+                        if (enabled && reminders) {
+                            PrayerAlarmScheduler.scheduleAlarms(ctx, schedule.today, true, true)
+                        } else {
+                            PrayerAlarmScheduler.cancelAlarms(ctx, schedule.today)
+                        }
+                    }
+                }
+            }
+            viewModelScope.launch {
+                repo.prayerRemindersEnabled.collect { reminders ->
+                    val ctx = ServiceLocator.contextOrNull ?: return@collect
+                    val schedule = _uiState.value.schedule
+                    if (schedule is PrayerScheduleUi.Ready) {
+                        val enabled = repo.notificationsEnabled.first()
+                        if (enabled && reminders) {
+                            PrayerAlarmScheduler.scheduleAlarms(ctx, schedule.today, true, true)
+                        } else {
+                            PrayerAlarmScheduler.cancelAlarms(ctx, schedule.today)
+                        }
+                    }
+                }
             }
         }
         if (_uiState.value.permission == LocationPermissionUiState.GRANTED) {
@@ -324,6 +355,7 @@ class PrayerViewModel(
             _uiState.update {
                 it.copy(schedule = PrayerScheduleUi.Ready(cachedToday, cachedTomorrow, fromCache = true))
             }
+            scheduleAlarmsIfEnabled(cachedToday)
             return
         }
 
@@ -341,6 +373,7 @@ class PrayerViewModel(
             _uiState.update {
                 it.copy(schedule = PrayerScheduleUi.Ready(freshToday, freshTomorrow, fromCache = false))
             }
+            scheduleAlarmsIfEnabled(freshToday)
             Result.success(Unit)
         } catch (e: CancellationException) {
             throw e
@@ -352,9 +385,25 @@ class PrayerViewModel(
                 _uiState.update {
                     it.copy(schedule = PrayerScheduleUi.Ready(cachedToday, cachedTomorrow, fromCache = true))
                 }
+                scheduleAlarmsIfEnabled(cachedToday)
             } else {
                 _uiState.update { it.copy(schedule = PrayerScheduleUi.Failed(failureKind(failure))) }
             }
+        }
+    }
+
+    private fun scheduleAlarmsIfEnabled(schedule: DailyPrayerSchedule) {
+        viewModelScope.launch {
+            val ctx = ServiceLocator.contextOrNull ?: return@launch
+            val repo = settingsRepository ?: return@launch
+            val notificationsEnabled = repo.notificationsEnabled.first()
+            val prayerRemindersEnabled = repo.prayerRemindersEnabled.first()
+            PrayerAlarmScheduler.scheduleAlarms(
+                context = ctx,
+                schedule = schedule,
+                notificationsEnabled = notificationsEnabled,
+                prayerRemindersEnabled = prayerRemindersEnabled,
+            )
         }
     }
 

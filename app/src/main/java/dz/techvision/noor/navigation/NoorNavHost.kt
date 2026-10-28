@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
@@ -40,21 +41,15 @@ import dz.techvision.noor.presentation.quran.QuranBookmarksScreen
 import dz.techvision.noor.presentation.quran.QuranReaderScreen
 import dz.techvision.noor.presentation.quran.QuranScreen
 import dz.techvision.noor.presentation.quran.QuranSearchScreen
+import dz.techvision.noor.presentation.settings.AboutNoorScreen
+import dz.techvision.noor.presentation.settings.NotificationSettingsScreen
+import dz.techvision.noor.presentation.settings.PermissionsDetailsScreen
+import dz.techvision.noor.presentation.settings.PrivacyPolicyScreen
 import dz.techvision.noor.presentation.settings.SettingsScreen
 import dz.techvision.noor.presentation.tasbih.TasbihScreen
 import dz.techvision.noor.presentation.tasbih.TasbihViewModel
 import dz.techvision.noor.services.ServiceLocator
 
-/**
- * Defines the navigation graph of the app.
- *
- * The [NavGraphBuilder] builder is remembered for as long as [startDestination]
- * is unchanged. Navigation Compose keys the graph on that builder's identity,
- * so a stable builder avoids rebuilding the graph on every recomposition
- * (theme/language changes, content padding changes, etc.). Captured inputs are
- * read through [rememberUpdatedState] so the remembered builder always observes
- * the latest values without being recreated.
- */
 @Composable
 fun NoorNavHost(
     navController: NavHostController,
@@ -75,6 +70,9 @@ fun NoorNavHost(
     onAsrSchoolSelected: (AsrSchool) -> Unit = {},
     onLocationModeSelected: (LocationMode) -> Unit = {},
     onManualLocationSelected: (Double, Double) -> Unit = { _, _ -> },
+    onNotificationsEnabledChanged: (Boolean) -> Unit = {},
+    onPrayerRemindersChanged: (Boolean) -> Unit = {},
+    onUpdateNotificationsChanged: (Boolean) -> Unit = {},
     onOpenDestination: (String) -> Unit = {},
     onOnboardingComplete: () -> Unit,
 ) {
@@ -94,8 +92,16 @@ fun NoorNavHost(
     val currentOnAsrSchoolSelected by rememberUpdatedState(onAsrSchoolSelected)
     val currentOnLocationModeSelected by rememberUpdatedState(onLocationModeSelected)
     val currentOnManualLocationSelected by rememberUpdatedState(onManualLocationSelected)
+    val currentOnNotificationsEnabledChanged by rememberUpdatedState(onNotificationsEnabledChanged)
+    val currentOnPrayerRemindersChanged by rememberUpdatedState(onPrayerRemindersChanged)
+    val currentOnUpdateNotificationsChanged by rememberUpdatedState(onUpdateNotificationsChanged)
     val currentOnOpenDestination by rememberUpdatedState(onOpenDestination)
     val currentOnOnboardingComplete by rememberUpdatedState(onOnboardingComplete)
+
+    val context = LocalContext.current
+    val versionName = remember(context) {
+        runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull()
+    }
 
     val builder: NavGraphBuilder.() -> Unit = remember(navController, startDestination) {
         {
@@ -281,6 +287,41 @@ fun NoorNavHost(
                     onInstallUpdate = currentOnInstallUpdate,
                     onRetryUpdate = currentOnRetryUpdate,
                     onOpenInstallSettings = currentOnOpenInstallSettings,
+                    onOpenAbout = { navController.navigate(NoorDestinations.SETTINGS_ABOUT) },
+                    onOpenPrivacy = { navController.navigate(NoorDestinations.SETTINGS_PRIVACY) },
+                    onOpenPermissions = { navController.navigate(NoorDestinations.SETTINGS_PERMISSIONS) },
+                    onOpenNotifications = { navController.navigate(NoorDestinations.SETTINGS_NOTIFICATIONS) },
+                    modifier = Modifier.fillMaxSize().padding(currentContentPadding),
+                )
+            }
+            composable(NoorDestinations.SETTINGS_ABOUT) {
+                AboutNoorScreen(
+                    versionName = versionName,
+                    onBack = { navController.popBackStack() },
+                    modifier = Modifier.fillMaxSize().padding(currentContentPadding),
+                )
+            }
+            composable(NoorDestinations.SETTINGS_PRIVACY) {
+                PrivacyPolicyScreen(
+                    onBack = { navController.popBackStack() },
+                    modifier = Modifier.fillMaxSize().padding(currentContentPadding),
+                )
+            }
+            composable(NoorDestinations.SETTINGS_PERMISSIONS) {
+                PermissionsDetailsScreen(
+                    onBack = { navController.popBackStack() },
+                    modifier = Modifier.fillMaxSize().padding(currentContentPadding),
+                )
+            }
+            composable(NoorDestinations.SETTINGS_NOTIFICATIONS) {
+                NotificationSettingsScreen(
+                    notificationsEnabled = currentSettings.notificationsEnabled,
+                    prayerRemindersEnabled = currentSettings.prayerRemindersEnabled,
+                    updateNotificationsEnabled = currentSettings.updateNotificationsEnabled,
+                    onNotificationsEnabledChanged = currentOnNotificationsEnabledChanged,
+                    onPrayerRemindersChanged = currentOnPrayerRemindersChanged,
+                    onUpdateNotificationsChanged = currentOnUpdateNotificationsChanged,
+                    onBack = { navController.popBackStack() },
                     modifier = Modifier.fillMaxSize().padding(currentContentPadding),
                 )
             }

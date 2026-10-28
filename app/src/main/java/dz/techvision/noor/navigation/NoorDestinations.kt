@@ -29,6 +29,10 @@ object NoorDestinations {
     const val QIBLA = "qibla"
     const val TASBIH = "tasbih"
     const val SETTINGS = "settings"
+    const val SETTINGS_ABOUT = "settings/about"
+    const val SETTINGS_PRIVACY = "settings/privacy"
+    const val SETTINGS_PERMISSIONS = "settings/permissions"
+    const val SETTINGS_NOTIFICATIONS = "settings/notifications"
 
     fun quranReaderRoute(surahNumber: Int): String = "quran/surah/$surahNumber"
 

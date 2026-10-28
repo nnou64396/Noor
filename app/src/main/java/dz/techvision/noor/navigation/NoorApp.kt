@@ -22,14 +22,6 @@ import dz.techvision.noor.presentation.SettingsUiState
 import dz.techvision.noor.presentation.prayer.PrayerViewModel
 import dz.techvision.noor.ui.components.NoorBottomBar
 
-/**
- * Root composable: holds the [Scaffold] and wires the app destinations
- * together with the branded bottom navigation bar.
- *
- * The whole subtree is gated on [SettingsUiState.Ready]: until persisted
- * settings are available the start destination cannot be decided reliably, so
- * rendering the graph early would flash Onboarding to returning users.
- */
 @Composable
 fun NoorApp(
     settingsState: SettingsUiState,
@@ -47,6 +39,9 @@ fun NoorApp(
     onAsrSchoolSelected: (AsrSchool) -> Unit = {},
     onLocationModeSelected: (LocationMode) -> Unit = {},
     onManualLocationSelected: (Double, Double) -> Unit = { _, _ -> },
+    onNotificationsEnabledChanged: (Boolean) -> Unit = {},
+    onPrayerRemindersChanged: (Boolean) -> Unit = {},
+    onUpdateNotificationsChanged: (Boolean) -> Unit = {},
     onOnboardingComplete: () -> Unit,
 ) {
     val settings: AppSettings = when (val state = settingsState) {
@@ -100,6 +95,9 @@ fun NoorApp(
             onAsrSchoolSelected = onAsrSchoolSelected,
             onLocationModeSelected = onLocationModeSelected,
             onManualLocationSelected = onManualLocationSelected,
+            onNotificationsEnabledChanged = onNotificationsEnabledChanged,
+            onPrayerRemindersChanged = onPrayerRemindersChanged,
+            onUpdateNotificationsChanged = onUpdateNotificationsChanged,
             onOpenDestination = { route ->
                 navController.navigate(route) {
                     launchSingleTop = true

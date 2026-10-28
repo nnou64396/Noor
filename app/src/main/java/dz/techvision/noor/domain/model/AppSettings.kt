@@ -12,4 +12,7 @@ data class AppSettings(
     val locationMode: LocationMode = LocationMode.DEFAULT,
     val manualLatitude: Double? = null,
     val manualLongitude: Double? = null,
+    val notificationsEnabled: Boolean = true,
+    val prayerRemindersEnabled: Boolean = true,
+    val updateNotificationsEnabled: Boolean = true,
 )

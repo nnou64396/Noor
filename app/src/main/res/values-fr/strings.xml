@@ -319,4 +319,39 @@
     <string name="update_permission_title">Autoriser l\'installation</string>
     <string name="update_permission_body">Android exige votre autorisation pour installer la mise à jour vérifiée de NOOR. Ouvrez les paramètres, autorisez NOOR à installer des applications, puis revenez ici.</string>
     <string name="update_action_open_settings">Ouvrir les paramètres</string>
+
+    <!-- Major Upgrade Settings & Privacy Strings -->
+    <string name="settings_about_menu_title">À propos de Noor</string>
+    <string name="settings_privacy_menu_title">Politique de confidentialité</string>
+    <string name="settings_permissions_menu_title">Détails des autorisations</string>
+    <string name="settings_notifications_menu_title">Paramètres des notifications</string>
+    <string name="developer_credit">Développé par Tech Vision DZ</string>
+
+    <string name="privacy_policy_header">Votre vie privée compte</string>
+    <string name="privacy_policy_body">Noor s\'engage à protéger votre vie privée. Toutes vos données personnelles et préférences (lieux de prière, sourates enregistrées et signets de lecture) sont stockées en toute sécurité et localement sur votre appareil à l\'aide de bases de données sécurisées (Room et DataStore). Noor ne collecte aucune donnée personnelle et n\'envoie aucune information à des serveurs externes.</string>
+    <string name="privacy_policy_permissions_heading">Autorisations et Services</string>
+    <string name="privacy_policy_permissions_body">L\'application demande des autorisations de localisation pour calculer avec précision les heures de prière et la direction de la Qibla, ainsi que des autorisations de notification pour la lecture multimédia selon vos préférences.</string>
+
+    <string name="permissions_screen_title">Autorisations utilisées</string>
+    <string name="permission_status_granted">Accordée</string>
+    <string name="permission_status_denied">Refusée / Requise</string>
+    <string name="permission_action_request">Accorder l\'autorisation</string>
+    <string name="permission_action_settings">Ouvrir les paramètres système</string>
+
+    <string name="perm_location_title">Localisation (GPS)</string>
+    <string name="perm_location_desc">Utilisé pour calculer avec précision les heures de prière et déterminer la direction de la Qibla.</string>
+
+    <string name="perm_notifications_title">Notifications</string>
+    <string name="perm_notifications_desc">Utilisé pour afficher la notification de lecture multimédia et les rappels importants.</string>
+
+    <string name="perm_storage_install_title">Installation de paquets</string>
+    <string name="perm_storage_install_desc">Nécessaire pour installer en toute sécurité les mises à jour vérifiées de l\'application.</string>
+
+    <string name="notification_settings_title">Notifications de l\'application</string>
+    <string name="notification_master_switch">Activer les notifications</string>
+    <string name="notification_prayer_reminders">Rappels de prière et horaires</string>
+    <string name="notification_updates_toggle">Mises à jour de l\'application</string>
+    <string name="notification_system_status_allowed">Les notifications sont activées dans le système Android</string>
+    <string name="notification_system_status_blocked">Les notifications sont bloquées dans les paramètres système</string>
+    <string name="notification_open_system_settings">Ouvrir les paramètres de notification du système</string>
 </resources>

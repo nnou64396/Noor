@@ -125,6 +125,33 @@ class SettingsDataStore internal constructor(
         }
     }
 
+    override val notificationsEnabled: Flow<Boolean> =
+        dataStore.data.map { prefs ->
+            prefs[Keys.NOTIFICATIONS_ENABLED] ?: true
+        }
+
+    override val prayerRemindersEnabled: Flow<Boolean> =
+        dataStore.data.map { prefs ->
+            prefs[Keys.PRAYER_REMINDERS_ENABLED] ?: true
+        }
+
+    override val updateNotificationsEnabled: Flow<Boolean> =
+        dataStore.data.map { prefs ->
+            prefs[Keys.UPDATE_NOTIFICATIONS_ENABLED] ?: true
+        }
+
+    override suspend fun setNotificationsEnabled(enabled: Boolean) {
+        dataStore.edit { prefs -> prefs[Keys.NOTIFICATIONS_ENABLED] = enabled }
+    }
+
+    override suspend fun setPrayerRemindersEnabled(enabled: Boolean) {
+        dataStore.edit { prefs -> prefs[Keys.PRAYER_REMINDERS_ENABLED] = enabled }
+    }
+
+    override suspend fun setUpdateNotificationsEnabled(enabled: Boolean) {
+        dataStore.edit { prefs -> prefs[Keys.UPDATE_NOTIFICATIONS_ENABLED] = enabled }
+    }
+
     private object Keys {
         val LANGUAGE = stringPreferencesKey("language")
         val THEME_MODE = stringPreferencesKey("theme_mode")
@@ -135,6 +162,9 @@ class SettingsDataStore internal constructor(
         val PRAYER_MANUAL_LATITUDE = doublePreferencesKey("prayer_manual_latitude")
         val PRAYER_MANUAL_LONGITUDE = doublePreferencesKey("prayer_manual_longitude")
         val DISMISSED_UPDATE_VERSION_CODE = longPreferencesKey("dismissed_update_version_code")
+        val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
+        val PRAYER_REMINDERS_ENABLED = booleanPreferencesKey("prayer_reminders_enabled")
+        val UPDATE_NOTIFICATIONS_ENABLED = booleanPreferencesKey("update_notifications_enabled")
     }
 }
 

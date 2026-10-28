@@ -49,10 +49,16 @@ import okhttp3.OkHttpClient
  */
 object ServiceLocator {
 
-    private lateinit var appContext: Context
+    private var _appContext: Context? = null
+
+    val appContext: Context
+        get() = _appContext ?: throw IllegalStateException("ServiceLocator not initialized")
+
+    val contextOrNull: Context?
+        get() = _appContext
 
     fun init(context: Context) {
-        appContext = context.applicationContext
+        _appContext = context.applicationContext
     }
 
     val settingsRepository: SettingsRepository by lazy {

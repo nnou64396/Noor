@@ -547,6 +547,10 @@ class PrayerViewModelTest {
         override val prayerManualLatitude: Flow<Double?> = manualLatitude
         override val prayerManualLongitude: Flow<Double?> = manualLongitude
 
+        override val notificationsEnabled: Flow<Boolean> = MutableStateFlow(true)
+        override val prayerRemindersEnabled: Flow<Boolean> = MutableStateFlow(true)
+        override val updateNotificationsEnabled: Flow<Boolean> = MutableStateFlow(true)
+
         override suspend fun setLanguage(language: Language) = Unit
         override suspend fun setThemeMode(themeMode: ThemeMode) = Unit
         override suspend fun setOnboardingComplete(completed: Boolean) = Unit
@@ -569,6 +573,9 @@ class PrayerViewModelTest {
             manualLatitude.value = null
             manualLongitude.value = null
         }
+        override suspend fun setNotificationsEnabled(enabled: Boolean) {}
+        override suspend fun setPrayerRemindersEnabled(enabled: Boolean) {}
+        override suspend fun setUpdateNotificationsEnabled(enabled: Boolean) {}
     }
 
     private class FakePrayerRepository(

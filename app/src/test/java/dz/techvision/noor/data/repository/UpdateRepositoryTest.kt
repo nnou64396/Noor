@@ -59,6 +59,9 @@ class UpdateRepositoryTest {
         override val prayerLocationMode = flowOf(dz.techvision.noor.domain.model.LocationMode.DEFAULT)
         override val prayerManualLatitude = flowOf(null)
         override val prayerManualLongitude = flowOf(null)
+        override val notificationsEnabled = flowOf(true)
+        override val prayerRemindersEnabled = flowOf(true)
+        override val updateNotificationsEnabled = flowOf(true)
 
         override suspend fun setLanguage(language: dz.techvision.noor.domain.model.Language) {}
         override suspend fun setThemeMode(themeMode: dz.techvision.noor.domain.model.ThemeMode) {}
@@ -68,6 +71,9 @@ class UpdateRepositoryTest {
         override suspend fun setPrayerLocationMode(mode: dz.techvision.noor.domain.model.LocationMode) {}
         override suspend fun setPrayerManualLocation(latitude: Double, longitude: Double) {}
         override suspend fun clearPrayerManualLocation() {}
+        override suspend fun setNotificationsEnabled(enabled: Boolean) {}
+        override suspend fun setPrayerRemindersEnabled(enabled: Boolean) {}
+        override suspend fun setUpdateNotificationsEnabled(enabled: Boolean) {}
     }
 
     private class FakeUpdateApi(

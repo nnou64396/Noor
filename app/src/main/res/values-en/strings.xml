@@ -319,4 +319,39 @@
     <string name="update_permission_title">Allow App Installation</string>
     <string name="update_permission_body">Android requires your permission to install the verified NOOR update. Open settings, allow NOOR to install apps, then return here.</string>
     <string name="update_action_open_settings">Open Settings</string>
+
+    <!-- Major Upgrade Settings & Privacy Strings -->
+    <string name="settings_about_menu_title">About Noor</string>
+    <string name="settings_privacy_menu_title">Privacy Policy</string>
+    <string name="settings_permissions_menu_title">Permissions Details</string>
+    <string name="settings_notifications_menu_title">Notification Settings</string>
+    <string name="developer_credit">Developed by Tech Vision DZ</string>
+
+    <string name="privacy_policy_header">Your Privacy Matters</string>
+    <string name="privacy_policy_body">Noor is committed to protecting your privacy. All your personal data and preferences (prayer locations, saved surahs, and reading bookmarks) are stored securely and locally on your device using encrypted databases (Room and DataStore). Noor does not collect any personal data, track user behavior, or send information to external servers.</string>
+    <string name="privacy_policy_permissions_heading">Permissions &amp; Services</string>
+    <string name="privacy_policy_permissions_body">The app requests location permissions to accurately calculate prayer times and Qibla direction, and notification permissions for media playback and reminders according to your explicit preferences without coercion.</string>
+
+    <string name="permissions_screen_title">Permissions Used</string>
+    <string name="permission_status_granted">Granted</string>
+    <string name="permission_status_denied">Denied / Required</string>
+    <string name="permission_action_request">Grant Permission</string>
+    <string name="permission_action_settings">Open System Settings</string>
+
+    <string name="perm_location_title">Location (GPS)</string>
+    <string name="perm_location_desc">Used to accurately calculate prayer times and determine Qibla direction based on your current location.</string>
+
+    <string name="perm_notifications_title">Notifications</string>
+    <string name="perm_notifications_desc">Used to display background media playback notification, prayer time reminders, and important updates.</string>
+
+    <string name="perm_storage_install_title">Package Installation</string>
+    <string name="perm_storage_install_desc">Securely required to install official verified app updates when requested by you.</string>
+
+    <string name="notification_settings_title">App Notifications</string>
+    <string name="notification_master_switch">Enable Notifications</string>
+    <string name="notification_prayer_reminders">Prayer &amp; Time Reminders</string>
+    <string name="notification_updates_toggle">App Updates &amp; Releases</string>
+    <string name="notification_system_status_allowed">Notifications are enabled in Android system</string>
+    <string name="notification_system_status_blocked">Notifications are blocked in system settings</string>
+    <string name="notification_open_system_settings">Open System Notification Settings</string>
 </resources>

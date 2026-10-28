@@ -390,6 +390,9 @@ class UpdateFlowTest {
         override val prayerLocationMode: Flow<LocationMode> = flowOf(LocationMode.DEFAULT)
         override val prayerManualLatitude: Flow<Double?> = flowOf(null)
         override val prayerManualLongitude: Flow<Double?> = flowOf(null)
+        override val notificationsEnabled: Flow<Boolean> = flowOf(true)
+        override val prayerRemindersEnabled: Flow<Boolean> = flowOf(true)
+        override val updateNotificationsEnabled: Flow<Boolean> = flowOf(true)
 
         override suspend fun setLanguage(language: Language) {}
         override suspend fun setThemeMode(themeMode: ThemeMode) {}
@@ -399,6 +402,9 @@ class UpdateFlowTest {
         override suspend fun setPrayerLocationMode(mode: LocationMode) {}
         override suspend fun setPrayerManualLocation(latitude: Double, longitude: Double) {}
         override suspend fun clearPrayerManualLocation() {}
+        override suspend fun setNotificationsEnabled(enabled: Boolean) {}
+        override suspend fun setPrayerRemindersEnabled(enabled: Boolean) {}
+        override suspend fun setUpdateNotificationsEnabled(enabled: Boolean) {}
     }
 }
 

@@ -18,7 +18,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import dz.techvision.noor.R
 import dz.techvision.noor.domain.model.AppUpdateInfo
 import dz.techvision.noor.domain.model.AsrSchool
@@ -78,6 +82,10 @@ fun SettingsScreen(
     onInstallUpdate: (Context) -> Unit,
     onRetryUpdate: (AppUpdateInfo, Context) -> Unit,
     onOpenInstallSettings: () -> Unit,
+    onOpenAbout: () -> Unit = {},
+    onOpenPrivacy: () -> Unit = {},
+    onOpenPermissions: () -> Unit = {},
+    onOpenNotifications: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -86,10 +94,7 @@ fun SettingsScreen(
     var showAsrSchoolDialog by remember { mutableStateOf(false) }
     var showLocationModeDialog by remember { mutableStateOf(false) }
     var showManualLocationDialog by remember { mutableStateOf(false) }
-    var showAboutDialog by remember { mutableStateOf(false) }
 
-    // The version is read from the package at runtime rather than stored as a
-    // string resource, so it can never drift from the built versionName.
     val context = LocalContext.current
     val versionName = remember(context) {
         runCatching {
@@ -163,6 +168,30 @@ fun SettingsScreen(
                 onClick = { showLocationModeDialog = true },
             )
 
+            // Privacy, Permissions, Notifications sections
+            NoorSectionTitle(
+                title = stringResource(R.string.settings_privacy_menu_title),
+                icon = Icons.Rounded.Lock,
+            )
+            NoorSettingRow(
+                title = stringResource(R.string.settings_privacy_menu_title),
+                subtitle = stringResource(R.string.privacy_policy_header),
+                icon = Icons.Rounded.Lock,
+                onClick = onOpenPrivacy,
+            )
+            NoorSettingRow(
+                title = stringResource(R.string.settings_permissions_menu_title),
+                subtitle = stringResource(R.string.permissions_screen_title),
+                icon = Icons.Rounded.Security,
+                onClick = onOpenPermissions,
+            )
+            NoorSettingRow(
+                title = stringResource(R.string.settings_notifications_menu_title),
+                subtitle = stringResource(R.string.notification_master_switch),
+                icon = Icons.Rounded.Notifications,
+                onClick = onOpenNotifications,
+            )
+
             NoorSectionTitle(
                 title = stringResource(R.string.update_section_title),
                 icon = Icons.Rounded.Info,
@@ -201,14 +230,39 @@ fun SettingsScreen(
             )
             NoorSettingRow(
                 title = stringResource(R.string.settings_about_title),
+                subtitle = stringResource(R.string.settings_about_body),
                 icon = Icons.Rounded.Info,
-                onClick = { showAboutDialog = true },
+                onClick = onOpenAbout,
             )
             NoorSettingRow(
                 title = stringResource(R.string.settings_version_title),
                 subtitle = versionName,
                 icon = Icons.AutoMirrored.Rounded.HelpOutline,
             )
+
+            Spacer(Modifier.height(NoorDimens.Md))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = NoorDimens.Md),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(NoorDimens.Xs),
+            ) {
+                Text(
+                    text = stringResource(R.string.developer_credit),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = "${stringResource(R.string.app_name)} • v${versionName ?: "1.1.5"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 
@@ -289,10 +343,6 @@ fun SettingsScreen(
             },
             onDismiss = { showManualLocationDialog = false },
         )
-    }
-
-    if (showAboutDialog) {
-        AboutDialog(version = versionName, onDismiss = { showAboutDialog = false })
     }
 }
 
@@ -416,47 +466,6 @@ private fun SelectionDialog(
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
-                }
-            }
-        },
-    )
-}
-
-@Composable
-private fun AboutDialog(version: String?, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dialog_ok))
-            }
-        },
-        title = { Text(text = stringResource(R.string.settings_about_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(NoorDimens.Sm)) {
-                Text(
-                    text = stringResource(R.string.settings_about_body),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = stringResource(R.string.quran_source_attribution),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = stringResource(R.string.quran_audio_attribution),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                if (version != null) {
-                    Text(
-                        text = stringResource(R.string.settings_version_title) + " " + version,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = NoorDimens.Sm),
-                    )
                 }
             }
         },

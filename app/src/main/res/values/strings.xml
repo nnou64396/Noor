@@ -319,4 +319,39 @@
     <string name="update_permission_title">السماح بتثبيت التطبيقات</string>
     <string name="update_permission_body">يتطلب أندرويد إذنك لتثبيت تحديث نور الذي تم التحقق منه. افتح الإعدادات، واسمح لنور بتثبيت التطبيقات، ثم عد إلى هنا.</string>
     <string name="update_action_open_settings">فتح الإعدادات</string>
+
+    <!-- Major Upgrade Settings & Privacy Strings -->
+    <string name="settings_about_menu_title">حول التطبيق</string>
+    <string name="settings_privacy_menu_title">سياسة الخصوصية</string>
+    <string name="settings_permissions_menu_title">تفاصيل الأذونات</string>
+    <string name="settings_notifications_menu_title">إعدادات الإشعارات</string>
+    <string name="developer_credit">تم التطوير بواسطة Tech Vision DZ</string>
+
+    <string name="privacy_policy_header">خصوصيتك تهمنا</string>
+    <string name="privacy_policy_body">يلتزم تطبيق نور بحماية خصوصيتك التامة. يتم تخزين جميع بياناتك الشخصية وتفضيلاتك (مواقع الصلاة، السور المحفوظة، وعلامات القراءة) محلياً على جهازك باستخدام قواعد بيانات آمنة (Room و DataStore). لا يقوم نور بجمع أي بيانات شخصية أو تتبع سلوك المستخدم أو إرسال أي معلومات إلى خوادم خارجية.</string>
+    <string name="privacy_policy_permissions_heading">الأذونات والخدمات</string>
+    <string name="privacy_policy_permissions_body">يطلب التطبيق أذونات الموقع الجغرافي لحساب مواقيت الصلاة واتجاه القبلة بدقة، وإذن الإشعارات لتشغيل الوسائط والتنبيهات عند الحاجة، وذلك وفقاً لخياراتك الكاملة دون إجبار.</string>
+
+    <string name="permissions_screen_title">الأذونات المستخدمة</string>
+    <string name="permission_status_granted">ممنوح</string>
+    <string name="permission_status_denied">مرفوض / مطلوب</string>
+    <string name="permission_action_request">منح الإذن</string>
+    <string name="permission_action_settings">فتح إعدادات النظام</string>
+
+    <string name="perm_location_title">الموقع الجغرافي (GPS)</string>
+    <string name="perm_location_desc">يُستخدم لحساب مواقيت الصلاة بدقة وتحديد اتجاه القبلة بناءً على مكان تواجدك الحالي.</string>
+
+    <string name="perm_notifications_title">الإشعارات</string>
+    <string name="perm_notifications_desc">تُستخدم لعرض مشغل الصوت في الخلفية وتنبيهات الأوقات والتحديثات المهمة.</string>
+
+    <string name="perm_storage_install_title">تثبيت الحزم</string>
+    <string name="perm_storage_install_desc">مطلوبة بأمان لتثبيت تحديثات التطبيق الرسمية التي تم التحقق منها عندما تطلب ذلك.</string>
+
+    <string name="notification_settings_title">إشعارات التطبيق</string>
+    <string name="notification_master_switch">تفعيل الإشعارات</string>
+    <string name="notification_prayer_reminders">تنبيهات الصلاة والأوقات</string>
+    <string name="notification_updates_toggle">تحديثات التطبيق والإصدارات</string>
+    <string name="notification_system_status_allowed">الإشعارات مفعلة في نظام أندرويد</string>
+    <string name="notification_system_status_blocked">الإشعارات محظورة من إعدادات النظام</string>
+    <string name="notification_open_system_settings">فتح إعدادات إشعارات النظام</string>
 </resources>
