@@ -21,9 +21,6 @@ import dz.techvision.noor.data.remote.network.NetworkModule
 import dz.techvision.noor.data.remote.prayer.PrayerApiProvider
 import dz.techvision.noor.data.remote.prayer.PrayerTimesMapper
 import dz.techvision.noor.data.repository.PrayerRepositoryImpl
-import dz.techvision.noor.data.remote.update.UpdateApi
-import dz.techvision.noor.data.repository.UpdateRepositoryImpl
-import dz.techvision.noor.data.update.ApkDownloader
 import dz.techvision.noor.domain.audio.QuranAudioController
 import dz.techvision.noor.domain.repository.AthkarProgressRepository
 import dz.techvision.noor.domain.repository.DhikrRepository
@@ -35,7 +32,6 @@ import dz.techvision.noor.domain.repository.QuranRepository
 import dz.techvision.noor.domain.repository.ReadingProgressRepository
 import dz.techvision.noor.domain.repository.SettingsRepository
 import dz.techvision.noor.domain.repository.TasbihRepository
-import dz.techvision.noor.domain.repository.UpdateRepository
 import dz.techvision.noor.domain.usecase.ObserveSettingsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -67,39 +63,6 @@ object ServiceLocator {
 
     val observeSettings: ObserveSettingsUseCase by lazy {
         ObserveSettingsUseCase(settingsRepository)
-    }
-
-    private val updateApi: UpdateApi? by lazy {
-        runCatching {
-            NetworkModule.provideRetrofit(
-                baseUrl = "https://api.github.com/",
-                client = provideOkHttpClient(),
-            ).create(UpdateApi::class.java)
-        }.getOrNull()
-    }
-
-    private val apkDownloader: ApkDownloader by lazy {
-        ApkDownloader(appContext, provideOkHttpClient())
-    }
-
-    val updateRepository: UpdateRepository by lazy {
-        val versionCode = runCatching {
-            val pInfo = appContext.packageManager.getPackageInfo(appContext.packageName, 0)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                pInfo.longVersionCode
-            } else {
-                @Suppress("DEPRECATION")
-                pInfo.versionCode.toLong()
-            }
-        }.getOrDefault(1L)
-
-        UpdateRepositoryImpl(
-            context = appContext,
-            currentVersionCode = versionCode,
-            settingsRepository = settingsRepository,
-            apkDownloader = apkDownloader,
-            apiProvider = { updateApi },
-        )
     }
 
     private val noorDatabase: NoorDatabase by lazy {

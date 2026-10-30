@@ -8,7 +8,6 @@ import dz.techvision.noor.R
 
 object NotificationChannels {
     const val CHANNEL_PRAYER = "noor_prayer_reminders"
-    const val CHANNEL_UPDATES = "noor_system_updates"
     const val CHANNEL_MEDIA = "noor_media_playback"
 
     fun createChannels(context: Context) {
@@ -23,14 +22,6 @@ object NotificationChannels {
                 description = "Prayer time reminders and notifications"
             }
 
-            val updatesChannel = NotificationChannel(
-                CHANNEL_UPDATES,
-                context.getString(R.string.notification_updates_toggle),
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "App version updates and release notices"
-            }
-
             val mediaChannel = NotificationChannel(
                 CHANNEL_MEDIA,
                 "Quran Audio Playback",
@@ -40,7 +31,7 @@ object NotificationChannels {
             }
 
             notificationManager.createNotificationChannels(
-                listOf(prayerChannel, updatesChannel, mediaChannel)
+                listOf(prayerChannel, mediaChannel)
             )
         }
     }

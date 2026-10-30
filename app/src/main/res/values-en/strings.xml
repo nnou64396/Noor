@@ -126,6 +126,7 @@
     <string name="language_arabic">العربية</string>
     <string name="language_english">English</string>
     <string name="language_french">Français</string>
+    <string name="language_russian">Русский</string>
 
     <!-- Themes -->
     <string name="theme_system">System</string>
@@ -298,27 +299,9 @@
     <string name="feature_coming_soon">This feature is coming soon</string>
 
     <!-- App Updates -->
-    <string name="update_available_title">New Update Available (%1$s)</string>
-    <string name="update_available_body">A new version of NOOR is available with improvements and fixes.</string>
-    <string name="update_required_title">Recommended Update (%1$s)</string>
-    <string name="update_required_body">An important update is available for NOOR to maintain smooth service.</string>
-    <string name="update_action_get">Get Update</string>
-    <string name="update_action_dismiss">Later</string>
-    <string name="update_status_up_to_date">NOOR is up to date</string>
-    <string name="update_status_disabled">Update server unconfigured</string>
-    <string name="update_status_unavailable">Unable to check for updates</string>
-    <string name="update_check_action">Check for Updates</string>
+    <string name="update_status_up_to_date">Updates are managed by official store</string>
+    <string name="update_check_action">Check for Updates in Store</string>
     <string name="update_section_title">App Updates</string>
-    <string name="update_downloading_fmt">Downloading update… %1$d%%</string>
-    <string name="update_verification_failed_title">Update Verification Failed</string>
-    <string name="update_ready_title">Update Ready (v%1$s)</string>
-    <string name="update_ready_body">The update has been downloaded and verified successfully. Tap install to apply.</string>
-    <string name="update_action_install">Install Update</string>
-    <string name="update_failed_title">Update Failed</string>
-    <string name="update_install_failed_title">Installation Failed</string>
-    <string name="update_permission_title">Allow App Installation</string>
-    <string name="update_permission_body">Android requires your permission to install the verified NOOR update. Open settings, allow NOOR to install apps, then return here.</string>
-    <string name="update_action_open_settings">Open Settings</string>
 
     <!-- Major Upgrade Settings & Privacy Strings -->
     <string name="settings_about_menu_title">About Noor</string>
@@ -342,15 +325,11 @@
     <string name="perm_location_desc">Used to accurately calculate prayer times and determine Qibla direction based on your current location.</string>
 
     <string name="perm_notifications_title">Notifications</string>
-    <string name="perm_notifications_desc">Used to display background media playback notification, prayer time reminders, and important updates.</string>
-
-    <string name="perm_storage_install_title">Package Installation</string>
-    <string name="perm_storage_install_desc">Securely required to install official verified app updates when requested by you.</string>
+    <string name="perm_notifications_desc">Used to display background media playback notification and prayer time reminders.</string>
 
     <string name="notification_settings_title">App Notifications</string>
     <string name="notification_master_switch">Enable Notifications</string>
     <string name="notification_prayer_reminders">Prayer &amp; Time Reminders</string>
-    <string name="notification_updates_toggle">App Updates &amp; Releases</string>
     <string name="notification_system_status_allowed">Notifications are enabled in Android system</string>
     <string name="notification_system_status_blocked">Notifications are blocked in system settings</string>
     <string name="notification_open_system_settings">Open System Notification Settings</string>

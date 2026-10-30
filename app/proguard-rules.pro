@@ -31,7 +31,6 @@
 -keep class dz.techvision.noor.data.remote.prayer.TimingsMeta { *; }
 -keep class dz.techvision.noor.data.remote.prayer.HijriDate { *; }
 -keep class dz.techvision.noor.data.remote.prayer.GregorianDate { *; }
--keep class dz.techvision.noor.data.remote.update.** { *; }
 
 # The bundled adhkar parser uses private Gson DTOs for the asset shape. Gson
 # binds their JSON keys to property names reflectively, so R8 must not remove or

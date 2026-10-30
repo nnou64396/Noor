@@ -51,10 +51,8 @@ import dz.techvision.noor.ui.theme.NoorDimens
 fun NotificationSettingsScreen(
     notificationsEnabled: Boolean,
     prayerRemindersEnabled: Boolean,
-    updateNotificationsEnabled: Boolean,
     onNotificationsEnabledChanged: (Boolean) -> Unit,
     onPrayerRemindersChanged: (Boolean) -> Unit,
-    onUpdateNotificationsChanged: (Boolean) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -214,23 +212,6 @@ fun NotificationSettingsScreen(
                             Switch(
                                 checked = prayerRemindersEnabled,
                                 onCheckedChange = onPrayerRemindersChanged,
-                            )
-                        }
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = stringResource(R.string.notification_updates_toggle),
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                            Switch(
-                                checked = updateNotificationsEnabled,
-                                onCheckedChange = onUpdateNotificationsChanged,
                             )
                         }
                     }

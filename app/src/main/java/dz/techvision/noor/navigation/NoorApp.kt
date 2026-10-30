@@ -1,6 +1,5 @@
 ﻿package dz.techvision.noor.navigation
 
-import android.content.Context
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -11,13 +10,11 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dz.techvision.noor.domain.model.AppSettings
-import dz.techvision.noor.domain.model.AppUpdateInfo
 import dz.techvision.noor.domain.model.AsrSchool
 import dz.techvision.noor.domain.model.CalculationMethod
 import dz.techvision.noor.domain.model.Language
 import dz.techvision.noor.domain.model.LocationMode
 import dz.techvision.noor.domain.model.ThemeMode
-import dz.techvision.noor.domain.model.UpdateStatus
 import dz.techvision.noor.presentation.SettingsUiState
 import dz.techvision.noor.presentation.prayer.PrayerViewModel
 import dz.techvision.noor.ui.components.NoorBottomBar
@@ -26,13 +23,6 @@ import dz.techvision.noor.ui.components.NoorBottomBar
 fun NoorApp(
     settingsState: SettingsUiState,
     prayerViewModel: PrayerViewModel,
-    updateStatus: UpdateStatus,
-    onCheckForUpdates: () -> Unit,
-    onDismissUpdate: (Long) -> Unit,
-    onDownloadAndVerifyUpdate: (AppUpdateInfo) -> Unit,
-    onInstallUpdate: (Context) -> Unit,
-    onRetryUpdate: (AppUpdateInfo, Context) -> Unit,
-    onOpenInstallSettings: () -> Unit,
     onLanguageSelected: (Language) -> Unit,
     onThemeSelected: (ThemeMode) -> Unit,
     onCalculationMethodSelected: (CalculationMethod) -> Unit = {},
@@ -41,7 +31,6 @@ fun NoorApp(
     onManualLocationSelected: (Double, Double) -> Unit = { _, _ -> },
     onNotificationsEnabledChanged: (Boolean) -> Unit = {},
     onPrayerRemindersChanged: (Boolean) -> Unit = {},
-    onUpdateNotificationsChanged: (Boolean) -> Unit = {},
     onOnboardingComplete: () -> Unit,
 ) {
     val settings: AppSettings = when (val state = settingsState) {
@@ -82,13 +71,6 @@ fun NoorApp(
             contentPadding = innerPadding,
             settings = settings,
             prayerViewModel = prayerViewModel,
-            updateStatus = updateStatus,
-            onCheckForUpdates = onCheckForUpdates,
-            onDismissUpdate = onDismissUpdate,
-            onDownloadAndVerifyUpdate = onDownloadAndVerifyUpdate,
-            onInstallUpdate = onInstallUpdate,
-            onRetryUpdate = onRetryUpdate,
-            onOpenInstallSettings = onOpenInstallSettings,
             onLanguageSelected = onLanguageSelected,
             onThemeSelected = onThemeSelected,
             onCalculationMethodSelected = onCalculationMethodSelected,
@@ -97,7 +79,6 @@ fun NoorApp(
             onManualLocationSelected = onManualLocationSelected,
             onNotificationsEnabledChanged = onNotificationsEnabledChanged,
             onPrayerRemindersChanged = onPrayerRemindersChanged,
-            onUpdateNotificationsChanged = onUpdateNotificationsChanged,
             onOpenDestination = { route ->
                 navController.navigate(route) {
                     launchSingleTop = true

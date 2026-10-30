@@ -126,6 +126,7 @@
     <string name="language_arabic">العربية</string>
     <string name="language_english">English</string>
     <string name="language_french">Français</string>
+    <string name="language_russian">Русский</string>
 
     <!-- Themes -->
     <string name="theme_system">Système</string>
@@ -298,27 +299,9 @@
     <string name="feature_coming_soon">Cette fonctionnalité arrive bientôt</string>
 
     <!-- App Updates -->
-    <string name="update_available_title">Nouvelle mise à jour disponible (%1$s)</string>
-    <string name="update_available_body">Une nouvelle version de NOOR est disponible avec des améliorations.</string>
-    <string name="update_required_title">Mise à jour recommandée (%1$s)</string>
-    <string name="update_required_body">Une mise à jour importante est disponible pour maintenir le bon fonctionnement de NOOR.</string>
-    <string name="update_action_get">Mettre à jour</string>
-    <string name="update_action_dismiss">Plus tard</string>
-    <string name="update_status_up_to_date">NOOR est à jour</string>
-    <string name="update_status_disabled">Serveur de mise à jour non configuré</string>
-    <string name="update_status_unavailable">Impossible de vérifier les mises à jour</string>
-    <string name="update_check_action">Vérifier les mises à jour</string>
+    <string name="update_status_up_to_date">Les mises à jour sont gérées par le magasin officiel</string>
+    <string name="update_check_action">Vérifier les mises à jour dans le magasin</string>
     <string name="update_section_title">Mises à jour</string>
-    <string name="update_downloading_fmt">Téléchargement… %1$d%%</string>
-    <string name="update_verification_failed_title">Échec de la vérification</string>
-    <string name="update_ready_title">Mise à jour prête (v%1$s)</string>
-    <string name="update_ready_body">La mise à jour a été téléchargée et vérifiée avec succès. Touchez installer.</string>
-    <string name="update_action_install">Installer</string>
-    <string name="update_failed_title">Échec de la mise à jour</string>
-    <string name="update_install_failed_title">Échec de l\'installation</string>
-    <string name="update_permission_title">Autoriser l\'installation</string>
-    <string name="update_permission_body">Android exige votre autorisation pour installer la mise à jour vérifiée de NOOR. Ouvrez les paramètres, autorisez NOOR à installer des applications, puis revenez ici.</string>
-    <string name="update_action_open_settings">Ouvrir les paramètres</string>
 
     <!-- Major Upgrade Settings & Privacy Strings -->
     <string name="settings_about_menu_title">À propos de Noor</string>
@@ -344,13 +327,9 @@
     <string name="perm_notifications_title">Notifications</string>
     <string name="perm_notifications_desc">Utilisé pour afficher la notification de lecture multimédia et les rappels importants.</string>
 
-    <string name="perm_storage_install_title">Installation de paquets</string>
-    <string name="perm_storage_install_desc">Nécessaire pour installer en toute sécurité les mises à jour vérifiées de l\'application.</string>
-
     <string name="notification_settings_title">Notifications de l\'application</string>
     <string name="notification_master_switch">Activer les notifications</string>
     <string name="notification_prayer_reminders">Rappels de prière et horaires</string>
-    <string name="notification_updates_toggle">Mises à jour de l\'application</string>
     <string name="notification_system_status_allowed">Les notifications sont activées dans le système Android</string>
     <string name="notification_system_status_blocked">Les notifications sont bloquées dans les paramètres système</string>
     <string name="notification_open_system_settings">Ouvrir les paramètres de notification du système</string>

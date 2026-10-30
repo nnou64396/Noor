@@ -1,6 +1,5 @@
 ﻿package dz.techvision.noor.navigation
 
-import android.content.Context
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,13 +18,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import dz.techvision.noor.domain.model.AppSettings
-import dz.techvision.noor.domain.model.AppUpdateInfo
 import dz.techvision.noor.domain.model.AsrSchool
 import dz.techvision.noor.domain.model.CalculationMethod
 import dz.techvision.noor.domain.model.Language
 import dz.techvision.noor.domain.model.LocationMode
 import dz.techvision.noor.domain.model.ThemeMode
-import dz.techvision.noor.domain.model.UpdateStatus
 import dz.techvision.noor.presentation.athkar.AthkarCategoryScreen
 import dz.techvision.noor.presentation.athkar.AthkarCategoryViewModel
 import dz.techvision.noor.presentation.athkar.AthkarScreen
@@ -57,13 +54,6 @@ fun NoorNavHost(
     contentPadding: PaddingValues,
     settings: AppSettings,
     prayerViewModel: PrayerViewModel,
-    updateStatus: UpdateStatus,
-    onCheckForUpdates: () -> Unit,
-    onDismissUpdate: (Long) -> Unit,
-    onDownloadAndVerifyUpdate: (AppUpdateInfo) -> Unit,
-    onInstallUpdate: (Context) -> Unit,
-    onRetryUpdate: (AppUpdateInfo, Context) -> Unit,
-    onOpenInstallSettings: () -> Unit,
     onLanguageSelected: (Language) -> Unit,
     onThemeSelected: (ThemeMode) -> Unit,
     onCalculationMethodSelected: (CalculationMethod) -> Unit = {},
@@ -72,20 +62,12 @@ fun NoorNavHost(
     onManualLocationSelected: (Double, Double) -> Unit = { _, _ -> },
     onNotificationsEnabledChanged: (Boolean) -> Unit = {},
     onPrayerRemindersChanged: (Boolean) -> Unit = {},
-    onUpdateNotificationsChanged: (Boolean) -> Unit = {},
     onOpenDestination: (String) -> Unit = {},
     onOnboardingComplete: () -> Unit,
 ) {
     val currentContentPadding by rememberUpdatedState(contentPadding)
     val currentSettings by rememberUpdatedState(settings)
     val currentPrayerViewModel by rememberUpdatedState(prayerViewModel)
-    val currentUpdateStatus by rememberUpdatedState(updateStatus)
-    val currentOnCheckForUpdates by rememberUpdatedState(onCheckForUpdates)
-    val currentOnDismissUpdate by rememberUpdatedState(onDismissUpdate)
-    val currentOnDownloadAndVerifyUpdate by rememberUpdatedState(onDownloadAndVerifyUpdate)
-    val currentOnInstallUpdate by rememberUpdatedState(onInstallUpdate)
-    val currentOnRetryUpdate by rememberUpdatedState(onRetryUpdate)
-    val currentOnOpenInstallSettings by rememberUpdatedState(onOpenInstallSettings)
     val currentOnLanguageSelected by rememberUpdatedState(onLanguageSelected)
     val currentOnThemeSelected by rememberUpdatedState(onThemeSelected)
     val currentOnCalculationMethodSelected by rememberUpdatedState(onCalculationMethodSelected)
@@ -94,7 +76,6 @@ fun NoorNavHost(
     val currentOnManualLocationSelected by rememberUpdatedState(onManualLocationSelected)
     val currentOnNotificationsEnabledChanged by rememberUpdatedState(onNotificationsEnabledChanged)
     val currentOnPrayerRemindersChanged by rememberUpdatedState(onPrayerRemindersChanged)
-    val currentOnUpdateNotificationsChanged by rememberUpdatedState(onUpdateNotificationsChanged)
     val currentOnOpenDestination by rememberUpdatedState(onOpenDestination)
     val currentOnOnboardingComplete by rememberUpdatedState(onOnboardingComplete)
 
@@ -136,12 +117,6 @@ fun NoorNavHost(
                     quran = quranState,
                     onTogglePlayback = homeQuranViewModel::togglePlayback,
                     practice = practiceState,
-                    updateStatus = currentUpdateStatus,
-                    onDismissUpdate = currentOnDismissUpdate,
-                    onDownloadAndVerifyUpdate = currentOnDownloadAndVerifyUpdate,
-                    onInstallUpdate = currentOnInstallUpdate,
-                    onRetryUpdate = currentOnRetryUpdate,
-                    onOpenInstallSettings = currentOnOpenInstallSettings,
                     modifier = Modifier.fillMaxSize().padding(currentContentPadding),
                 )
             }
@@ -280,13 +255,6 @@ fun NoorNavHost(
                     onAsrSchoolSelected = currentOnAsrSchoolSelected,
                     onLocationModeSelected = currentOnLocationModeSelected,
                     onManualLocationSelected = currentOnManualLocationSelected,
-                    updateStatus = currentUpdateStatus,
-                    onCheckForUpdates = currentOnCheckForUpdates,
-                    onDismissUpdate = currentOnDismissUpdate,
-                    onDownloadAndVerifyUpdate = currentOnDownloadAndVerifyUpdate,
-                    onInstallUpdate = currentOnInstallUpdate,
-                    onRetryUpdate = currentOnRetryUpdate,
-                    onOpenInstallSettings = currentOnOpenInstallSettings,
                     onOpenAbout = { navController.navigate(NoorDestinations.SETTINGS_ABOUT) },
                     onOpenPrivacy = { navController.navigate(NoorDestinations.SETTINGS_PRIVACY) },
                     onOpenPermissions = { navController.navigate(NoorDestinations.SETTINGS_PERMISSIONS) },
@@ -317,10 +285,8 @@ fun NoorNavHost(
                 NotificationSettingsScreen(
                     notificationsEnabled = currentSettings.notificationsEnabled,
                     prayerRemindersEnabled = currentSettings.prayerRemindersEnabled,
-                    updateNotificationsEnabled = currentSettings.updateNotificationsEnabled,
                     onNotificationsEnabledChanged = currentOnNotificationsEnabledChanged,
                     onPrayerRemindersChanged = currentOnPrayerRemindersChanged,
-                    onUpdateNotificationsChanged = currentOnUpdateNotificationsChanged,
                     onBack = { navController.popBackStack() },
                     modifier = Modifier.fillMaxSize().padding(currentContentPadding),
                 )

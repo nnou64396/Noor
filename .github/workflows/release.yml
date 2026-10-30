@@ -50,7 +50,7 @@ jobs:
           export NOOR_RELEASE_STORE_FILE="$(pwd)/release.keystore"
           ./gradlew :app:assembleRelease :app:bundleRelease
 
-      - name: Verify APK Signature, Metadata, and Generate/Validate Manifest
+      - name: Verify APK Signature and Metadata
         id: metadata
         env:
           EXPECTED_FINGERPRINT: "6c4e68e4f8a1bc982a09611886f0eda25893642e24f14fa77642ea1a6b3ef83d"
@@ -72,9 +72,8 @@ jobs:
             exit 1
           fi
 
-          # Execute robust Python verification and manifest generation script
           python3 -c "
-          import subprocess, re, json, sys, hashlib, os
+          import subprocess, re, sys, hashlib, os
 
           apk_path = '$APK_PATH'
           expected_pkg = '$EXPECTED_PACKAGE'
@@ -82,7 +81,7 @@ jobs:
           apksigner_path = '$APKSIGNER'
           aapt_path = '$AAPT'
 
-          # 1. Extract Badging metadata robustly
+          # 1. Extract Badging metadata
           try:
               badging_bytes = subprocess.check_output([aapt_path, 'dump', 'badging', apk_path])
           except Exception as e:
@@ -107,8 +106,6 @@ jobs:
               print(f'Error: Package name mismatch. Expected {expected_pkg}, got {pkg_name}', file=sys.stderr)
               sys.exit(1)
 
-          # 1b. The pushed tag must match the built version, so a stale version
-          # in the commit can never be published under a newer release tag.
           tag_ref = os.environ.get('GITHUB_REF_NAME', '')
           expected_tag = 'v' + version_name
           if tag_ref != expected_tag:
@@ -124,9 +121,6 @@ jobs:
               sys.exit(1)
 
           cert_output = cert_bytes.decode('utf-8', errors='ignore')
-          print('Signing verification output:')
-          print(cert_output)
-
           fingerprint_match = re.search(r'SHA-256 digest:\\s*([0-9a-fA-F:]+)', cert_output)
           if not fingerprint_match:
               print('Error: Could not extract SHA-256 certificate digest.', file=sys.stderr)
@@ -134,8 +128,6 @@ jobs:
 
           extracted_fp = fingerprint_match.group(1).replace(':', '').lower()
           print(f'Extracted Certificate SHA-256: {extracted_fp}')
-          print(f'Expected Certificate SHA-256:  {expected_fingerprint}')
-
           if extracted_fp != expected_fingerprint.lower():
               print('Error: Signing certificate SHA-256 fingerprint does not match trusted production identity.', file=sys.stderr)
               sys.exit(1)
@@ -156,79 +148,7 @@ jobs:
                   gh_out.write(f'versionName={version_name}\n')
                   gh_out.write(f'versionCode={version_code}\n')
 
-          # 4. Generate & Validate JSON Manifest
-          from datetime import datetime, timezone
-          published_timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-
-          manifest_data = {
-              'schemaVersion': 1,
-              'versionName': version_name,
-              'versionCode': int(version_code),
-              'minimumSupportedVersionCode': 1,
-              'mandatory': False,
-              'apkAsset': 'app-release.apk',
-              'sha256': apk_sha256,
-              'releaseNotes': {
-                  'en': 'Official release of NOOR v' + version_name + '.',
-                  'ar': 'الإصدار الرسمي لتطبيق نور v' + version_name + '.',
-                  'fr': 'Version officielle de NOOR v' + version_name + '.'
-              },
-              'publishedAt': published_timestamp
-          }
-
-          manifest_path = 'noor-update.json'
-          with open(manifest_path, 'w', encoding='utf-8') as f:
-              json.dump(manifest_data, f, indent=2, ensure_ascii=False)
-
-          # Validate generated JSON
-          with open(manifest_path, 'r', encoding='utf-8') as f:
-              parsed = json.load(f)
-
-          if not isinstance(parsed, dict):
-              print('Error: Root JSON value is not an object.', file=sys.stderr)
-              sys.exit(1)
-
-          required_fields = [
-              'schemaVersion', 'versionName', 'versionCode', 
-              'minimumSupportedVersionCode', 'mandatory', 
-              'apkAsset', 'sha256', 'releaseNotes', 'publishedAt'
-          ]
-          for field in required_fields:
-              if field not in parsed:
-                  print(f'Error: Missing required field: {field}', file=sys.stderr)
-                  sys.exit(1)
-
-          iso_regex = re.compile(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$')
-          if not isinstance(parsed['publishedAt'], str) or not iso_regex.match(parsed['publishedAt']):
-              print('Error: publishedAt must be a valid ISO 8601 UTC timestamp.', file=sys.stderr)
-              sys.exit(1)
-
-          if not isinstance(parsed['versionCode'], int) or isinstance(parsed['versionCode'], bool) or parsed['versionCode'] <= 0:
-              print('Error: versionCode must be a positive integer.', file=sys.stderr)
-              sys.exit(1)
-
-          if parsed['versionCode'] != int(version_code):
-              print('Error: versionCode mismatch.', file=sys.stderr)
-              sys.exit(1)
-
-          if parsed['versionName'] != version_name:
-              print('Error: versionName mismatch.', file=sys.stderr)
-              sys.exit(1)
-
-          if parsed['apkAsset'] != 'app-release.apk':
-              print('Error: apkAsset must be app-release.apk', file=sys.stderr)
-              sys.exit(1)
-
-          sha_regex = re.compile(r'^[a-fA-F0-9]{64}$')
-          if not isinstance(parsed['sha256'], str) or not sha_regex.match(parsed['sha256']):
-              print('Error: sha256 must be exactly 64 hexadecimal characters.', file=sys.stderr)
-              sys.exit(1)
-
-          if parsed['sha256'].lower() != apk_sha256.lower():
-              print('Error: sha256 checksum mismatch with uploaded APK.', file=sys.stderr)
-              sys.exit(1)
-
-          print('SUCCESS: APK verified and noor-update.json validated successfully.')
+          print('SUCCESS: APK verified successfully.')
           "
 
       - name: Create GitHub Release and Upload Assets
@@ -236,7 +156,6 @@ jobs:
         with:
           files: |
             app/build/outputs/apk/release/app-release.apk
-            noor-update.json
           body: |
             # NOOR ${{ steps.metadata.outputs.versionName }}
 
@@ -253,4 +172,3 @@ jobs:
             \`\`\`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

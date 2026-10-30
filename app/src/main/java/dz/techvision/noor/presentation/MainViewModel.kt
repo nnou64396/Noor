@@ -1,22 +1,17 @@
 ﻿package dz.techvision.noor.presentation
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dz.techvision.noor.domain.model.AppSettings
-import dz.techvision.noor.domain.model.AppUpdateInfo
 import dz.techvision.noor.domain.model.AsrSchool
 import dz.techvision.noor.domain.model.CalculationMethod
 import dz.techvision.noor.domain.model.Language
 import dz.techvision.noor.domain.model.LocationMode
 import dz.techvision.noor.domain.model.ThemeMode
-import dz.techvision.noor.domain.model.UpdateStatus
 import dz.techvision.noor.domain.repository.SettingsRepository
-import dz.techvision.noor.domain.repository.UpdateRepository
 import dz.techvision.noor.domain.usecase.ObserveSettingsUseCase
 import dz.techvision.noor.utils.LocaleManager
 import dz.techvision.noor.utils.ThemeManager
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -38,57 +33,9 @@ sealed interface SettingsUiState {
 
 class MainViewModel(
     private val repository: SettingsRepository,
-    private val updateRepository: UpdateRepository? = null,
 ) : ViewModel() {
 
     private val observeSettings = ObserveSettingsUseCase(repository)
-
-    val updateStatus: StateFlow<UpdateStatus> = updateRepository?.updateStatus
-        ?: MutableStateFlow(UpdateStatus.UpToDate)
-
-    init {
-        checkForUpdates()
-    }
-
-    fun checkForUpdates(forceCheck: Boolean = false) {
-        val updateRepo = updateRepository ?: return
-        viewModelScope.launch {
-            updateRepo.checkForUpdates(forceCheck = forceCheck)
-        }
-    }
-
-    fun dismissUpdate(versionCode: Long) {
-        val updateRepo = updateRepository ?: return
-        viewModelScope.launch {
-            updateRepo.dismissUpdate(versionCode)
-        }
-    }
-
-    fun downloadAndVerifyUpdate(info: AppUpdateInfo) {
-        val updateRepo = updateRepository ?: return
-        viewModelScope.launch {
-            updateRepo.downloadAndVerifyUpdate(info)
-        }
-    }
-
-    fun retryUpdate(info: AppUpdateInfo, context: Context) {
-        val updateRepo = updateRepository ?: return
-        viewModelScope.launch {
-            updateRepo.retryUpdate(info, context)
-        }
-    }
-
-    fun installUpdate(context: Context) {
-        val updateRepo = updateRepository ?: return
-        updateRepo.installUpdate(context)
-    }
-
-    /**
-     * Called after returning from the unknown-app-sources settings screen.
-     * When permission was granted, installation resumes automatically.
-     */
-    fun onInstallPermissionResult(context: Context): Boolean =
-        updateRepository?.onInstallPermissionResult(context) ?: false
 
     /** [SettingsUiState.Ready] as soon as the store answers; [SettingsUiState.Loading] until then. */
     val settingsState: StateFlow<SettingsUiState> = observeSettings()
@@ -135,10 +82,6 @@ class MainViewModel(
 
     fun setPrayerRemindersEnabled(enabled: Boolean) {
         viewModelScope.launch { repository.setPrayerRemindersEnabled(enabled) }
-    }
-
-    fun setUpdateNotificationsEnabled(enabled: Boolean) {
-        viewModelScope.launch { repository.setUpdateNotificationsEnabled(enabled) }
     }
 
     fun completeOnboarding() {

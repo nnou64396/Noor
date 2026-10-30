@@ -1,16 +1,13 @@
 ﻿package dz.techvision.noor
 
 import android.os.Bundle
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dz.techvision.noor.data.local.location.AndroidLocationPermissionChecker
-import dz.techvision.noor.data.update.ApkInstaller
 import dz.techvision.noor.domain.model.ThemeMode
 import dz.techvision.noor.navigation.NoorApp
 import dz.techvision.noor.presentation.MainViewModel
@@ -33,7 +30,6 @@ class MainActivity : AppCompatActivity() {
             val viewModel: MainViewModel = viewModel {
                 MainViewModel(
                     repository = ServiceLocator.settingsRepository,
-                    updateRepository = ServiceLocator.updateRepository,
                 )
             }
             val settingsState by viewModel.settingsState.collectAsStateWithLifecycle()
@@ -47,14 +43,6 @@ class MainActivity : AppCompatActivity() {
                 )
             }
 
-            val updateStatus by viewModel.updateStatus.collectAsStateWithLifecycle()
-
-            val installPermissionLauncher = rememberLauncherForActivityResult(
-                ActivityResultContracts.StartActivityForResult(),
-            ) {
-                viewModel.onInstallPermissionResult(this@MainActivity)
-            }
-
             val themeMode = (settingsState as? SettingsUiState.Ready)
                 ?.settings?.themeMode
                 ?: ThemeMode.DEFAULT
@@ -62,24 +50,6 @@ class MainActivity : AppCompatActivity() {
                 NoorApp(
                     settingsState = settingsState,
                     prayerViewModel = prayerViewModel,
-                    updateStatus = updateStatus,
-                    onCheckForUpdates = { viewModel.checkForUpdates(forceCheck = true) },
-                    onDismissUpdate = viewModel::dismissUpdate,
-                    onDownloadAndVerifyUpdate = viewModel::downloadAndVerifyUpdate,
-                    onInstallUpdate = viewModel::installUpdate,
-                    onRetryUpdate = viewModel::retryUpdate,
-                    onOpenInstallSettings = {
-                        val settingsIntent =
-                            ApkInstaller.buildInstallPermissionSettingsIntent(this@MainActivity)
-                        runCatching { installPermissionLauncher.launch(settingsIntent) }
-                            .onFailure {
-                                runCatching {
-                                    installPermissionLauncher.launch(
-                                        ApkInstaller.buildAppDetailsSettingsIntent(this@MainActivity),
-                                    )
-                                }
-                            }
-                    },
                     onLanguageSelected = viewModel::setLanguage,
                     onThemeSelected = viewModel::setThemeMode,
                     onCalculationMethodSelected = viewModel::setPrayerCalculationMethod,
@@ -88,7 +58,6 @@ class MainActivity : AppCompatActivity() {
                     onManualLocationSelected = viewModel::setPrayerManualLocation,
                     onNotificationsEnabledChanged = viewModel::setNotificationsEnabled,
                     onPrayerRemindersChanged = viewModel::setPrayerRemindersEnabled,
-                    onUpdateNotificationsChanged = viewModel::setUpdateNotificationsEnabled,
                     onOnboardingComplete = viewModel::completeOnboarding,
                 )
             }

@@ -15,7 +15,8 @@ enum class Language(
 ) {
     ARABIC("ar", "ar", R.string.language_arabic),
     ENGLISH("en", "en", R.string.language_english),
-    FRENCH("fr", "fr", R.string.language_french);
+    FRENCH("fr", "fr", R.string.language_french),
+    RUSSIAN("ru", "ru", R.string.language_russian);
 
     companion object {
         val DEFAULT: Language = ARABIC

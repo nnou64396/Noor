@@ -16,6 +16,7 @@ class SettingsMappingTest {
         assertEquals(Language.ARABIC, Language.fromCode("ar"))
         assertEquals(Language.ENGLISH, Language.fromCode("en"))
         assertEquals(Language.FRENCH, Language.fromCode("fr"))
+        assertEquals(Language.RUSSIAN, Language.fromCode("ru"))
     }
 
     @Test

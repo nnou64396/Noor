@@ -21,7 +21,6 @@ interface SettingsRepository {
     val prayerManualLongitude: Flow<Double?>
     val notificationsEnabled: Flow<Boolean>
     val prayerRemindersEnabled: Flow<Boolean>
-    val updateNotificationsEnabled: Flow<Boolean>
 
     suspend fun setLanguage(language: Language)
     suspend fun setThemeMode(themeMode: ThemeMode)
@@ -31,10 +30,6 @@ interface SettingsRepository {
     suspend fun setPrayerLocationMode(mode: LocationMode)
     suspend fun setPrayerManualLocation(latitude: Double, longitude: Double)
     suspend fun clearPrayerManualLocation()
-    suspend fun getDismissedUpdateVersionCode(): Long
-    suspend fun setDismissedUpdateVersionCode(code: Long)
     suspend fun setNotificationsEnabled(enabled: Boolean)
     suspend fun setPrayerRemindersEnabled(enabled: Boolean)
-    suspend fun setUpdateNotificationsEnabled(enabled: Boolean)
 }
-

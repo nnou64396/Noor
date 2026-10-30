@@ -127,6 +127,7 @@
     <string name="language_arabic">العربية</string>
     <string name="language_english">English</string>
     <string name="language_french">Français</string>
+    <string name="language_russian">Русский</string>
 
     <!-- Themes -->
     <string name="theme_system">تلقائي</string>
@@ -298,27 +299,9 @@
     <string name="feature_coming_soon">هذه الميزة ستُتاح قريباً</string>
 
     <!-- App Updates -->
-    <string name="update_available_title">تحديث جديد متوفر (%1$s)</string>
-    <string name="update_available_body">يتوفر إصدار جديد من تطبيق نور بأداء وتحسينات أفضل.</string>
-    <string name="update_required_title">تحديث موصى به (%1$s)</string>
-    <string name="update_required_body">يتوفر تحديث مهم لتطبيق نور للحفاظ على استقرار الخدمات.</string>
-    <string name="update_action_get">تحديث الآن</string>
-    <string name="update_action_dismiss">لاحقاً</string>
-    <string name="update_status_up_to_date">التطبيق محدّث لأحدث إصدار</string>
-    <string name="update_status_disabled">خادم التحديثات غير مجهّز</string>
-    <string name="update_status_unavailable">تعذّر التحقق من التحديثات</string>
-    <string name="update_check_action">التحقق من التحديثات</string>
+    <string name="update_status_up_to_date">يتم تحديث التطبيق عبر المتاجر الرسمية المعتمدة</string>
+    <string name="update_check_action">فتح متجر التطبيقات للتحديث</string>
     <string name="update_section_title">تحديثات التطبيق</string>
-    <string name="update_downloading_fmt">جارٍ تنزيل التحديث… %1$d%%</string>
-    <string name="update_verification_failed_title">فشل التحقق من صحة التحديث</string>
-    <string name="update_ready_title">التحديث جاهز (الإصدار %1$s)</string>
-    <string name="update_ready_body">تم تنزيل التحديث والتحقق منه بنجاح. اضغط تثبيت للتطبيق.</string>
-    <string name="update_action_install">تثبيت التحديث</string>
-    <string name="update_failed_title">تعذّر إكمال التحديث</string>
-    <string name="update_install_failed_title">تعذّر بدء التثبيت</string>
-    <string name="update_permission_title">السماح بتثبيت التطبيقات</string>
-    <string name="update_permission_body">يتطلب أندرويد إذنك لتثبيت تحديث نور الذي تم التحقق منه. افتح الإعدادات، واسمح لنور بتثبيت التطبيقات، ثم عد إلى هنا.</string>
-    <string name="update_action_open_settings">فتح الإعدادات</string>
 
     <!-- Major Upgrade Settings & Privacy Strings -->
     <string name="settings_about_menu_title">حول التطبيق</string>
@@ -342,15 +325,11 @@
     <string name="perm_location_desc">يُستخدم لحساب مواقيت الصلاة بدقة وتحديد اتجاه القبلة بناءً على مكان تواجدك الحالي.</string>
 
     <string name="perm_notifications_title">الإشعارات</string>
-    <string name="perm_notifications_desc">تُستخدم لعرض مشغل الصوت في الخلفية وتنبيهات الأوقات والتحديثات المهمة.</string>
-
-    <string name="perm_storage_install_title">تثبيت الحزم</string>
-    <string name="perm_storage_install_desc">مطلوبة بأمان لتثبيت تحديثات التطبيق الرسمية التي تم التحقق منها عندما تطلب ذلك.</string>
+    <string name="perm_notifications_desc">تُستخدم لعرض مشغل الصوت في الخلفية وتنبيهات الأوقات.</string>
 
     <string name="notification_settings_title">إشعارات التطبيق</string>
     <string name="notification_master_switch">تفعيل الإشعارات</string>
     <string name="notification_prayer_reminders">تنبيهات الصلاة والأوقات</string>
-    <string name="notification_updates_toggle">تحديثات التطبيق والإصدارات</string>
     <string name="notification_system_status_allowed">الإشعارات مفعلة في نظام أندرويد</string>
     <string name="notification_system_status_blocked">الإشعارات محظورة من إعدادات النظام</string>
     <string name="notification_open_system_settings">فتح إعدادات إشعارات النظام</string>

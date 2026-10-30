@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dz.techvision.noor.domain.model.AsrSchool
@@ -16,7 +15,6 @@ import dz.techvision.noor.domain.model.LocationMode
 import dz.techvision.noor.domain.model.ThemeMode
 import dz.techvision.noor.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.noorDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -115,16 +113,6 @@ class SettingsDataStore internal constructor(
         }
     }
 
-    override suspend fun getDismissedUpdateVersionCode(): Long {
-        return dataStore.data.first()[Keys.DISMISSED_UPDATE_VERSION_CODE] ?: 0L
-    }
-
-    override suspend fun setDismissedUpdateVersionCode(code: Long) {
-        dataStore.edit { prefs ->
-            prefs[Keys.DISMISSED_UPDATE_VERSION_CODE] = code
-        }
-    }
-
     override val notificationsEnabled: Flow<Boolean> =
         dataStore.data.map { prefs ->
             prefs[Keys.NOTIFICATIONS_ENABLED] ?: true
@@ -135,21 +123,12 @@ class SettingsDataStore internal constructor(
             prefs[Keys.PRAYER_REMINDERS_ENABLED] ?: true
         }
 
-    override val updateNotificationsEnabled: Flow<Boolean> =
-        dataStore.data.map { prefs ->
-            prefs[Keys.UPDATE_NOTIFICATIONS_ENABLED] ?: true
-        }
-
     override suspend fun setNotificationsEnabled(enabled: Boolean) {
         dataStore.edit { prefs -> prefs[Keys.NOTIFICATIONS_ENABLED] = enabled }
     }
 
     override suspend fun setPrayerRemindersEnabled(enabled: Boolean) {
         dataStore.edit { prefs -> prefs[Keys.PRAYER_REMINDERS_ENABLED] = enabled }
-    }
-
-    override suspend fun setUpdateNotificationsEnabled(enabled: Boolean) {
-        dataStore.edit { prefs -> prefs[Keys.UPDATE_NOTIFICATIONS_ENABLED] = enabled }
     }
 
     private object Keys {
@@ -161,10 +140,7 @@ class SettingsDataStore internal constructor(
         val PRAYER_LOCATION_MODE = stringPreferencesKey("prayer_location_mode")
         val PRAYER_MANUAL_LATITUDE = doublePreferencesKey("prayer_manual_latitude")
         val PRAYER_MANUAL_LONGITUDE = doublePreferencesKey("prayer_manual_longitude")
-        val DISMISSED_UPDATE_VERSION_CODE = longPreferencesKey("dismissed_update_version_code")
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val PRAYER_REMINDERS_ENABLED = booleanPreferencesKey("prayer_reminders_enabled")
-        val UPDATE_NOTIFICATIONS_ENABLED = booleanPreferencesKey("update_notifications_enabled")
     }
 }
-

@@ -1,9 +1,7 @@
 ﻿package dz.techvision.noor.presentation.home
 
-import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,9 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dz.techvision.noor.R
-import dz.techvision.noor.domain.model.AppUpdateInfo
-import dz.techvision.noor.domain.model.UpdateStatus
-import dz.techvision.noor.domain.model.isActionableUpdate
 import dz.techvision.noor.navigation.NoorDestinations
 import dz.techvision.noor.presentation.common.LocationPermissionUiState
 import dz.techvision.noor.presentation.common.NoorFormatters
@@ -83,30 +78,12 @@ fun HomeScreen(
     quran: HomeQuranUiState? = null,
     onTogglePlayback: () -> Unit = {},
     practice: HomePracticeUiState? = null,
-    updateStatus: UpdateStatus,
-    onDismissUpdate: (Long) -> Unit,
-    onDownloadAndVerifyUpdate: (AppUpdateInfo) -> Unit,
-    onInstallUpdate: (Context) -> Unit,
-    onRetryUpdate: (AppUpdateInfo, Context) -> Unit,
-    onOpenInstallSettings: () -> Unit,
 ) {
     val prayerState by prayerViewModel.uiState.collectAsStateWithLifecycle()
     val next by prayerViewModel.nextPrayer.collectAsStateWithLifecycle()
 
     NoorScreenContainer(modifier = modifier) {
         HomeHeader()
-
-        if (updateStatus.isActionableUpdate) {
-            Spacer(Modifier.size(NoorDimens.Sm))
-            dz.techvision.noor.ui.components.UpdateBannerCard(
-                updateStatus = updateStatus,
-                onDismiss = onDismissUpdate,
-                onDownloadAndVerify = onDownloadAndVerifyUpdate,
-                onInstall = onInstallUpdate,
-                onRetry = onRetryUpdate,
-                onOpenInstallSettings = onOpenInstallSettings,
-            )
-        }
 
         HomeHeroSection(
             state = prayerState,
@@ -639,4 +616,3 @@ private fun NoorDailyPlaceholderCard(title: String, body: String) {
         }
     }
 }
-

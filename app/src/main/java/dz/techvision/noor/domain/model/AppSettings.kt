@@ -14,5 +14,4 @@ data class AppSettings(
     val manualLongitude: Double? = null,
     val notificationsEnabled: Boolean = true,
     val prayerRemindersEnabled: Boolean = true,
-    val updateNotificationsEnabled: Boolean = true,
 )

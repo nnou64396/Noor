@@ -1,6 +1,5 @@
 ﻿package dz.techvision.noor.presentation.settings
 
-import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.HelpOutline
@@ -34,31 +34,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import dz.techvision.noor.R
-import dz.techvision.noor.domain.model.AppUpdateInfo
 import dz.techvision.noor.domain.model.AsrSchool
 import dz.techvision.noor.domain.model.CalculationMethod
 import dz.techvision.noor.domain.model.CalculationMethodConfig
 import dz.techvision.noor.domain.model.Language
 import dz.techvision.noor.domain.model.LocationMode
 import dz.techvision.noor.domain.model.ThemeMode
-import dz.techvision.noor.domain.model.UpdateStatus
-import dz.techvision.noor.domain.model.isActionableUpdate
 import dz.techvision.noor.ui.components.NoorScreenContainer
 import dz.techvision.noor.ui.components.NoorSectionTitle
 import dz.techvision.noor.ui.components.NoorSettingRow
 import dz.techvision.noor.ui.theme.NoorDimens
 import dz.techvision.noor.ui.theme.noorLargeTitle
+import dz.techvision.noor.utils.StoreUpdateUtils
 
 @Composable
 fun SettingsScreen(
@@ -75,13 +72,6 @@ fun SettingsScreen(
     onAsrSchoolSelected: (AsrSchool) -> Unit = {},
     onLocationModeSelected: (LocationMode) -> Unit = {},
     onManualLocationSelected: (Double, Double) -> Unit = { _, _ -> },
-    updateStatus: UpdateStatus,
-    onCheckForUpdates: () -> Unit,
-    onDismissUpdate: (Long) -> Unit,
-    onDownloadAndVerifyUpdate: (AppUpdateInfo) -> Unit,
-    onInstallUpdate: (Context) -> Unit,
-    onRetryUpdate: (AppUpdateInfo, Context) -> Unit,
-    onOpenInstallSettings: () -> Unit,
     onOpenAbout: () -> Unit = {},
     onOpenPrivacy: () -> Unit = {},
     onOpenPermissions: () -> Unit = {},
@@ -196,32 +186,11 @@ fun SettingsScreen(
                 title = stringResource(R.string.update_section_title),
                 icon = Icons.Rounded.Info,
             )
-            if (updateStatus.isActionableUpdate) {
-                dz.techvision.noor.ui.components.UpdateBannerCard(
-                    updateStatus = updateStatus,
-                    onDismiss = onDismissUpdate,
-                    onDownloadAndVerify = onDownloadAndVerifyUpdate,
-                    onInstall = onInstallUpdate,
-                    onRetry = onRetryUpdate,
-                    onOpenInstallSettings = onOpenInstallSettings,
-                )
-            }
             NoorSettingRow(
                 title = stringResource(R.string.update_check_action),
-                subtitle = when (updateStatus) {
-                    is UpdateStatus.UpToDate -> stringResource(R.string.update_status_up_to_date)
-                    is UpdateStatus.Disabled -> stringResource(R.string.update_status_disabled)
-                    is UpdateStatus.CheckUnavailable -> stringResource(R.string.update_status_unavailable)
-                    is UpdateStatus.UpdateAvailable -> stringResource(R.string.update_available_title, updateStatus.info.latestVersion)
-                    is UpdateStatus.UpdateRequired -> stringResource(R.string.update_required_title, updateStatus.info.latestVersion)
-                    is UpdateStatus.Downloading -> stringResource(R.string.update_downloading_fmt, (updateStatus.progress * 100).toInt())
-                    is UpdateStatus.VerificationFailed -> stringResource(R.string.update_failed_title)
-                    is UpdateStatus.ReadyToInstall -> stringResource(R.string.update_ready_title, updateStatus.info.latestVersion)
-                    is UpdateStatus.InstallPermissionRequired -> stringResource(R.string.update_permission_title)
-                    is UpdateStatus.InstallFailed -> stringResource(R.string.update_install_failed_title)
-                },
+                subtitle = stringResource(R.string.update_status_up_to_date),
                 icon = Icons.Rounded.Info,
-                onClick = onCheckForUpdates,
+                onClick = { StoreUpdateUtils.openStoreListing(context) },
             )
 
             NoorSectionTitle(

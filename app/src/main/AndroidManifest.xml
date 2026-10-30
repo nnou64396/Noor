@@ -5,10 +5,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <!-- Required to hand a verified APK to the system package installer on
-         Android 8.0+. The user still grants "install unknown apps" per app in
-         system settings before the installer can be launched. -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- Foreground playback while audio is streaming. Declared but never
@@ -82,15 +78,6 @@
             </intent-filter>
         </service>
 
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="dz.techvision.noor.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
     </application>
 
 </manifest>

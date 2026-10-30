@@ -94,10 +94,6 @@ fun PermissionsDetailsScreen(
         }
     }
 
-    val hasInstallPermission = remember(permissionStateTrigger) {
-        context.packageManager.canRequestPackageInstalls()
-    }
-
     val locationLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) {
@@ -115,15 +111,6 @@ fun PermissionsDetailsScreen(
             data = Uri.fromParts("package", context.packageName, null)
         }
         context.startActivity(intent)
-    }
-
-    val openInstallSettings = {
-        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${context.packageName}"))
-        try {
-            context.startActivity(intent)
-        } catch (_: Exception) {
-            openAppSettings()
-        }
     }
 
     Scaffold(
@@ -175,15 +162,6 @@ fun PermissionsDetailsScreen(
                     }
                 },
                 onOpenSettings = openAppSettings,
-            )
-
-            PermissionCard(
-                title = stringResource(R.string.perm_storage_install_title),
-                description = stringResource(R.string.perm_storage_install_desc),
-                isGranted = hasInstallPermission,
-                onRequest = openInstallSettings,
-                onOpenSettings = openInstallSettings,
-                showActions = true,
             )
         }
     }

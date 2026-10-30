@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">Noor</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Noor</string>
+    <string name="onboarding_tagline">Сделайте веру частью каждого дня</string>
+    <string name="onboarding_features_title">Что вы найдете в Noor?</string>
+    <string name="onboarding_language_title">Выберите ваш язык</string>
+    <string name="action_continue">Продолжить</string>
+
+    <!-- Onboarding feature descriptions -->
+    <string name="feat_quran_desc">Читайте Священный Коран оффлайн</string>
+    <string name="feat_prayer_desc">Точное время молитв</string>
+    <string name="feat_qibla_desc">Компас Киблы</string>
+    <string name="feat_athkar_desc">Утренние и вечерние азкары</string>
+    <string name="feat_tasbih_desc">Удобный счетчик тасбих</string>
+
+    <!-- Home -->
+    <string name="home_header_tagline">Спокойное духовное пространство</string>
+    <string name="home_greeting">Ас-саляму алейкум</string>
+    <string name="home_welcome">Добро пожаловать в Noor</string>
+    <string name="home_subtitle">Ваше ежедневное духовное пространство для Корана, азкаров и Киблы</string>
+    <string name="home_quick_access">Быстрый доступ</string>
+    <string name="home_daily">Сегодня</string>
+    <string name="home_practice_title">Ваша практика</string>
+    <string name="home_practice_athkar_fmt">%1$d из %2$d азкаров</string>
+    <string name="home_practice_tasbih_fmt">Прочитано %1$d из %2$d</string>
+
+    <!-- Daily section -->
+    <string name="daily_verse_title">Аят дня</string>
+    <string name="daily_verse_placeholder">Здесь каждый день будет появляться аят из Корана.</string>
+    <string name="daily_dhikr_title">Зикр дня</string>
+    <string name="daily_dhikr_placeholder">Здесь будет появляться ваш ежедневный зикр.</string>
+
+    <!-- Tasbih -->
+    <string name="tasbih_title">Тасбих</string>
+    <string name="tasbih_tap_desc">Прочитано %1$d из %2$d, нажмите для добавления</string>
+    <string name="tasbih_remaining_fmt">Осталось %1$d из %2$d</string>
+    <string name="tasbih_complete">Выполнено %1$d</string>
+    <string name="tasbih_undo_desc">Отменить один счет</string>
+    <string name="tasbih_reset_desc">Сбросить счетчик</string>
+    <string name="tasbih_target_title">Цель</string>
+    <string name="tasbih_target_custom">Другая</string>
+    <string name="tasbih_target_current_fmt">Другая (%1$d)</string>
+    <string name="tasbih_target_dialog_title">Пользовательская цель</string>
+    <string name="tasbih_target_dialog_label">Количество повторений</string>
+
+    <!-- Athkar -->
+    <string name="athkar_category_morning">Утренние азкары</string>
+    <string name="athkar_category_evening">Вечерние азкары</string>
+    <string name="athkar_category_after_prayer">После молитвы</string>
+    <string name="athkar_category_before_sleep">Перед сном</string>
+    <string name="athkar_category_general">Ежедневные азкары</string>
+    <string name="athkar_category_other">Азкары</string>
+    <string name="athkar_loading">Загрузка…</string>
+    <string name="athkar_error">Не удалось загрузить азкары.</string>
+    <string name="athkar_corpus_pending_title">Азкары скоро появятся</string>
+    <string name="athkar_corpus_pending_body">Текст азкаров еще не добавлен, так как мольбы отображаются только из проверенных источников. Они появятся здесь, как только будут добавлены.</string>
+    <string name="athkar_category_unavailable">В этой категории нет азкаров.</string>
+    <string name="athkar_progress_fmt">Выполнено %1$d из %2$d</string>
+    <string name="athkar_category_progress_fmt">%1$d из %2$d азкаров</string>
+    <string name="athkar_category_progress_prescribed_fmt">%1$d из %2$d азкаров с предписанным количеством</string>
+    <string name="athkar_category_no_prescribed_count">В этой категории нет азкаров с предписанным количеством</string>
+    <string name="athkar_repeat_of_fmt">Повторений: %1$d</string>
+    <string name="athkar_no_prescribed_count">Без предписанного количества</string>
+    <string name="athkar_count_only_fmt">Счет: %1$d</string>
+    <string name="athkar_remaining_fmt">Повторено %1$d из %2$d</string>
+    <string name="athkar_completed_fmt">Завершено %1$d из %2$d</string>
+    <string name="athkar_repeat_desc">Повторить %1$d раз, осталось %2$d. Нажмите для счета.</string>
+    <string name="athkar_repeat_desc_no_target">Без предписанного количества. Текущий счет: %1$d. Нажмите для счета.</string>
+    <string name="athkar_reset_dhikr">Сбросить этот зикр</string>
+    <string name="athkar_reset_category">Сбросить эту категорию</string>
+    <string name="athkar_category_open_desc">%1$s, %2$s. Нажмите, чтобы начать счет.</string>
+    <string name="athkar_source_attribution">Источник: rn0x/Adhkar-json (Крепость мусульманина). Лицензия не предоставлена; в README репозитория указано свободной использование.</string>
+
+    <!-- Shared actions -->
+    <string name="action_back">Назад</string>
+    <string name="action_save">Сохранить</string>
+    <string name="action_cancel">Отмена</string>
+
+    <!-- Settings labels -->
+    <string name="pref_language">Язык</string>
+    <string name="pref_theme">Тема</string>
+    <string name="settings_section_appearance">Внешний вид</string>
+    <string name="settings_section_language">Язык</string>
+    <string name="settings_section_about">О приложении</string>
+    <string name="settings_section_prayer">Время молитвы</string>
+    <string name="settings_about_title">О приложении Noor</string>
+    <string name="settings_about_body">Noor — это спокойное исламское приложение, объединяющее Коран, азкары, время молитв и Киблу в современном визуальном стиле, вдохновленном османской архитектурой.</string>
+    <string name="settings_version_title">Версия</string>
+    <string name="pref_prayer_calculation_method">Метод расчета</string>
+    <string name="pref_prayer_asr_school">Мазхаб для Аср</string>
+    <string name="calculation_method_karachi">Университет Исламских Наук, Карачи</string>
+    <string name="calculation_method_isna">Исламское общество Северной Америки (ISNA)</string>
+    <string name="calculation_method_mwl">Всемирная исламская лига</string>
+    <string name="calculation_method_umm_al_qura">Умм аль-Кура, Мекка</string>
+    <string name="calculation_method_egyptian">Египетское генеральное управление</string>
+    <string name="calculation_method_tehran">Институт геофизики Тегеранского университета</string>
+    <string name="calculation_method_gulf">Регион Персидского залива</string>
+    <string name="calculation_method_kuwait">Кувейт</string>
+    <string name="calculation_method_qatar">Катар</string>
+    <string name="calculation_method_singapore">Сингапур (MUIS)</string>
+    <string name="calculation_method_french">Союз исламских организаций Франции (UOIF)</string>
+    <string name="calculation_method_turkey">Управление по делам религий Турции (Diyanet)</string>
+    <string name="calculation_method_russia">Духовное управление мусульман РФ</string>
+    <string name="calculation_method_moonsighting">Комитет по наблюдению за луной</string>
+    <string name="calculation_method_dubai">Дубай</string>
+    <string name="calculation_method_jakarta">Индонезия (SIHAT/Kemenag)</string>
+    <string name="asr_school_standard">Стандартный (Шафиитский, Маликитский, Ханбалитский)</string>
+    <string name="asr_school_hanafi">Ханафитский</string>
+    <string name="location_mode_auto">Автоматически</string>
+    <string name="location_mode_manual">Вручную</string>
+    <string name="pref_prayer_location">Местоположение</string>
+    <string name="manual_location_coordinates">%1$.4f, %2$.4f</string>
+    <string name="manual_location_help">Введите координаты в десятичных градусах (широта от -90 до 90, долгота от -180 до 180).</string>
+    <string name="manual_location_invalid">Введите корректные значения широты и долготы.</string>
+    <string name="latitude">Широта</string>
+    <string name="longitude">Долгота</string>
+
+    <!-- Dialog -->
+    <string name="dialog_ok">OK</string>
+
+    <!-- Languages -->
+    <string name="language_arabic">العربية</string>
+    <string name="language_english">English</string>
+    <string name="language_french">Français</string>
+    <string name="language_russian">Русский</string>
+
+    <!-- Themes -->
+    <string name="theme_system">Системная</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Темная</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Главная</string>
+    <string name="nav_quran">Коран</string>
+    <string name="nav_athkar">Азкары</string>
+    <string name="nav_qibla">Кибла</string>
+    <string name="nav_settings">Настройки</string>
+
+    <!-- Screens -->
+    <string name="home_title">Главная</string>
+    <string name="quran_title">Священный Коран</string>
+    <string name="quran_subtitle">Выберите суру для чтения</string>
+    <string name="quran_loading">Загрузка сур…</string>
+    <string name="quran_empty_title">Суры недоступны</string>
+    <string name="quran_empty_body">Локальный список сур Корана не найден.</string>
+    <string name="quran_error_title">Не удалось загрузить Коран</string>
+    <string name="quran_error_body">Произошла ошибка при чтении Корана. Пожалуйста, попробуйте снова.</string>
+    <string name="quran_surah_number_fmt">Сура %1$d</string>
+    <string name="quran_surah_accessibility_fmt">Сура %1$d, %2$s</string>
+    <string name="quran_ayah_count_fmt">%1$d аятов</string>
+    <string name="quran_start_page_fmt">Страница %1$d</string>
+    <string name="quran_revelation_meccan">Мекканская</string>
+    <string name="quran_revelation_medinan">Мединская</string>
+    <string name="quran_reader_back">К списку сур</string>
+    <string name="quran_reader_loading">Загрузка суры…</string>
+    <string name="quran_reader_empty_title">В этой суре нет аятов</string>
+    <string name="quran_reader_empty_body">Аяты для этой суры не найдены в локальном Коране.</string>
+    <string name="quran_reader_error_title">Не удалось открыть суру</string>
+    <string name="quran_reader_invalid_body">Неверный номер суры.</string>
+    <string name="quran_reader_not_found_body">Эта сура не найдена в локальном Коране.</string>
+    <string name="quran_reader_error_load_body">Произошла ошибка при чтении суры. Пожалуйста, попробуйте снова.</string>
+    <string name="quran_ayah_number_fmt">Аят %1$d</string>
+    <string name="quran_sajda">Место земного поклона (саджда)</string>
+    <string name="quran_source_attribution">Текст Корана: Tanzil Uthmani v1.1 · tanzil.net</string>
+    <string name="quran_source_copyright">Авторские права © 2007–2026 Tanzil Project · CC BY 3.0</string>
+    <string name="quran_audio_attribution">Аудио Корана: EveryAyah · everyayah.com</string>
+
+    <!-- Phase 4: reader actions -->
+    <string name="quran_reader_current_ayah">Текущий аят</string>
+    <string name="quran_reader_bookmark_add">Добавить аят в закладки</string>
+    <string name="quran_reader_bookmark_remove">Удалить из закладок</string>
+    <string name="quran_reader_ayah_accessibility_fmt">Аят %1$d, %2$s</string>
+    <string name="quran_action_search">Поиск</string>
+    <string name="quran_action_bookmarks">Закладки</string>
+
+    <!-- Phase 4: recitation -->
+    <string name="quran_audio_play">Воспроизвести</string>
+    <string name="quran_audio_pause">Пауза</string>
+    <string name="quran_audio_next">Следующий аят</string>
+    <string name="quran_audio_previous">Предыдущий аят</string>
+    <string name="quran_audio_repeat">Повторять суру</string>
+    <string name="quran_audio_reciter_label">Чтец</string>
+    <string name="quran_audio_reciter_fmt">Чтец: %1$s</string>
+    <string name="quran_audio_reciter_sheet_title">Выберите чтеца</string>
+    <string name="quran_audio_reciter_sheet_note">Чтение воспроизводится через интернет; оффлайн-загрузка не производится.</string>
+    <string name="quran_audio_reciter_selected">Выбранный чтец</string>
+    <string name="quran_audio_streaming_note">Трансляция с everyayah.com — требуется подключение к интернету.</string>
+    <string name="quran_audio_position_fmt">%1$s / %2$s</string>
+    <string name="quran_audio_error_network">Нет подключения к интернету. Чтение недоступно до восстановления сети.</string>
+    <string name="quran_audio_error_source">Не удалось загрузить аудио данного аята. Попробуйте снова или выберите другого чтеца.</string>
+    <string name="quran_audio_error_unknown">Произошла ошибка аудио. Текст Корана не затронут.</string>
+
+    <!-- Phase 4: reciters and recitation styles -->
+    <string name="quran_reciter_alafasy">Мишари Рашид Аль-Афаси</string>
+    <string name="quran_reciter_abdul_basit">Абдул Басит Абдус-Самад</string>
+    <string name="quran_reciter_husary">Махмуд Халиль Аль-Хусари</string>
+    <string name="quran_reciter_minshawy">Мухаммад Сиддик Аль-Миншави</string>
+    <string name="quran_reciter_as_sudais">Абдуррахман Ас-Судейс</string>
+    <string name="quran_reciter_ayyoub">Мухаммад Аюб</string>
+    <string name="quran_reciter_ad_dussary">Яссер Ад-Дусари</string>
+    <string name="quran_style_murattal">Муратталь</string>
+    <string name="quran_style_mujawwad">Муджаввад</string>
+    <string name="quran_style_muallim">Муаллим</string>
+
+    <!-- Phase 4: search -->
+    <string name="quran_search_title">Поиск по Корану</string>
+    <string name="quran_search_hint">Введите слово или номер аята</string>
+    <string name="quran_search_prompt_body">Поиск по тексту Корана работает оффлайн, без подключения к интернету.</string>
+    <string name="quran_search_loading">Поиск…</string>
+    <string name="quran_search_clear">Очистить поиск</string>
+    <string name="quran_search_close">Закрыть поиск</string>
+    <string name="quran_search_back">Вернуться к Корану</string>
+    <string name="quran_search_input_accessibility">Текст для поиска</string>
+    <string name="quran_search_results_count_fmt">Результатов: %1$d</string>
+    <string name="quran_search_empty_title">Ничего не найдено</string>
+    <string name="quran_search_empty_body">По запросу «%1$s» аятов не найдено. Попробуйте другое слово.</string>
+    <string name="quran_search_error_title">Поиск недоступен</string>
+    <string name="quran_search_error_body">Произошла ошибка при поиске по Корану.</string>
+    <string name="quran_search_result_accessibility_fmt">Сура %1$s, аят %2$d</string>
+
+    <!-- Phase 4: bookmarks -->
+    <string name="quran_bookmarks_title">Закладки</string>
+    <string name="quran_bookmarks_back">Вернуться к Корану</string>
+    <string name="quran_bookmarks_loading">Загрузка закладок…</string>
+    <string name="quran_bookmarks_empty_title">Закладок пока нет</string>
+    <string name="quran_bookmarks_empty_body">Добавляйте аяты в закладки во время чтения, и они появятся здесь.</string>
+    <string name="quran_bookmarks_error_title">Закладки недоступны</string>
+    <string name="quran_bookmarks_error_body">Произошла ошибка при загрузке ваших сохраненных закладок.</string>
+    <string name="quran_bookmarks_count_fmt">Закладок: %1$d</string>
+    <string name="quran_bookmarks_open_fmt">Открыть суру %1$s, аят %2$d</string>
+    <string name="quran_bookmarks_remove_fmt">Удалить из закладок суру %1$s, аят %2$d</string>
+
+    <!-- Phase 4: home -->
+    <string name="home_continue_reading">Продолжить чтение</string>
+    <string name="home_continue_reading_fmt">%1$s · Аят %2$d</string>
+    <string name="home_now_playing_fmt">Сейчас играет: %1$s · Аят %2$d</string>
+    <string name="prayer_title">Время молитв</string>
+    <string name="athkar_title">Азкары</string>
+    <string name="qibla_title">Кибла</string>
+
+    <!-- Prayer names -->
+    <string name="prayer_fajr">Фаджр</string>
+    <string name="prayer_sunrise">Восход</string>
+    <string name="prayer_dhuhr">Зухр</string>
+    <string name="prayer_asr">Аср</string>
+    <string name="prayer_sunset">Закат</string>
+    <string name="prayer_maghrib">Магриб</string>
+    <string name="prayer_isha">Иша</string>
+
+    <!-- Prayer times -->
+    <string name="prayer_next_title">Следующая молитва</string>
+    <string name="prayer_remaining_fmt">Осталось %1$s</string>
+    <string name="prayer_next_pill">Следующая</string>
+    <string name="prayer_offline_badge">С последнего обновления</string>
+    <string name="prayer_source">Время предоставлено Al-Adhan</string>
+    <string name="prayer_list_title">Расписание на сегодня</string>
+    <string name="prayer_loading">Расчет времени молитв…</string>
+    <string name="prayer_detecting_location">Определение местоположения…</string>
+    <string name="prayer_error_title">Не удалось загрузить время молитв</string>
+    <string name="prayer_error_body">Проверьте подключение к интернету и попробуйте снова.</string>
+    <string name="prayer_error_network">Не удалось связаться с сервисом времени молитв. Проверьте сеть и попробуйте снова.</string>
+
+    <!-- Location permission / status -->
+    <string name="location_permission_title">Доступ к геопозиции</string>
+    <string name="location_permission_body_prayer">Мы используем ваше примерное местоположение для точного расчета времени молитв в вашем городе. Координаты передаются только сервису расчета времени и нигде не сохраняются.</string>
+    <string name="location_permission_body_qibla">Мы используем ваше примерное местоположение для расчета направления на Каабу. История местоположений не сохраняется.</string>
+    <string name="location_denied_body">Вы можете продолжать использовать Noor без предоставления доступа. Включить его можно в любой момент в настройках приложения.</string>
+    <string name="location_unavailable_title">Геолокация недоступна</string>
+    <string name="location_unavailable_body">Убедитесь, что службы геолокации включены на вашем устройстве, и попробуйте снова.</string>
+    <string name="location_detecting">Определение местоположения…</string>
+    <string name="location_city_unknown">Ваше местоположение</string>
+    <string name="action_grant_location">Предоставить доступ</string>
+    <string name="action_open_settings">Настройки приложения</string>
+    <string name="action_retry">Повторить</string>
+
+    <!-- Qibla -->
+    <string name="qibla_subtitle">Направьте устройство в сторону Каабы</string>
+    <string name="qibla_sensor_unavailable">Компас недоступен на этом устройстве</string>
+    <string name="qibla_sensor_unavailable_body">На вашем устройстве отсутствует датчик ориентации, поэтому направление Киблы не может быть показано.</string>
+    <string name="qibla_north">С</string>
+    <string name="qibla_east">В</string>
+    <string name="qibla_south">Ю</string>
+    <string name="qibla_west">З</string>
+    <string name="qibla_heading_fmt">Направление: %1$d°</string>
+    <string name="qibla_kaaba_bearing_fmt">Кибла: %1$d°</string>
+    <string name="qibla_calibrate_hint">Для более точной работы компаса повращайте телефон в воздухе по Т-образной траектории или «восьмеркой».</string>
+
+    <!-- Home prayer -->
+    <string name="home_prayer_enable">Включить время молитв</string>
+    <string name="home_prayer_enable_hint">Для этого требуется предоставить доступ к вашему местоположению.</string>
+    <string name="home_prayer_unavailable">Время молитв временно недоступно</string>
+    <string name="home_prayer_fallback">Нажмите, чтобы открыть время молитв.</string>
+
+    <!-- Placeholders -->
+    <string name="feature_coming_soon">Эта функция скоро появится</string>
+
+    <!-- App Updates -->
+    <string name="update_status_up_to_date">Обновления управляются через официальный магазин</string>
+    <string name="update_check_action">Проверить обновления в магазине</string>
+    <string name="update_section_title">Обновления приложения</string>
+
+    <!-- Major Upgrade Settings & Privacy Strings -->
+    <string name="settings_about_menu_title">О приложении Noor</string>
+    <string name="settings_privacy_menu_title">Политика конфиденциальности</string>
+    <string name="settings_permissions_menu_title">Подробности разрешений</string>
+    <string name="settings_notifications_menu_title">Настройки уведомлений</string>
+    <string name="developer_credit">Разработано Tech Vision DZ</string>
+
+    <string name="privacy_policy_header">Ваша конфиденциальность важна</string>
+    <string name="privacy_policy_body">Приложение Noor стремится к полной защите вашей конфиденциальности. Все ваши личные данные и настройки (координаты молитв, сохраненные суры и закладки) хранятся в безопасности и локально на вашем устройстве с использованием зашифрованных баз данных (Room и DataStore). Noor не собирает личные данные, не отслеживает поведение пользователей и не отправляет информацию на внешние серверы.</string>
+    <string name="privacy_policy_permissions_heading">Разрешения и сервисы</string>
+    <string name="privacy_policy_permissions_body">Приложение запрашивает разрешение на доступ к геолокации для точного расчета времени молитв и направления Киблы, а также разрешение на уведомления для воспроизведения медиа и напоминаний исключительно по вашему выбору.</string>
+
+    <string name="permissions_screen_title">Используемые разрешения</string>
+    <string name="permission_status_granted">Предоставлено</string>
+    <string name="permission_status_denied">Отклонено / Требуется</string>
+    <string name="permission_action_request">Предоставить разрешение</string>
+    <string name="permission_action_settings">Системные настройки</string>
+
+    <string name="perm_location_title">Геолокация (GPS)</string>
+    <string name="perm_location_desc">Используется для точного расчета времени молитв и определения направления Киблы на основе вашего текущего местоположения.</string>
+
+    <string name="perm_notifications_title">Уведомления</string>
+    <string name="perm_notifications_desc">Используется для отображения плеера аудио в фоновом режиме и напоминаний о времени молитв.</string>
+
+    <string name="notification_settings_title">Уведомления приложения</string>
+    <string name="notification_master_switch">Включить уведомления</string>
+    <string name="notification_prayer_reminders">Напоминания о молитвах и времени</string>
+    <string name="notification_system_status_allowed">Уведомления разрешены в системе Android</string>
+    <string name="notification_system_status_blocked">Уведомления заблокированы в системных настройках</string>
+    <string name="notification_open_system_settings">Открыть системные настройки уведомлений</string>
+</resources>
